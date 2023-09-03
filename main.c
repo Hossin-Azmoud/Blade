@@ -2,29 +2,6 @@
 #include <stdio.h>
 #include <curses.h>
 #include <string.h>
-// 	case KEY_UP:
-// 		if ( cursor_.y > 0)
-// 			--cursor_.y;
-// 		break;
-// 
-// 	case KEY_DOWN:
-// 		++cursor_.y;
-// 		break;
-// 	case KEY_LEFT:
-// 		if ( cursor_.x > 0 )
-// 			--cursor_.x;
-// 		break;
-// 	case KEY_RIGHT:
-// 		++cursor_.x;
-// 		break;
-// 	case KEY_HOME:
-// 		cursor_.x = 1;
-// 		cursor_.y = 1;
-// 		break;
-// case KEY_END:
-// 	x = (cols - width);
-// 	y = (rows - height);
-// 	break;
 
 FILE *fp = NULL;
 #define MAX_DIG 32
@@ -74,7 +51,8 @@ void _write_line(Cursor *C, WINDOW *win)
 int main(void)
 {
 	WINDOW * mainwin;
-    int      ch;
+    int      ch, x_max = 0, y_max = 0;
+
 	fp = fopen("file.txt", "w");
 	Cursor *C = init_cursor();
 
@@ -86,7 +64,6 @@ int main(void)
     noecho();
     keypad(mainwin, TRUE);
 	refresh();
-
 	add_chords_cstr(C);
 	(C)->x = C->x_cstrln + 1;
 	_write_line(C, mainwin);
@@ -97,6 +74,8 @@ int main(void)
 				mvwaddch(mainwin,((C)->y),((C)->x),(ch));
 				(C)->x = C->x_cstrln + 1;
 				(C)->y++;
+				if (C->y > y_max)
+					y_max = C->y;
 				add_chords_cstr(C);
 				_write_line(C, mainwin);
 			} break;
@@ -109,11 +88,39 @@ int main(void)
 				}
 				mvwdelch(mainwin, (C)->y, (C)->x);
 			} break;
+			case KEY_UP: {
+				if ( C->y > 0)
+					C->y--;
+			} break;
+			case KEY_DOWN: {
+				if (C->y <= y_max)
+					C->y++;
+			} break;
+			case KEY_LEFT: {
+				if (C->x > 0 )
+					C->x--;
+			} break;
+			case KEY_RIGHT: {
+				if (C->x + 1 <= x_max)
+					C->x++;
+			} break;
+			case KEY_HOME:{
+				C->x = 0;
+				C->y = 0;
+			}break;
+			case KEY_END: {
+				C->x = x_max;
+				C->y = y_max;
+				
+			} break;
 			default: {
 				mvwaddch(mainwin,((C)->y),((C)->x),(ch));
 				(C)->x++;
+				if (C->x > x_max)
+					x_max = C->x;
 			} break;
 		}
+		move(C->y, C->x);
     }
 	
 	delwin(mainwin);
