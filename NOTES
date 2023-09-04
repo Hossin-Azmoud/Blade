@@ -1,0 +1,8 @@
+x: 1, y: 1
+
+// How to return to a new line in text editor.
+1. print nl (*)
+2. print line number and get how much digits was printed. (*)
+3. x += digits
+4. print the space.
+5. x += 1
