@@ -7,29 +7,22 @@ MiEditor *editor_new(char *file)
 	if (!file)
 		return NULL;
 
-	E          = malloc(sizeof(MiEditor));
-	E->cursor  = cursor_new();
-	E->fhandle = fopen(file, "w+");
+	E                     = malloc(sizeof(MiEditor));
+	E->cursor             = cursor_new();
+	(E->file).handle      = fopen(file, "w+");
+	(E->file).lines       = line_construct_new(1);
+	(E->file).lines_start = (E->file).lines;
+	(E->file).lines_end   = NULL;
+	E->window             = NULL;
 
-	for (int i = 0; i < MAXX_LINES; ++i) {
-		E->lines[i].size    = 0;
-		E->lines[i].content = NULL;
-	}
-
-	E->window = NULL;
 	return (E);
 }
 
 void editor_distroy(MiEditor *E)
 {
 	cursor_distroy(E->cursor);
-	fclose(E->fhandle);
-	for (int j = 0; j < MAXX_LINES; ++j) {
-		free(E->lines[j].content);
-		// If it is dynamically allocated then.
-		// free(E->lines[j]);
-	}
-
+	fclose((E->file).handle);
+	lines_free((E->file).lines_start);
 	delwin(E->window);
     endwin();
     refresh();
@@ -38,17 +31,14 @@ void editor_distroy(MiEditor *E)
 
 void editor_write_line_number(MiEditor *E)
 {
-	// waddstr(E->window, STD_YELLOW);
+	(E)->cursor->x_offset = digit_len((E)->cursor->y + 1);
 	waddstr(E->window, (E)->cursor->y_cstr);
-	(E)->cursor->x        += digit_len((E)->cursor->y + 1);
-
+	
 	mvwaddch(E->window,
 		  (E)->cursor->y, 
-		  (E)->cursor->x, 
+		  (E)->cursor->x + (E)->cursor->x_offset,
 		  ' ');
 
-	// waddstr(E->window, STD_NRM);
-	(E)->cursor->x_offset++;
 	(E)->cursor->x++;
 }
 

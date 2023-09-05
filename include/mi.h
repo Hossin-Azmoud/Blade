@@ -4,14 +4,26 @@
 #include <assert.h>
 #include <curses.h>
 #include <string.h>
-#include <ui.h>
 #define MAX_DIG    32
-#define MAXX_LINES 2048
+#define DEFUALT_LINE_CAP 1024
 #define LOG \
 	do { \
 		printf("[LOGGER] %s:%d:%s\n", \
 			__FILE__, __LINE__, __func__); \
 	} while(0); \
+
+
+typedef struct Line Line;
+
+typedef struct Line {
+	size_t  cap;
+	size_t  size;
+	char    *content;
+	size_t  number;
+	size_t  x_offset;
+	Line    *next;
+	Line    *prev;
+} Line;
 
 typedef struct cursor_s {
 	int x, x_max, y, y_max, x_offset;
@@ -19,16 +31,17 @@ typedef struct cursor_s {
 	char *y_cstr;
 } Cursor;
 
-typedef struct line_s {
-	size_t size;
-	char   *content;
-} Line;
+typedef struct mifile {
+	FILE   *handle;
+	Line   *lines_start;
+	Line   *lines_end;
+	Line   *lines;
+} MiFile;
 
 typedef struct editor {
+	MiFile file;
 	Cursor *cursor;
-	Line   lines[MAXX_LINES];
 	WINDOW *window;
-	FILE   *fhandle;
 } MiEditor;
 
 // CURSOR
@@ -44,5 +57,10 @@ MiEditor *editor_init(char *file);
 
 // STD
 size_t digit_len(size_t n);
+
+// Line linked list
+Line *line_new();
+Line *line_construct_new(size_t number);
+void lines_free(Line *line);
 
 #endif  // MI_H

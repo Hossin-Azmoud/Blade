@@ -19,10 +19,10 @@ int main(int argc, char *argv[])
 			case '\n': {
 				mvwaddch(editor->window, 
 					editor->cursor->y,
-					editor->cursor->x,
+					editor->cursor->x + (editor->cursor->x_offset),
 					ch);
-				
-				if (editor->cursor->y > editor->cursor->y_max)
+
+				if (editor->cursor->y > editor->cursor->y_max) 
 					editor->cursor->y_max = editor->cursor->y;
 
 				(editor->cursor)->y++;
@@ -31,34 +31,35 @@ int main(int argc, char *argv[])
 				editor_write_line_number(editor);
 			} break;
 			case KEY_BACKSPACE: {
-				if (editor->cursor->x - 1) {
+
+				if (editor->cursor->x > (editor->cursor->x_offset)) {
 					editor->cursor->x--;
 				} else {
 					if (editor->cursor->y)
 						editor->cursor->y--;
 				}
 
-				mvwdelch(editor->window, editor->cursor->y, editor->cursor->x);
+				mvwdelch(editor->window, editor->cursor->y, editor->cursor->x + (editor->cursor->x_offset));
 			} break;
 			case KEY_UP: {
 				if (editor->cursor->y > 0)
 					editor->cursor->y--;
 			} break;
 			case KEY_DOWN: {
-				if (editor->cursor->y <= editor->cursor->y_max)
+				if (editor->cursor->y <= editor->cursor->y_max && editor->cursor->y_max)
 					editor->cursor->y++;
 			} break;
 			case KEY_LEFT: {
-				if ((size_t)editor->cursor->x > digit_len(editor->cursor->y) + 1) {
+				if (editor->cursor->x > (editor->cursor->x_offset)) {
 					editor->cursor->x--;
 				}
 			} break;
 			case KEY_RIGHT: {
-				if (editor->cursor->x + 1 <= editor->cursor->x_max)
+				if (editor->cursor->x < editor->cursor->x_max)
 					editor->cursor->x++;
 			} break;
 			case KEY_HOME:{
-				editor->cursor->x = 2;
+				editor->cursor->x = 0;
 				editor->cursor->y = 0;
 			} break;
 			case KEY_END: {
@@ -67,7 +68,7 @@ int main(int argc, char *argv[])
 			default: {
 				mvwaddch(editor->window,
 					editor->cursor->y,
-					editor->cursor->x, 
+					editor->cursor->x + (editor->cursor->x_offset), 
 					ch);
 
 				editor->cursor->x++;
@@ -75,7 +76,8 @@ int main(int argc, char *argv[])
 					editor->cursor->x_max = editor->cursor->x;
 			} break;
 		}
-		move(editor->cursor->y, editor->cursor->x);
+
+		move(editor->cursor->y, editor->cursor->x + (editor->cursor->x_offset));
     }
 	
 	editor_distroy(editor);

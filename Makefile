@@ -9,6 +9,9 @@ all: main
 main:
 	$(CC) $(CFLAGS) $(INCLUDE) -o $(OUTPUTDIR)/main $(SRC) $(LIBS)
 
+test:
+	$(OUTPUTDIR)/main file && rm file
+
 run:
 	$(OUTPUTDIR)/main
 
