@@ -7,39 +7,48 @@ MiEditor *editor_new(char *file)
 	if (!file)
 		return NULL;
 
-	E                     = malloc(sizeof(MiEditor));
-	E->cursor             = cursor_new();
-	(E->file).handle      = fopen(file, "w+");
-	(E->file).lines       = line_construct_new(1);
-	(E->file).lines_start = (E->file).lines;
-	(E->file).lines_end   = NULL;
-	E->window             = NULL;
+	E               = malloc(sizeof(MiEditor));
+	E->cursor       = cursor_new();
+	E->handle       = fopen(file, "w+");
+	E->line         = line_new();
+	E->first_line   = E->line;
+	E->last_line    = NULL;
+	E->window       = NULL;
 
 	return (E);
 }
 
 void editor_distroy(MiEditor *E)
 {
-	cursor_distroy(E->cursor);
-	fclose((E->file).handle);
-	lines_free((E->file).lines_start);
+	Line *ptr = E->first_line;
+
 	delwin(E->window);
     endwin();
     refresh();
+	cursor_distroy(E->cursor);
+
+	{
+		// SAVING THE FILE.
+		for (;ptr != NULL; (ptr = ptr->next))
+			fprintf(E->handle, "%s",   ptr->content);	
+
+		fclose(E->handle);
+	}
+
 	free(E);
 }
 
 void editor_write_line_number(MiEditor *E)
 {
-	(E)->cursor->x_offset = digit_len((E)->cursor->y + 1);
-	waddstr(E->window, (E)->cursor->y_cstr);
-	
-	mvwaddch(E->window,
-		  (E)->cursor->y, 
-		  (E)->cursor->x + (E)->cursor->x_offset,
-		  ' ');
+	waddstr(E->window,
+		E->line->number_cstr
+	);
 
-	(E)->cursor->x++;
+	mvwaddch(E->window,
+		(E)->line->number,
+		E->line->col + E->line->x_offset,
+		' '
+	);
 }
 
 MiEditor *editor_init(char *file)
@@ -51,8 +60,9 @@ MiEditor *editor_init(char *file)
 	}
 
 	E = editor_new(file);
+	E->window = initscr();
 
-	if ((E->window = initscr()) == NULL ) {
+	if (E->window == NULL ) {
 		fprintf(stderr, "Could not initialize MiEditor..\n");
 		exit(EXIT_FAILURE);
     }
@@ -60,7 +70,7 @@ MiEditor *editor_init(char *file)
 	noecho();
 	keypad(E->window, TRUE);
 	refresh();
-	add_chords_cstr(E->cursor);
 	editor_write_line_number(E);
+
 	return E;
 }

@@ -1,0 +1,8 @@
+
+
+User Experience Map:
+	1. [DONE] Type (Mi <file_name>).
+	2. [DONE] opened editor.
+	3. load file content into line linked list.
+	4. render lines into the editor.
+	5. cursor initial is (0, 0) but numbers r (1, 1) also x => (idx + line_num_offset)

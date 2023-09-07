@@ -15,6 +15,7 @@ Cursor *cursor_new()
 	
 		(C)->x_cstr = calloc(MAX_DIG, 1);
 		(C)->y_cstr = calloc(MAX_DIG, 1);
+
 		add_chords_cstr(C);
 	}
 

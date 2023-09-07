@@ -12,14 +12,22 @@
 			__FILE__, __LINE__, __func__); \
 	} while(0); \
 
+// typedef struct CharList CharList;
+// typedef struct CharList {
+// 	char     data;
+// 	size_t   index;
+// 	CharList *next;
+// } CharList;
 
 typedef struct Line Line;
 
 typedef struct Line {
 	size_t  cap;
 	size_t  size;
+	char    *number_cstr;
 	char    *content;
-	size_t  number;
+	size_t  number; // (y)
+	size_t  col;    // (x)
 	size_t  x_offset;
 	Line    *next;
 	Line    *prev;
@@ -31,15 +39,11 @@ typedef struct cursor_s {
 	char *y_cstr;
 } Cursor;
 
-typedef struct mifile {
-	FILE   *handle;
-	Line   *lines_start;
-	Line   *lines_end;
-	Line   *lines;
-} MiFile;
-
 typedef struct editor {
-	MiFile file;
+	FILE   *handle;
+    Line   *first_line;
+    Line   *last_line;
+    Line   *line;
 	Cursor *cursor;
 	WINDOW *window;
 } MiEditor;
@@ -60,7 +64,10 @@ size_t digit_len(size_t n);
 
 // Line linked list
 Line *line_new();
-Line *line_construct_new(size_t number);
-void lines_free(Line *line);
+void line_connect(Line **end);
+Line *line_next(Line *current);
+Line *line_prev(Line *current);
+void  lines_free(Line *line);
+
 
 #endif  // MI_H
