@@ -4,7 +4,6 @@ int main(int argc, char *argv[])
 {
     int ch = 0;
 	MiEditor *editor = NULL;
-
 	if (argc < 2) {
 		fprintf(stderr, "\n");
 		fprintf(stderr, "    USAGE: mi <file_name>\n");
@@ -12,48 +11,15 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "\n");
 		exit(1);
 	}
+	
+	// x: editor->line->cursor.col + editor->line->cursor.col_offset
+	// y: editor->line->cursor.row
 
-	// x: editor->line->col + editor->line->x_offset
-	// y: editor->line->number
 	editor = editor_init(argv[1]);
 	while ( (ch = getch()) != 'q' ) {
 		switch ( ch ) {
-			case '\n': {
-				assert((editor->line->col < editor->line->cap) && "LINE SIZE OUT OF BOUND!");
-
-				editor->line->content[editor->line->col] = ch;
-				editor->line->size++;
-				editor->line->col++;
-
-				mvwaddch(editor->window,
-					editor->line->number,
-					editor->line->col + editor->line->x_offset,
-					ch
-				);
-
-				if (editor->line->next == NULL) {
-					// TODO: NEW LINE TO INSERT.
-					line_connect(&(editor->line));
-					editor->last_line = editor->line;
-				} else {
-					editor->line = editor->line->next;
-				}
-
-				editor_write_line_number(editor);
-			} break;
 			case KEY_BACKSPACE: {
-				if (editor->line->col == 0) {
-					// TODO: Return to the prev line.
-					if (editor->line->prev == NULL)
-						continue;
-					
-					editor->line = editor->line->prev;
-					mvwdelch(editor->window, editor->line->number, editor->line->col + (editor->line->x_offset));
-					editor->line->content[editor->line->col--] = 0;
-				} else if (editor->line->col > 0) {
-					mvwdelch(editor->window, editor->line->number, editor->line->col + (editor->line->x_offset));
-					editor->line->content[editor->line->col--] = 0;
-				}
+				editor_back_space(editor);
 			} break;
 			case KEY_UP: {
 				if (editor->line->prev) {
@@ -66,54 +32,27 @@ int main(int argc, char *argv[])
 				}
 			} break;
 			case KEY_LEFT: {
-				if (editor->line->col > 0) {
-					editor->line->col--;
+				if (editor->line->cursor.col > 0) {
+					editor->line->cursor.col--;
 				}
 			} break;
 			case KEY_RIGHT: {
-				if (editor->line->col < editor->line->size) {
-					editor->line->col++;
+				if (editor->line->cursor.col < editor->line->size) {
+					editor->line->cursor.col++;
 				}
 			} break;
 			case KEY_HOME:{
 				editor->line      = editor->first_line;
-				editor->line->col = 0;
+				editor->line->cursor.col = 0;
 			} break;
 			case KEY_END: {
-				editor->line->col = editor->line->size;
+				editor->line->cursor.col = editor->line->size;
 			} break;
-			default: {
-				if (editor->line->col == editor->line->size || 1) {
-					mvwaddch(editor->window,
-						editor->line->number,
-						editor->line->col + editor->line->x_offset,
-						ch
-					);
-
-					editor->line->content[editor->line->col++] = ch;
-					editor->line->size++;
-					continue;
-				}
-
-				for (size_t i = (editor->line->col); i < editor->line->size; i++) {
-					editor->line->content[i + 1] = editor->line->content[i];
-					mvwaddch(editor->window,
-						editor->line->number,
-						(i + editor->line->x_offset),
-						editor->line->content[i]
-					);
-				}
- 
-				editor->line->content[editor->line->col++] = ch;
-				editor->line->size++;
-				mvwaddch(editor->window,
-					editor->line->number,
-					editor->line->col + editor->line->x_offset, 
-					ch);
-			} break;
+			default: editor_push_char(editor, ch); // NOTE: - we need only to add the char.
 		}
 
-		move(editor->line->number, editor->line->col + editor->line->x_offset);
+		move(editor->line->cursor.row, 
+			editor->line->cursor.col + editor->line->cursor.col_offset);
     }
 	
 	editor_distroy(editor);
