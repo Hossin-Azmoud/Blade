@@ -24,6 +24,7 @@ WINDOW *init_editor(char *file_name)
 	raw();
 	keypad(stdscr, TRUE);
 	noecho();
+    cbreak();
     getmaxyx(win, h, w);
 
     for (int i = 0; i < w; ++i) {
@@ -81,18 +82,38 @@ void save_file(char *file_path, Line *lines, size_t save_count) {
     fclose(Stream);
 }
 
-void render_lines(Line *lines)
-{
-    size_t x = 0;
+void free_lines(Line *lines) {
+    Line *next = NULL;
     Line *current = lines;
 
+    for (; (current);) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
+void render_line(Line *line)
+{
+    size_t x = 0, n = 0;
+    char line_number[LINE_NUM_MAX] = { 0 };
+    line->padding = (size_t)(sprintf(line_number, "%zu  ", line->y + 1));
+
+    for (n = 0; n < line->padding; n++) {
+        mvaddch(line->y, n, line_number[n]);
+    }
+
+    for (x = 0; x < line->size; ++x) {
+        mvaddch(line->y, x + line->padding, line->content[x]);
+    }
+}
+
+void render_lines(Line *lines)
+{
+    Line *current = lines;
     for (; current;) {
-        for (; x < current->size; ++x) {
-            mvaddch(current->y, x, current->content[x]);
-        }
-        
+        render_line(current);
         current = current->next;
-        x = 0;
     }
 }
 
@@ -117,7 +138,7 @@ void line_push_char(Line *line, char c)
 
 void editor_tabs(Line *line)
 {
-    int tab_count = 4;
+    int tab_count = 2;
     for (int n = 0; n < tab_count; ++n) {
         line_push_char(line, TAB);
     }

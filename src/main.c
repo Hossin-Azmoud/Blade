@@ -30,6 +30,7 @@ int editor(int argc, char **argv)
     Line *lines = Alloc_line_node(0);
     Line *new = NULL;
     Line *current_line = (lines);
+    bool exit_pressed = false;
 
     if (argc < 2) {
         printf("USE: %s <file_name>\n", program);
@@ -44,10 +45,11 @@ int editor(int argc, char **argv)
                  current_line->x, 
                  current_line->y, 
                  current_line->size); // a helper to display the chords and important info to debug.
-    move(0, 0);
+
+    move(current_line->y, current_line->x + current_line->padding);
     current_line->x = 0;
     current_line->y = 0;
-    while ((c = getch()) != KEY_F(1)) {
+    while ((c = getch()) != CTRL('s') && c != KEY_F(1)) {
         switch (c) {
 			case KEY_BACKSPACE: {
 				// TODO
@@ -80,7 +82,7 @@ int editor(int argc, char **argv)
                 }
             } break;
 			case KEY_LEFT: {
-                if (current_line->x > 0) current_line->x--;
+                if (current_line->x > current_line->padding) current_line->x--;
             } break;
 			case KEY_RIGHT: {
                 if (current_line->x < current_line->size) current_line->x++;
@@ -92,8 +94,10 @@ int editor(int argc, char **argv)
                 if (current_line->size > 0 && current_line->x > 0) current_line->x = current_line->size;
 			} break;
             case TAB: {
-                // TODO: add 2 tabs to the content of the current_line;
                 editor_tabs(current_line);
+            } break;
+            case CTRL('e'): {
+                exit_pressed = true;
             } break;
 			default: {
                 if (c == '\n') {
@@ -152,7 +156,7 @@ int editor(int argc, char **argv)
 
         erase();
         render_lines(lines);
-        move(current_line->y, current_line->x);
+        
         if (deleted_char) {
             delch();
             deleted_char = false;
@@ -162,9 +166,14 @@ int editor(int argc, char **argv)
                  current_line->x, 
                  current_line->y,
                  current_line->size); // a helper to display the chords and important info to debug
+        move(current_line->y, current_line->x + current_line->padding);
     }
-
-    save_file(file, lines, line_count);
-	endwin();
+    endwin();
+    if (!exit_pressed) {
+        save_file(file, lines, line_count);
+        return 0;
+    }
+	
+    free_lines(lines);
 	return 0;
 }
