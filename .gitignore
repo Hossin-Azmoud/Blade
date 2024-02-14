@@ -2,7 +2,8 @@
 ./bin/main
 ./main
 main
-./files
+./files/
+
 # Prerequisites
 *.d
 
