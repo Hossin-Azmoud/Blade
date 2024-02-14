@@ -38,15 +38,19 @@ int editor(int argc, char **argv)
     }
 
     file = argv[1];
-    win = init_editor(file);
+    win = init_editor();
     line_count = load_file(file, lines);
     render_lines(lines);
-    debugger(win,
-                 current_line->x, 
-                 current_line->y, 
-                 current_line->size); // a helper to display the chords and important info to debug.
+    editor_details(win,
+        current_line->x, 
+        current_line->y,
+        current_line->size, 
+        file);
 
-    move(current_line->y, current_line->x + current_line->padding);
+
+    move(current_line->y, 
+         current_line->x + current_line->padding);
+
     current_line->x = 0;
     current_line->y = 0;
     while ((c = getch()) != CTRL('s') && c != KEY_F(1)) {
@@ -82,7 +86,7 @@ int editor(int argc, char **argv)
                 }
             } break;
 			case KEY_LEFT: {
-                if (current_line->x > current_line->padding) current_line->x--;
+                if (current_line->x > 0) current_line->x--;
             } break;
 			case KEY_RIGHT: {
                 if (current_line->x < current_line->size) current_line->x++;
@@ -96,7 +100,7 @@ int editor(int argc, char **argv)
             case TAB: {
                 editor_tabs(current_line);
             } break;
-            case CTRL('e'): {
+            case KEY_F(2): {
                 exit_pressed = true;
             } break;
 			default: {
@@ -162,10 +166,16 @@ int editor(int argc, char **argv)
             deleted_char = false;
         }
 
-        debugger(win,
-                 current_line->x, 
-                 current_line->y,
-                 current_line->size); // a helper to display the chords and important info to debug
+        if (exit_pressed) {
+            break;
+        }
+
+        editor_details(win,
+                current_line->x, 
+                current_line->y,
+                current_line->size, 
+                file);
+
         move(current_line->y, current_line->x + current_line->padding);
     }
     endwin();

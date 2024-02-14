@@ -16,23 +16,19 @@ Line *Alloc_line_node(size_t row)
     return (line);
 }
 
-WINDOW *init_editor(char *file_name)
+WINDOW *init_editor()
 {
-    int h, w;
-
     WINDOW *win = initscr();
-	raw();
+
+    raw();
 	keypad(stdscr, TRUE);
 	noecho();
     cbreak();
-    getmaxyx(win, h, w);
+    start_color();
+    // pair_number, foreground, background
+    init_pair(1, COLOR_BLACK, COLOR_YELLOW);
+    wbkgd(win, COLOR_PAIR(1));
 
-    for (int i = 0; i < w; ++i) {
-        mvprintw(h - 3, i, "_");
-    }
-
-    mvprintw(h - 2, 0, "Editing %s", file_name);
-    move(0, 0);
     return win;
 }
 
@@ -117,11 +113,17 @@ void render_lines(Line *lines)
     }
 }
 
-void debugger(WINDOW *win, size_t x, size_t y, size_t size)
+void editor_details(WINDOW *win, size_t x, size_t y, size_t size, char *file_path)
 {
     int h, w;
     getmaxyx(win, h, w);
     mvprintw(h - 2, w - (12 + 20), "x -> %zu y -> %zu s -> %zu", x, y, size);
+    
+    mvprintw(h - 2, 0, "Editing %s", file_path);
+    for (int i = 0; i < w; ++i) {
+        mvprintw(h - 3, i, "_");
+    }
+
     move(y, x);
 }
 
@@ -135,11 +137,7 @@ void line_push_char(Line *line, char c)
     line->size++;
 }
 
-
 void editor_tabs(Line *line)
 {
-    int tab_count = 2;
-    for (int n = 0; n < tab_count; ++n) {
-        line_push_char(line, TAB);
-    }
+    line_push_char(line, TAB);
 }

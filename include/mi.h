@@ -17,14 +17,14 @@ typedef struct Line {
     Line *next, *prev;
 } Line;
 
-WINDOW *init_editor(char *file_name);
+WINDOW *init_editor();
 size_t load_file(char *file_path, Line *lines);
 void save_file(char *file_path, Line *lines, size_t save_count);
 void render_lines(Line *lines);
 void editor_tabs(Line *line);
 void free_lines(Line *lines);
 void line_push_char(Line *line, char c);
-void debugger(WINDOW *win, size_t x, size_t y, size_t size);
+void editor_details(WINDOW *win, size_t x, size_t y, size_t size, char *file_path);
 Line *Alloc_line_node(size_t row);
 
 #endif // MI_H

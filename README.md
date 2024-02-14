@@ -14,8 +14,11 @@ Tui text editor made in ncurses
 
 ## Run
 ```console
-    $ ./main
+    $ ./main <file_path>
 ```
 
+## Keys
+- To save the file press <F1>
+- To exit press  <F2>
 # NOTES
 - I just started, so it is not capable of saving files or creating them.
