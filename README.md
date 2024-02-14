@@ -18,7 +18,7 @@ Tui text editor made in ncurses
 ```
 
 ## Keys
-- To save the file press <F1>
-- To exit press  <F2>
+- To save the file press F1
+- To exit press F2
 # NOTES
 - I just started, so it is not capable of saving files or creating them.
