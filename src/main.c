@@ -1,5 +1,10 @@
 #include <mi.h>
-
+/***
+ *
+ * TODO:
+ * - Handle memory moves when the cursor is on a line and a x>0 column.
+ * - Handle pages and pages Up/Down keys.
+ ***/
 #define T 0
 #define DEBUG
 int editor(int argc, char **argv);

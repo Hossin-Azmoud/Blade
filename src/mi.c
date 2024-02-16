@@ -116,9 +116,15 @@ void editor_backspace(Lines_renderer *line_ren)
 {
 
     if (line_ren->current->x > 0) {
-        line_ren->current->content[line_ren->current->x] = 0;
+        memmove(
+            line_ren->current->content + line_ren->current->x - 1,
+            line_ren->current->content + line_ren->current->x,
+            line_ren->current->size - line_ren->current->x
+        );
+   
         line_ren->current->x--;
         line_ren->current->size--;
+        line_ren->current->content[line_ren->current->size] = 0;
         return;
     }
 
@@ -164,10 +170,9 @@ void editor_details(Lines_renderer *line_ren, char *file_path)
     move(line_ren->current->y, line_ren->current->x);
 }
 
-
 void line_push_char(Line *line, char c)
 {
-    memmove((line->content + line->x + 1), 
+    memmove((line->content + line->x + 1),
             (line->content + line->x),
             line->size - line->x);
     line->content[line->x++] = c;
@@ -181,7 +186,7 @@ void editor_tabs(Line *line)
 
 void editor_new_line(Lines_renderer *line_ren)
 {
-    Line *new, *next;
+    Line *new, *next, *prev;
 
     new = Alloc_line_node(line_ren->current->y + 1); 
     if (!(line_ren->current->next) && line_ren->current->x == line_ren->current->size) 
@@ -218,32 +223,39 @@ void editor_new_line(Lines_renderer *line_ren)
         line_ren->current = line_ren->current->next;
         return;
     }
+    
+    // shift and add a line.
+    prev = line_ren->current->prev;
+    new = Alloc_line_node(line_ren->current->y);
+    new->next = line_ren->current;
 
-//     if (!(line_ren->current->x)) { // first column.
-//         prev = line_ren->current->prev;
-//         new = Alloc_line_node(line_ren->current->y);
-//         new->next = line_ren->current;
-//
-//         if (prev) {
-//             prev->next = new;
-//             new->prev = prev;
-//         }
-//
-//         line_ren->current->prev = new;
-//         new = line_ren->current;
-//
-//         while (new) {
-//             new->y++;
-//             new = new->next;
-//         }
-//
-//         if (line_ren->current->y == 1) {
-//             line_ren->origin = line_ren->current->prev;
-//             line_ren->start  = line_ren->current->prev;
-//         }
-//     
-//         line_ren->current = line_ren->current->prev;
-//         line_ren->count++;
-//     }
-    free(new);
+    if (prev) {
+        prev->next = new;
+        new->prev = prev;
+    }
+
+    line_ren->current->prev = new;
+    new = line_ren->current;
+    
+    while (new) {
+        new->y++;
+        new = new->next;
+    }
+
+    if (line_ren->current->y == 1) {
+        line_ren->origin = line_ren->current->prev;
+        line_ren->start  = line_ren->current->prev;
+    }
+
+    if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) {
+        line_ren->start = line_ren->start->next;
+        if (line_ren->end->next) 
+            line_ren->end   = line_ren->end->next;
+        else
+            line_ren->end = line_ren->current;
+    }
+
+    // line_ren->current = line_ren->current->prev;
+    line_ren->count++;
+
 }
