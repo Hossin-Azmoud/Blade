@@ -1,8 +1,7 @@
 # Mine
-./bin/main
-./main
-main
-./files/
+bin/
+files/
+
 
 # Prerequisites
 *.d

@@ -34,7 +34,8 @@ int editor(int argc, char **argv)
         .start=NULL, 
         .end=NULL, 
         .current=NULL, 
-        .count=0
+        .count=0,
+        .max_padding=0
     };
 
     Lines_renderer *line_ren =  &line_ren_raw;
@@ -130,12 +131,14 @@ int editor(int argc, char **argv)
 #ifdef DEBUG
         editor_details(line_ren, file);
 #endif /* ifdef DEBUG */
-        move(line_ren->current->y - line_ren->start->y, line_ren->current->x + line_ren->current->padding);
+        move(line_ren->current->y - line_ren->start->y, 
+             line_ren->current->x + line_ren->max_padding
+             );
     }
 
     endwin();
     if (!exit_pressed) {
-        save_file(file, line_ren->origin, line_ren->count);
+        save_file(file, line_ren->origin);
         return 0;
     }
 	

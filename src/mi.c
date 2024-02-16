@@ -66,17 +66,19 @@ int load_file(char *file_path, Lines_renderer *line_ren)
         line_ren->end = line_ren->current;
     }
 
+    char line_number[LINE_NUM_MAX] = { 0 };
+    line_ren->max_padding = sprintf(line_number, "%u", line_ren->current->y + 1) + 1;
     line_ren->current = line_ren->start;
     fclose(Stream);
     return line_ren->count;
 }
 
-void save_file(char *file_path, Line *lines, int save_count) {
+void save_file(char *file_path, Line *lines) {
     FILE *Stream = fopen(file_path, "w+");
     Line *next = NULL;
     Line *current = lines;
 
-    for (int i = 0; (i < save_count && current); ++i) {
+    for (; current;) {
         fprintf(Stream, "%s\n", current->content);
         next = current->next;
         free(current);
@@ -97,18 +99,22 @@ void free_lines(Line *lines) {
     }
 }
 
-static void render_line(Line *line, int offset)
+static void render_line(Line *line, int offset, int max_padding)
 {
     int x = 0, n = 0;
-    char line_number[LINE_NUM_MAX] = { 0 };
-    line->padding = sprintf(line_number, "%u  ", line->y + 1);
+    char line_number[LINE_NUM_MAX] = {0};
+    line->padding = sprintf(line_number, "%u", line->y + 1);
 
     for (n = 0; n < line->padding; n++) {
         mvaddch(line->y - offset, n, line_number[n]);
     }
-        
+
+    for (; n < max_padding; n++) {
+        mvaddch(line->y - offset, n, ' ') ;
+    }
+    
     for (x = 0; x < line->size; ++x) {
-         mvaddch(line->y - offset, x + line->padding, line->content[x]);
+         mvaddch(line->y - offset, x + n, line->content[x]);
     }
 }
 
@@ -144,7 +150,7 @@ void render_lines(Lines_renderer *line_ren)
 {
     Line *current = line_ren->start;
     while (current) {
-        render_line(current, line_ren->start->y);
+        render_line(current, line_ren->start->y, line_ren->max_padding);
         if (current == line_ren->end) break;
         current = current->next;
     }
@@ -181,7 +187,8 @@ void line_push_char(Line *line, char c)
 
 void editor_tabs(Line *line)
 {
-    line_push_char(line, TAB);
+    for (int i = 0; i < 4; ++i)
+        line_push_char(line, ' ');
 }
 
 void editor_new_line(Lines_renderer *line_ren)
