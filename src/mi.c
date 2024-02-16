@@ -1,6 +1,6 @@
 #include <mi.h>
-// int fgetc(FILE *stream);
-Line *Alloc_line_node(size_t row)
+// int fgetc(FILE *stream);*
+Line *Alloc_line_node(int row)
 {
     Line *line = (Line *)malloc(sizeof(Line));
 
@@ -31,44 +31,52 @@ WINDOW *init_editor()
 
     return win;
 }
-
-size_t load_file(char *file_path, Line *lines)
+int load_file(char *file_path, Lines_renderer *line_ren)
 {
-    size_t line_count = 0;
     Line *new = NULL;
-    Line *current = lines;
     char c;
     FILE *Stream = fopen(file_path, "r");
 
     if (!Stream) {
-        return line_count;
+        return 0;
     }
 
     while((c = fgetc(Stream)) != EOF) {
         if (c == '\n') {
-            new = Alloc_line_node(current->y + 1);
-            current->next = new;
-            new->prev = current;
-            current = new;
-            line_count++;
+            new = Alloc_line_node(line_ren->current->y + 1);
+            line_ren->current->next = new;
+            new->prev = line_ren->current;
+            line_ren->current = new;
+
+            if (line_ren->current->y - line_ren->start->y == line_ren->win_h - 4) { 
+                // when we reach the last row that will be rendered we nark i.
+                line_ren->end = line_ren->current;
+            }
+
+            line_ren->count++;
         } else {
-            current->content[current->x++] = c;
-            current->size++;
+            line_ren->current->content[line_ren->current->x++] = c;
+            line_ren->current->size++;
         }
 
-        if (!line_count) line_count++;
+        if (!line_ren->count) line_ren->count++;
+    }
+    
+    if (line_ren->count > 1 && (line_ren->start == line_ren->end)) {
+        line_ren->end = line_ren->current;
     }
 
+    line_ren->current = line_ren->start;
     fclose(Stream);
-    return line_count;
+    return line_ren->count;
 }
 
-void save_file(char *file_path, Line *lines, size_t save_count) {
+void save_file(char *file_path, Line *lines, int save_count) {
     FILE *Stream = fopen(file_path, "w+");
     Line *next = NULL;
     Line *current = lines;
 
-    for (size_t i = 0; (i < save_count && current); ++i) {
+    for (int i = 0; (i < save_count && current); ++i) {
         fprintf(Stream, "%s\n", current->content);
         next = current->next;
         free(current);
@@ -89,42 +97,71 @@ void free_lines(Line *lines) {
     }
 }
 
-void render_line(Line *line)
+static void render_line(Line *line, int offset)
 {
-    size_t x = 0, n = 0;
+    int x = 0, n = 0;
     char line_number[LINE_NUM_MAX] = { 0 };
-    line->padding = (size_t)(sprintf(line_number, "%zu  ", line->y + 1));
+    line->padding = sprintf(line_number, "%u  ", line->y + 1);
 
     for (n = 0; n < line->padding; n++) {
-        mvaddch(line->y, n, line_number[n]);
+        mvaddch(line->y - offset, n, line_number[n]);
     }
-
+        
     for (x = 0; x < line->size; ++x) {
-        mvaddch(line->y, x + line->padding, line->content[x]);
+         mvaddch(line->y - offset, x + line->padding, line->content[x]);
     }
 }
 
-void render_lines(Line *lines)
+void editor_backspace(Lines_renderer *line_ren)
 {
-    Line *current = lines;
-    for (; current;) {
-        render_line(current);
+
+    if (line_ren->current->x > 0) {
+        line_ren->current->content[line_ren->current->x] = 0;
+        line_ren->current->x--;
+        line_ren->current->size--;
+        return;
+    }
+
+    if (line_ren->current->y > 0) {
+        line_ren->current = line_ren->current->prev; // go back one line.
+        line_ren->current->content[line_ren->current->x] = 0;
+        if (line_ren->current->x) {
+            line_ren->current->x--;
+            line_ren->current->size--;
+        }
+        return;
+    }
+
+    line_ren->current->content[line_ren->current->x] = 0;
+}
+void render_lines(Lines_renderer *line_ren)
+{
+    Line *current = line_ren->start;
+    while (current) {
+        render_line(current, line_ren->start->y);
+        if (current == line_ren->end) break;
         current = current->next;
     }
 }
 
-void editor_details(WINDOW *win, size_t x, size_t y, size_t size, char *file_path)
+void editor_details(Lines_renderer *line_ren, char *file_path)
 {
-    int h, w;
-    getmaxyx(win, h, w);
-    mvprintw(h - 2, w - (12 + 20), "x -> %zu y -> %zu s -> %zu", x, y, size);
-    
-    mvprintw(h - 2, 0, "Editing %s", file_path);
-    for (int i = 0; i < w; ++i) {
-        mvprintw(h - 3, i, "_");
+    mvprintw(line_ren->win_h - 2, line_ren->win_w - (60), "w=%d h=%d x -> %d y -> %d s -> %d start: %s end: %s", 
+             line_ren->win_w,
+             line_ren->win_h,
+             line_ren->current->x, 
+             line_ren->current->y, 
+             line_ren->current->size,
+             (line_ren->current == line_ren->start) ? "True" : "False",
+             (line_ren->current == line_ren->end) ? "True" : "False"
+    );
+ 
+    mvprintw(line_ren->win_h - 2, 0, "Editing %s", file_path);
+    for (int i = 0; i < line_ren->win_w; ++i) {
+        mvprintw(line_ren->win_h - 3, i, "_");
     }
 
-    move(y, x);
+    move(line_ren->current->y, line_ren->current->x);
 }
 
 
@@ -140,4 +177,73 @@ void line_push_char(Line *line, char c)
 void editor_tabs(Line *line)
 {
     line_push_char(line, TAB);
+}
+
+void editor_new_line(Lines_renderer *line_ren)
+{
+    Line *new, *next;
+
+    new = Alloc_line_node(line_ren->current->y + 1); 
+    if (!(line_ren->current->next) && line_ren->current->x == line_ren->current->size) 
+    {
+        line_ren->current->next = new;
+        new->prev = line_ren->current;
+        line_ren->end = new;
+        line_ren->current = new;
+        
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) {
+            line_ren->start = line_ren->start->next;
+        }
+
+        line_ren->count++;
+        return;
+    }
+
+    if (line_ren->current->next && line_ren->current->x == line_ren->current->size) {
+        next = line_ren->current->next;
+        new->prev = line_ren->current; // correct
+        new->next = next; // correct.
+        line_ren->current->next = new; // correct
+        next->prev = new;
+        new = new->next;
+
+        while(new) {
+            new->y++;
+            new = new->next;
+        }
+
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) 
+            line_ren->end = line_ren->end->prev;
+
+        line_ren->current = line_ren->current->next;
+        return;
+    }
+
+//     if (!(line_ren->current->x)) { // first column.
+//         prev = line_ren->current->prev;
+//         new = Alloc_line_node(line_ren->current->y);
+//         new->next = line_ren->current;
+//
+//         if (prev) {
+//             prev->next = new;
+//             new->prev = prev;
+//         }
+//
+//         line_ren->current->prev = new;
+//         new = line_ren->current;
+//
+//         while (new) {
+//             new->y++;
+//             new = new->next;
+//         }
+//
+//         if (line_ren->current->y == 1) {
+//             line_ren->origin = line_ren->current->prev;
+//             line_ren->start  = line_ren->current->prev;
+//         }
+//     
+//         line_ren->current = line_ren->current->prev;
+//         line_ren->count++;
+//     }
+    free(new);
 }

@@ -1,6 +1,7 @@
 #include <mi.h>
 
 #define T 0
+#define DEBUG
 int editor(int argc, char **argv);
 int test();
 
@@ -13,23 +14,34 @@ int test() {
     Line *head = Alloc_line_node(LINE_SZ);
     Line *current = head;
     while (current) {
-        printf("y: %zu  x: %zu\n", current->y, current->x);
+        printf("y: %d  x: %d\n", current->y, current->x);
         current = current->next;
     }
-
     return 0;
 }
 
 int editor(int argc, char **argv)
 {
     char *program = argv[0], *file;
-    WINDOW *win;
+    WINDOW *win = NULL;
+    Lines_renderer line_ren_raw = {
+        .origin=NULL, 
+        .start=NULL, 
+        .end=NULL, 
+        .current=NULL, 
+        .count=0
+    };
+
+    Lines_renderer *line_ren =  &line_ren_raw;
+
     bool deleted_char = false;
-    size_t line_count = 0;
     int c = 0;
-    Line *lines = Alloc_line_node(0);
-    Line *new = NULL;
-    Line *current_line = (lines);
+    line_ren->origin  = Alloc_line_node(0);
+
+    line_ren->start   = line_ren->origin;
+    line_ren->end     = line_ren->origin; 
+    line_ren->current = line_ren->origin; 
+
     bool exit_pressed = false;
 
     if (argc < 2) {
@@ -39,127 +51,67 @@ int editor(int argc, char **argv)
 
     file = argv[1];
     win = init_editor();
-    line_count = load_file(file, lines);
-    render_lines(lines);
-    editor_details(win,
-        current_line->x, 
-        current_line->y,
-        current_line->size, 
-        file);
+    getmaxyx(win, 
+             line_ren->win_h, 
+             line_ren->win_w);
+    erase();
+    line_ren->count = load_file(file, line_ren);    
+    // NOTE: fix the renderer >~<
+    render_lines(line_ren);
+#ifdef DEBUG
+    editor_details(line_ren, file);
+#endif /* ifdef DEBUG */
 
+    move(line_ren->current->y, 
+         line_ren->current->x + line_ren->current->padding);
 
-    move(current_line->y, 
-         current_line->x + current_line->padding);
-
-    current_line->x = 0;
-    current_line->y = 0;
     while ((c = getch()) != CTRL('s') && c != KEY_F(1)) {
         switch (c) {
 			case KEY_BACKSPACE: {
-				// TODO
-                if (current_line->x > 0) {
-                    current_line->content[current_line->x] = 0;
-                    current_line->x--;
-                    current_line->size--;
-                } else {
-                    if (current_line->y > 0) {
-                        current_line = current_line->prev; // go back one line.
-                        current_line->content[current_line->x] = 0;
-                        if (current_line->x) {
-                            current_line->x--;
-                            current_line->size--;
-                        }
-                    } else {
-                        current_line->content[current_line->x] = 0;
-                    }
-                }
+                editor_backspace(line_ren);
                 deleted_char = true;
 			} break;
 			case KEY_UP: {
-			    if (current_line->prev) {
-                    current_line = current_line->prev;
-                }
+			    editor_up(line_ren); 
             } break;
-			case KEY_DOWN: {
-                if (current_line->y < line_count && current_line->next) {
-                    current_line = current_line->next;
-                }
+			case KEY_DOWN: {                
+                editor_down(line_ren);
             } break;
 			case KEY_LEFT: {
-                if (current_line->x > 0) current_line->x--;
+                editor_left(line_ren);
             } break;
 			case KEY_RIGHT: {
-                if (current_line->x < current_line->size) current_line->x++;
+                editor_right(line_ren);
+            } break;
+            case TAB: {
+                editor_tabs(line_ren->current);
             } break;
 			case KEY_HOME:{
-                current_line->x = 0;
+                line_ren->current->x = 0;
             } break;
 			case KEY_END: {
-                if (current_line->size > 0 && current_line->x > 0) current_line->x = current_line->size;
+                if (line_ren->current->size > 0) 
+                    line_ren->current->x = line_ren->current->size;
 			} break;
-            case TAB: {
-                editor_tabs(current_line);
-            } break;
             case KEY_F(2): {
                 exit_pressed = true;
             } break;
 			default: {
                 if (c == '\n') {
-                    if (current_line->x == current_line->size) {
-                        new = Alloc_line_node(current_line->y + 1);
-                        if (current_line->next == NULL) {
-                            new->prev = current_line;
-                            current_line->next = new;
-                        } else {
-                            Line *next = current_line->next;
-                            new->prev = current_line; // correct
-                            new->next = next; // correct.
-                            current_line->next = new; // correct
-                            next->prev = new;
-                            new = new->next;
-                            // shift
-                            while(new) {
-                                new->y++;
-                                new = new->next;
-                            }
-                        }
-                        current_line = current_line->next;
-                        line_count++;
-                    } else if (!current_line->x) { // first column.
-                        Line *prev = current_line->prev;
-                        new = Alloc_line_node(current_line->y);
-                        
-                        new->next = current_line;
-                        
-                        if (prev) {
-                            prev->next = new;
-                            new->prev = prev;
-                        }
-                        current_line->prev = new;
-                        new = current_line;
-
-                        while (new) {
-                            new->y++;
-                            new = new->next;
-                        }
-
-                        if (current_line->y == 1) {
-                            lines = current_line->prev;
-                        }
-                    
-                        current_line = current_line->prev;
-                        line_count++;
-                    }
-                } else {
-                    line_push_char(current_line, c);
+                    editor_new_line(line_ren);
+                    if (!line_ren->count) 
+                        line_ren->count++;
+                    goto RENDER;
                 }
-
-                if (!line_count) line_count++;
+                
+                line_push_char(line_ren->current, c);
+                if (!line_ren->count) line_ren->count++;
             };
         }
-
+    RENDER:
         erase();
-        render_lines(lines);
+        render_lines(line_ren);
+
         
         if (deleted_char) {
             delch();
@@ -170,20 +122,18 @@ int editor(int argc, char **argv)
             break;
         }
 
-        editor_details(win,
-                current_line->x, 
-                current_line->y,
-                current_line->size, 
-                file);
-
-        move(current_line->y, current_line->x + current_line->padding);
+#ifdef DEBUG
+        editor_details(line_ren, file);
+#endif /* ifdef DEBUG */
+        move(line_ren->current->y - line_ren->start->y, line_ren->current->x + line_ren->current->padding);
     }
+
     endwin();
     if (!exit_pressed) {
-        save_file(file, lines, line_count);
+        save_file(file, line_ren->origin, line_ren->count);
         return 0;
     }
 	
-    free_lines(lines);
+    free_lines(line_ren->origin);
 	return 0;
 }
