@@ -2,11 +2,11 @@
 /***
  *
  * TODO:
- * - Handle memory moves when the cursor is on a line and a x>0 column.
- * - Handle pages and pages Up/Down keys.
+ * - Handle memory moves when the cursor is on a line and a x>0 column. (*) Done
+ * - Handle pages and pages Up/Down keys. (*) Done
  ***/
 #define T 0
-#define DEBUG
+// #define DEBUG
 int editor(int argc, char **argv);
 int test();
 

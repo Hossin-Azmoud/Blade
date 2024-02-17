@@ -31,6 +31,7 @@ WINDOW *init_editor()
 
     return win;
 }
+
 int load_file(char *file_path, Lines_renderer *line_ren)
 {
     Line *new = NULL;

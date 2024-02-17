@@ -9,12 +9,12 @@ Tui text editor made in ncurses
 ## Compile
 
 ```console
-    $ gcc main.c -o main -lncurses
+    $ make
 ```
 
 ## Run
 ```console
-    $ ./main <file_path>
+    $ ./mi <file_path>
 ```
 
 ## Keys
