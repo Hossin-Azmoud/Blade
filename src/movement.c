@@ -16,7 +16,9 @@ void editor_up(Lines_renderer *line_ren)
 
 void editor_left(Lines_renderer *line_ren)
 {
-    if (line_ren->current->x > 0) line_ren->current->x--;
+    if (line_ren->current->x > 0) {
+        line_ren->current->x--;
+    }
 }
 
 void editor_down(Lines_renderer *line_ren)
@@ -35,4 +37,13 @@ void editor_down(Lines_renderer *line_ren)
 void editor_right(Lines_renderer *line_ren)
 {
     if (line_ren->current->x < line_ren->current->size) line_ren->current->x++;
+}
+
+
+void editor_apply_move(Lines_renderer *line_ren)
+{
+
+    move(line_ren->current->y - line_ren->start->y, 
+        line_ren->current->x + line_ren->max_padding
+    );
 }

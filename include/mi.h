@@ -9,6 +9,18 @@
 #define LINE_SZ 256
 #define LINE_NUM_MAX 8
 #define TAB '\t'
+#define NL  '\n'
+
+#define OPAR '('
+#define CPAR ')'
+#define OCERLY '{'
+#define CCERLY '}'
+
+#define OBRAC '['
+#define CBRAC ']'
+
+#define DQUOTE '\"'
+#define SQUOTE '\''
 typedef struct Line Line;
 
 typedef struct Line {
@@ -39,6 +51,9 @@ void editor_up(Lines_renderer *line_ren);
 void editor_left(Lines_renderer *line_ren);
 void editor_down(Lines_renderer *line_ren);
 void editor_right(Lines_renderer *line_ren);
+
+void editor_apply_move(Lines_renderer *line_ren);
+
 void editor_new_line(Lines_renderer *line_ren);
 void free_lines(Line *lines);
 void line_push_char(Line *line, char c);

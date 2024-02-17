@@ -68,9 +68,7 @@ int editor(int argc, char **argv)
     editor_details(line_ren, file);
 #endif /* ifdef DEBUG */
 
-    move(line_ren->current->y, 
-         line_ren->current->x + line_ren->current->padding);
-
+    editor_apply_move(line_ren);
     while ((c = getch()) != CTRL('s') && c != KEY_F(1)) {
         switch (c) {
 			case KEY_BACKSPACE: {
@@ -108,8 +106,7 @@ int editor(int argc, char **argv)
                     if (!line_ren->count) 
                         line_ren->count++;
                     goto RENDER;
-                }
-                
+                } 
                 line_push_char(line_ren->current, c);
                 if (!line_ren->count) line_ren->count++;
             };
@@ -131,9 +128,7 @@ int editor(int argc, char **argv)
 #ifdef DEBUG
         editor_details(line_ren, file);
 #endif /* ifdef DEBUG */
-        move(line_ren->current->y - line_ren->start->y, 
-             line_ren->current->x + line_ren->max_padding
-             );
+    editor_apply_move(line_ren);
     }
 
     endwin();
