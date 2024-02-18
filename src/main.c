@@ -4,6 +4,7 @@
  * TODO:
  * - Handle memory moves when the cursor is on a line and a x>0 column. (*) Done
  * - Handle pages and pages Up/Down keys. (*) Done
+ * - Handle backspace left age case!
  ***/
 #define T 0
 // #define DEBUG
@@ -16,12 +17,6 @@ int main(int argc, char **argv) {
 }
 
 int test() {
-    Line *head = Alloc_line_node(LINE_SZ);
-    Line *current = head;
-    while (current) {
-        printf("y: %d  x: %d\n", current->y, current->x);
-        current = current->next;
-    }
     return 0;
 }
 

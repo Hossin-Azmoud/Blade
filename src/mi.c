@@ -1,5 +1,6 @@
 #include <mi.h>
-// int fgetc(FILE *stream);*
+
+
 Line *Alloc_line_node(int row)
 {
     Line *line = (Line *)malloc(sizeof(Line));
@@ -14,6 +15,15 @@ Line *Alloc_line_node(int row)
         line->content[i] = 0x0;
 
     return (line);
+}
+
+static void lines_shift(Line *head, int num) {
+
+    Line *curr = head;
+    for (;curr;) {
+        curr->y += num;
+        curr = curr->next;
+    }
 }
 
 WINDOW *init_editor()
@@ -124,7 +134,9 @@ static void render_line(Line *line, int offset, int max_padding)
 
 void editor_backspace(Lines_renderer *line_ren)
 {
+    Line *next, *prev, *current;
 
+    // NORMAL backspacing. 
     if (line_ren->current->x > 0) {
         memmove(
             line_ren->current->content + line_ren->current->x - 1,
@@ -137,14 +149,33 @@ void editor_backspace(Lines_renderer *line_ren)
         line_ren->current->content[line_ren->current->size] = 0;
         return;
     }
+    
+    // if the cursor is on the first col of a line and we need to shift lines and data  backward
+    if (line_ren->current->x == 0 && line_ren->current->prev) {
+        current = line_ren->current;
+        prev = current->prev;
+        next = current->next;
 
-    if (line_ren->current->y > 0) {
-        line_ren->current = line_ren->current->prev; // go back one line.
-        line_ren->current->content[line_ren->current->x] = 0;
-        if (line_ren->current->x) {
-            line_ren->current->x--;
-            line_ren->current->size--;
+        if (current->size) {
+            // move all the data locateed in the curr line to the end of the prev line!
+            memmove(
+                prev->content + prev->size,
+                current->content,
+                current->size
+            );
+            prev->size += current->size;
         }
+
+        
+        prev->next = next;
+
+        if (next)
+            next->prev = prev;
+        
+        free(current);
+    
+        line_ren->current = prev; // go back one line.
+        lines_shift(next, -1); 
         return;
     }
 
@@ -223,13 +254,6 @@ void editor_tabs(Line *line)
     for (int i = 0; i < 4; ++i)
         line_push_char(line, ' ');
 }
-static void lines_shift(Line *head) {
-    Line *curr = head;
-    for (;curr;) {
-        curr->y++;
-        curr = curr->next;
-    }
-}
 
 void editor_new_line(Lines_renderer *line_ren)
 {
@@ -263,7 +287,7 @@ void editor_new_line(Lines_renderer *line_ren)
         new->next = next; // correct.
         line_ren->current->next = new; // correct
         next->prev = new;
-        lines_shift(new->next);
+        lines_shift(new->next, 1);
         if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) 
             line_ren->end = line_ren->end->prev;
 
@@ -292,7 +316,7 @@ void editor_new_line(Lines_renderer *line_ren)
         if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) 
             line_ren->end = line_ren->end->prev;
 
-        lines_shift(new->next);
+        lines_shift(new->next, 1);
     } else {
         line_ren->current->next = new;
         new->prev = line_ren->current;

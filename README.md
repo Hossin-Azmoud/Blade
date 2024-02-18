@@ -1,4 +1,5 @@
 # Mi
+https://www.linuxjournal.com/content/about-ncurses-colors-0
 Tui text editor made in ncurses
 
 # Quick start
