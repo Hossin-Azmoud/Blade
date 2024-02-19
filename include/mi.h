@@ -5,6 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
+// color editor pairs
+#define SECONDARY_THEME_PAIR 1
+#define MAIN_THEME_PAIR 2
+#define ERROR_PAIR      3
+
 #define CTRL(x) ((x) & 0x1f)
 #define LINE_SZ 256
 #define LINE_NUM_MAX 8
@@ -21,6 +26,8 @@
 
 #define DQUOTE '\"'
 #define SQUOTE '\''
+#define WLCM_BUFF "(WELLCOME TO MI EDITOR V0.1!)"
+
 typedef struct Line Line;
 
 typedef struct Line {
@@ -46,6 +53,8 @@ void save_file(char *file_path, Line *lines);
 void render_lines(Lines_renderer *line_ren);
 void editor_tabs(Line *line);
 void editor_backspace(Lines_renderer *line_ren);
+char *editor_render_startup(int x, int y);
+
 
 void editor_up(Lines_renderer *line_ren);
 void editor_left(Lines_renderer *line_ren);

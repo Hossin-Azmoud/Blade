@@ -22,7 +22,7 @@ int test() {
 
 int editor(int argc, char **argv)
 {
-    char *program = argv[0], *file;
+    char *file;
     WINDOW *win = NULL;
     Lines_renderer line_ren_raw = {
         .origin=NULL, 
@@ -43,28 +43,33 @@ int editor(int argc, char **argv)
     line_ren->end     = line_ren->origin; 
     line_ren->current = line_ren->origin; 
 
-    bool exit_pressed = false;
-
-    if (argc < 2) {
-        printf("USE: %s <file_name>\n", program);
-        return 1;
-    }
-
-    file = argv[1];
+    bool exit_pressed = false;   
     win = init_editor();
+    
     getmaxyx(win, 
              line_ren->win_h, 
-             line_ren->win_w);
-    erase();
-    line_ren->count = load_file(file, line_ren);    
-    // NOTE: fix the renderer >~<
+             line_ren->win_w); 
+    if (argc < 2) {
+        file = editor_render_startup(line_ren->win_w / 2, line_ren->win_h / 2);
+        if (file == NULL) {
+            // user cancelled! we quit.
+            goto EXIT_AND_RELEASE_RESOURCES;
+        }
+    } else {
+        file = argv[1];
+    }
+
+    erase();   
+    line_ren->count = load_file(file, line_ren);
+
     render_lines(line_ren);
-#ifdef DEBUG
     editor_details(line_ren, file);
-#endif /* ifdef DEBUG */
+
 
     editor_apply_move(line_ren);
+
     while ((c = getch()) != CTRL('s') && c != KEY_F(1)) {
+        
         switch (c) {
 			case KEY_BACKSPACE: {
                 editor_backspace(line_ren);
@@ -120,18 +125,19 @@ int editor(int argc, char **argv)
             break;
         }
 
-#ifdef DEBUG
         editor_details(line_ren, file);
-#endif /* ifdef DEBUG */
-    editor_apply_move(line_ren);
+        editor_apply_move(line_ren);
     }
 
-    endwin();
     if (!exit_pressed) {
         save_file(file, line_ren->origin);
         return 0;
     }
-	
+
+
+EXIT_AND_RELEASE_RESOURCES:
+    endwin();
+
     free_lines(line_ren->origin);
 	return 0;
 }

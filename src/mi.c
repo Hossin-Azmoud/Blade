@@ -36,8 +36,12 @@ WINDOW *init_editor()
     cbreak();
     start_color();
     // pair_number, foreground, background
-    init_pair(1, COLOR_WHITE, COLOR_BLACK);
-    wbkgd(win, COLOR_PAIR(1));
+    init_color(COLOR_BLACK, 0, 100, 100);
+    init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_BLACK);
+    init_pair(SECONDARY_THEME_PAIR, COLOR_BLACK, COLOR_CYAN);
+    init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
+    // int bkgd(chtype ch);
+    wbkgd(win, COLOR_PAIR(COLOR_BLACK));
 
     return win;
 }
@@ -193,21 +197,21 @@ void render_lines(Lines_renderer *line_ren)
 
 void editor_details(Lines_renderer *line_ren, char *file_path)
 {
-    mvprintw(line_ren->win_h - 2, line_ren->win_w - (60), "w=%d h=%d x -> %d y -> %d s -> %d start: %s end: %s", 
-             line_ren->win_w,
-             line_ren->win_h,
-             line_ren->current->x, 
-             line_ren->current->y, 
-             line_ren->current->size,
-             (line_ren->current == line_ren->start) ? "True" : "False",
-             (line_ren->current == line_ren->end) ? "True" : "False"
-    );
+    // mvprintw(line_ren->win_h - 2, line_ren->win_w - (60), "w=%d h=%d x -> %d y -> %d s -> %d start: %s end: %s", 
+    //          line_ren->win_w,
+    //          line_ren->win_h,
+    //          line_ren->current->x, 
+    //          line_ren->current->y, 
+    //          line_ren->current->size,
+    //          (line_ren->current == line_ren->start) ? "True" : "False",
+    //          (line_ren->current == line_ren->end) ? "True" : "False"
+    // );
  
-    mvprintw(line_ren->win_h - 2, 0, "Editing %s", file_path);
-    for (int i = 0; i < line_ren->win_w; ++i) {
-        mvprintw(line_ren->win_h - 3, i, "_");
-    }
-
+    char details_buffer[LINE_SZ] = { 0 };
+    sprintf(details_buffer, "row: %d col: %d line_count: %d", line_ren->current->x + 1, line_ren->current->y + 1, line_ren->count);
+    mvprintw(line_ren->win_h - 1, 0, "%s", file_path);
+    mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1, details_buffer);
+    mvchgat(line_ren->win_h - 1, 0, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
     move(line_ren->current->y, line_ren->current->x);
 }
 
@@ -338,9 +342,138 @@ void editor_new_line(Lines_renderer *line_ren)
     line_ren->count++;
 }
 
+static int evenize(const char *s) {
+    int length = strlen(s);
+    return (length % 2) ? length : length + 1;
+}
 
+static int editor_render_help(int x, int y, char *error)
+{
+    // render the welcome window in the middle of the screen.
+    char *prompt = "Enter the path to the file that u want to edit: ";
+    char *save_p = "[ F1 ] to save the edited file";
+    char *quit_p = "[ F2 ] to quit without saving";
+    
+    attron(A_STANDOUT);	
+    mvprintw(y, x - evenize(WLCM_BUFF)/2, WLCM_BUFF);
+    attroff(A_STANDOUT);  
+    mvprintw(y + 3, x - evenize(save_p)/2, save_p);
+    mvprintw(y + 5, x - evenize(quit_p)/2, quit_p);
+    
+    if (error) {
+        mvprintw(y + 7, x - evenize(error)/2, error);
+        mvchgat(y + 7, x - evenize(error)/2, strlen(error), A_NORMAL, ERROR_PAIR, NULL);	
+    }
+    
+    attron(A_UNDERLINE);
+    mvprintw(y * 2, 0, prompt);
+    attroff(A_UNDERLINE);
 
+    return (strlen(prompt));
+}
 
+char *editor_render_startup(int x, int y)
+{
+    
+    
+    bool deleted = false;
+    char *file_path = malloc(LINE_SZ);
+    int buffer_idx = 0;
+    char *error =  "File path/name can not be empty!";
+    char *eptr = NULL;
+    int prompt_offset = editor_render_help(x, y, eptr);
+    int size = 0;
+    int byte = 0;
+    
+    if (file_path == NULL) return NULL;
+    
+	/* 
+	 
+     mvchgat(y, x, strlen(line), mode, color_pair_index, NULL);	
+     * First two parameters specify the position at which to start 
+	 * Third parameter number of characters to update. -1 means till 
+	 * end of line
+	 * Forth parameter is the normal attribute you wanted to give 
+	 * to the charcter
+	 * Fifth is the color index. It is the index given during init_pair()
+	 * use 0 if you didn't want color
+	 * Sixth one is always NULL 
+	 */
+    byte = getch();
+    while (true) { 
+        switch(byte) {
+            case KEY_F(2): {
+                free(file_path);
+                return NULL;
+            } break;
+            case NL: {
+                if (size == 0) {
+                    eptr = error; 
+                    goto GET_NEXT_IN;
+                }
+                return file_path;
+            } break;
+            case KEY_BACKSPACE: {
+                if (buffer_idx == size && size) {
+                    file_path[buffer_idx--] = 0;
+                    size--;
+                } else if (buffer_idx && buffer_idx < size) {
+                    memmove(
+                        file_path + buffer_idx - 1,
+                        file_path + buffer_idx,
+                        size - buffer_idx
+                    );
+                    size--;
+                    buffer_idx--;
+                } else {
+                    file_path[buffer_idx] = 0;
+                }
 
+                deleted = true;
+            } break;
+            case KEY_RIGHT: {
+                if (buffer_idx < size) buffer_idx++; 
+            } break;
+            case KEY_LEFT: {
+                if (buffer_idx > 0) buffer_idx--; 
+            } break;
+			case KEY_HOME:{
+                buffer_idx = 0;
+            } break;
+			case KEY_END: {
+                buffer_idx = size;
+			} break;
+            default: {
+                if (buffer_idx == size) {
+                    buffer_idx++;
+                    file_path[size++] = byte;
+                } else if (buffer_idx < size) {
+                    memmove(file_path + buffer_idx + 1,
+                        file_path + buffer_idx,
+                        size - buffer_idx);
 
+                    file_path[buffer_idx++] = byte;
+                    size++;
+                }
+            } break;
+        }
+GET_NEXT_IN:
+        erase();
+
+        prompt_offset = editor_render_help(x, y, eptr);
+
+        for (int i = 0; i < size; ++i) {
+            mvaddch (y * 2, prompt_offset + i, file_path[i]);
+        }
+
+        if (deleted || (!size && !buffer_idx)) {
+            delch();
+            deleted = false;
+        }
+        
+        move(y * 2, prompt_offset + buffer_idx);
+        eptr = NULL;
+        byte = getch();
+    }
+}
 
