@@ -130,6 +130,7 @@ int editor(int argc, char **argv)
     }
 
     if (!exit_pressed) {
+        endwin();
         save_file(file, line_ren->origin);
         return 0;
     }
@@ -137,7 +138,6 @@ int editor(int argc, char **argv)
 
 EXIT_AND_RELEASE_RESOURCES:
     endwin();
-
     free_lines(line_ren->origin);
 	return 0;
 }

@@ -1,5 +1,7 @@
 Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
 
 I Need:
-    [] Modes (Normal, Visual, Insert)
-    [] Commads (Change file name, atleast)
+    [] Pick better coloring for the editor.
+    [] Modes (Normal, Visual, Insert).
+    [] Commads (Change file name, atleast).
+    

@@ -9,6 +9,7 @@
 #define SECONDARY_THEME_PAIR 1
 #define MAIN_THEME_PAIR 2
 #define ERROR_PAIR      3
+#define BLUE_PAIR       4
 
 #define CTRL(x) ((x) & 0x1f)
 #define LINE_SZ 256
@@ -28,6 +29,17 @@
 #define SQUOTE '\''
 #define WLCM_BUFF "(WELLCOME TO MI EDITOR V0.1!)"
 
+typedef enum ResultType {
+    SUCCESS,
+    ERROR
+} ResultType;
+
+typedef enum ErrorType {
+    NONE,
+    EXIT_SIG,
+    EMPTY_BUFF
+} ErrorType;
+
 typedef struct Line Line;
 
 typedef struct Line {
@@ -46,6 +58,12 @@ typedef struct Lines_renderer {
     int    max_padding;
     int    count;
 } Lines_renderer;
+
+typedef struct Result {
+    ResultType type;
+    ErrorType  etype;
+    char *data;
+} Result;
 
 WINDOW *init_editor();
 int load_file(char *file_path, Lines_renderer *line_ren);
@@ -68,5 +86,7 @@ void free_lines(Line *lines);
 void line_push_char(Line *line, char c);
 void editor_details(Lines_renderer *line_ren, char *file_path);
 Line *Alloc_line_node(int row);
+
+Result *make_prompt_buffer(int x, int y);
 
 #endif // MI_H

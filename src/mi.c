@@ -25,6 +25,18 @@ static void lines_shift(Line *head, int num) {
         curr = curr->next;
     }
 }
+static void init_colors() 
+{
+    start_color();
+    // pair_number, foreground, background
+    init_color(COLOR_BLACK, 62, 94, 125);
+    init_color(COLOR_YELLOW, 996, 905, 82);
+    init_color(COLOR_BLUE, 0, (44 * 1000) / 255, (84 * 1000)/255);
+    init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_BLACK);
+    init_pair(SECONDARY_THEME_PAIR, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
+    init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
+}
 
 WINDOW *init_editor()
 {
@@ -34,13 +46,7 @@ WINDOW *init_editor()
 	keypad(stdscr, TRUE);
 	noecho();
     cbreak();
-    start_color();
-    // pair_number, foreground, background
-    init_color(COLOR_BLACK, 0, 100, 100);
-    init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_BLACK);
-    init_pair(SECONDARY_THEME_PAIR, COLOR_BLACK, COLOR_CYAN);
-    init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
-    // int bkgd(chtype ch);
+    init_colors();
     wbkgd(win, COLOR_PAIR(COLOR_BLACK));
 
     return win;
@@ -208,10 +214,18 @@ void editor_details(Lines_renderer *line_ren, char *file_path)
     // );
  
     char details_buffer[LINE_SZ] = { 0 };
-    sprintf(details_buffer, "row: %d col: %d line_count: %d", line_ren->current->x + 1, line_ren->current->y + 1, line_ren->count);
-    mvprintw(line_ren->win_h - 1, 0, "%s", file_path);
+    char *mode = "NORMAL";
+    sprintf(details_buffer, "row: %d col: %d line_count: %d ", line_ren->current->x + 1, line_ren->current->y + 1, line_ren->count);
+
+    mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
+    mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR, NULL);
+    
+    
+    mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s", file_path);
+    
+
     mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1, details_buffer);
-    mvchgat(line_ren->win_h - 1, 0, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
+    mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
     move(line_ren->current->y, line_ren->current->x);
 }
 
@@ -372,61 +386,53 @@ static int editor_render_help(int x, int y, char *error)
     return (strlen(prompt));
 }
 
-char *editor_render_startup(int x, int y)
+Result *make_prompt_buffer(int x, int y)
 {
-    
-    
+    Result *result = malloc(sizeof(Result));
     bool deleted = false;
-    char *file_path = malloc(LINE_SZ);
+    
+    result->data = malloc(LINE_SZ);
+    result->type = SUCCESS;
+    result->etype = NONE;
+
     int buffer_idx = 0;
-    char *error =  "File path/name can not be empty!";
-    char *eptr = NULL;
-    int prompt_offset = editor_render_help(x, y, eptr);
-    int size = 0;
-    int byte = 0;
+    int size = 0, byte = 0;
     
-    if (file_path == NULL) return NULL;
+    if (result == NULL || result->data == NULL)
+        return NULL;
     
-	/* 
-	 
-     mvchgat(y, x, strlen(line), mode, color_pair_index, NULL);	
-     * First two parameters specify the position at which to start 
-	 * Third parameter number of characters to update. -1 means till 
-	 * end of line
-	 * Forth parameter is the normal attribute you wanted to give 
-	 * to the charcter
-	 * Fifth is the color index. It is the index given during init_pair()
-	 * use 0 if you didn't want color
-	 * Sixth one is always NULL 
-	 */
     byte = getch();
     while (true) { 
         switch(byte) {
             case KEY_F(2): {
-                free(file_path);
-                return NULL;
+                result->type = ERROR;
+                result->etype = EXIT_SIG;
+                return result;
             } break;
             case NL: {
                 if (size == 0) {
-                    eptr = error; 
-                    goto GET_NEXT_IN;
+                    result->type = ERROR;
+                    result->etype = EMPTY_BUFF;
+                    result->data = strcpy(result->data, "File path/name can not be empty!");
+                    return result;
                 }
-                return file_path;
+                result->type = OK;
+                return result;
             } break;
             case KEY_BACKSPACE: {
                 if (buffer_idx == size && size) {
-                    file_path[buffer_idx--] = 0;
+                    result->data[buffer_idx--] = 0;
                     size--;
                 } else if (buffer_idx && buffer_idx < size) {
                     memmove(
-                        file_path + buffer_idx - 1,
-                        file_path + buffer_idx,
+                        result->data + buffer_idx - 1,
+                        result->data + buffer_idx,
                         size - buffer_idx
                     );
                     size--;
                     buffer_idx--;
                 } else {
-                    file_path[buffer_idx] = 0;
+                    result->data[buffer_idx] = 0;
                 }
 
                 deleted = true;
@@ -446,34 +452,66 @@ char *editor_render_startup(int x, int y)
             default: {
                 if (buffer_idx == size) {
                     buffer_idx++;
-                    file_path[size++] = byte;
+                    result->data[size++] = byte;
                 } else if (buffer_idx < size) {
-                    memmove(file_path + buffer_idx + 1,
-                        file_path + buffer_idx,
+                    memmove(result->data + buffer_idx + 1,
+                        result->data + buffer_idx,
                         size - buffer_idx);
 
-                    file_path[buffer_idx++] = byte;
+                    result->data[buffer_idx++] = byte;
                     size++;
                 }
             } break;
         }
-GET_NEXT_IN:
-        erase();
 
-        prompt_offset = editor_render_help(x, y, eptr);
+        for (int i = 0; i < size; ++i)
+            mvaddch (y, x + i, result->data[i]);
 
-        for (int i = 0; i < size; ++i) {
-            mvaddch (y * 2, prompt_offset + i, file_path[i]);
-        }
 
         if (deleted || (!size && !buffer_idx)) {
             delch();
             deleted = false;
         }
-        
-        move(y * 2, prompt_offset + buffer_idx);
-        eptr = NULL;
+
+        move(y, x + buffer_idx);
         byte = getch();
+    }
+}
+
+char *editor_render_startup(int x, int y)
+{
+    int prompt_offset = editor_render_help(x, y, NULL);
+    Result *res = NULL;
+    char *file_path = malloc(LINE_SZ);
+    while (true) {
+        res = make_prompt_buffer(prompt_offset, y * 2);
+        switch(res->type) {
+            case SUCCESS: {
+                strcpy(file_path, res->data);
+                free(res->data);
+                free(res);
+                return file_path;
+            } break;
+            case ERROR: {
+                if (res->etype == EXIT_SIG) {    
+                    free(res->data);
+                    free(res);
+                    free(file_path);
+                    return NULL;
+                } else if (res->etype == EMPTY_BUFF) {
+                    prompt_offset = editor_render_help(x, y, res->data);
+                    free(res->data);
+                    free(res);
+                } else {
+                    printf("Unreachable code\n");
+                    exit(1);
+                }
+            } break;
+            default: {
+                printf("Unreachable code\n");
+                exit(1);
+            }
+        }
     }
 }
 
