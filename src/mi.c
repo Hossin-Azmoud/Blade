@@ -1,5 +1,10 @@
 #include <mi.h>
 
+static char *modes[] = { 
+    "NORMAL",
+    "VISUAL",
+    "INSERT"
+};
 
 Line *Alloc_line_node(int row)
 {
@@ -47,6 +52,7 @@ WINDOW *init_editor()
 	noecho();
     cbreak();
     init_colors();
+
     wbkgd(win, COLOR_PAIR(COLOR_BLACK));
 
     return win;
@@ -97,19 +103,26 @@ SET_PROPS:
     return line_ren->count;
 }
 
-void save_file(char *file_path, Line *lines) {
+
+int save_file(char *file_path, Line *lines, bool release)
+{
     FILE *Stream = fopen(file_path, "w+");
+    int  bytes_saved = 0;
     Line *next = NULL;
     Line *current = lines;
 
     for (; current;) {
-        fprintf(Stream, "%s\n", current->content);
+        bytes_saved += fprintf(Stream, "%s\n", current->content);
         next = current->next;
-        free(current);
+
+        if (release)
+            free(current);
+        
         current = next;
     }
 
     fclose(Stream);
+    return bytes_saved;
 }
 
 void free_lines(Line *lines) {
@@ -201,29 +214,15 @@ void render_lines(Lines_renderer *line_ren)
     }
 }
 
-void editor_details(Lines_renderer *line_ren, char *file_path)
+void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode_, char *notification)
 {
-    // mvprintw(line_ren->win_h - 2, line_ren->win_w - (60), "w=%d h=%d x -> %d y -> %d s -> %d start: %s end: %s", 
-    //          line_ren->win_w,
-    //          line_ren->win_h,
-    //          line_ren->current->x, 
-    //          line_ren->current->y, 
-    //          line_ren->current->size,
-    //          (line_ren->current == line_ren->start) ? "True" : "False",
-    //          (line_ren->current == line_ren->end) ? "True" : "False"
-    // );
- 
-    char details_buffer[LINE_SZ] = { 0 };
-    char *mode = "NORMAL";
-    sprintf(details_buffer, "row: %d col: %d line_count: %d ", line_ren->current->x + 1, line_ren->current->y + 1, line_ren->count);
 
+    char details_buffer[LINE_SZ] = { 0 };
+    char *mode = modes[mode_];
+    sprintf(details_buffer, "row: %d col: %d line_count: %d ", line_ren->current->x + 1, line_ren->current->y + 1, line_ren->count);
     mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
     mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR, NULL);
-    
-    
-    mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s", file_path);
-    
-
+    mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s %s", file_path, notification);
     mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1, details_buffer);
     mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
     move(line_ren->current->y, line_ren->current->x);

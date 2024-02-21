@@ -11,7 +11,7 @@
 #define ERROR_PAIR      3
 #define BLUE_PAIR       4
 
-#define CTRL(x) ((x) & 0x1f)
+#define CTRL(x) ((x) & 0x1F)
 #define LINE_SZ 256
 #define LINE_NUM_MAX 8
 #define TAB '\t'
@@ -40,6 +40,13 @@ typedef enum ErrorType {
     EMPTY_BUFF
 } ErrorType;
 
+typedef enum editorMode {
+    NORMAL = 0,
+    VISUAL,
+    INSERT
+} editorMode;
+
+
 typedef struct Line Line;
 
 typedef struct Line {
@@ -67,7 +74,7 @@ typedef struct Result {
 
 WINDOW *init_editor();
 int load_file(char *file_path, Lines_renderer *line_ren);
-void save_file(char *file_path, Line *lines);
+int save_file(char *file_path, Line *lines, bool release);
 void render_lines(Lines_renderer *line_ren);
 void editor_tabs(Line *line);
 void editor_backspace(Lines_renderer *line_ren);
@@ -84,7 +91,7 @@ void editor_apply_move(Lines_renderer *line_ren);
 void editor_new_line(Lines_renderer *line_ren);
 void free_lines(Line *lines);
 void line_push_char(Line *line, char c);
-void editor_details(Lines_renderer *line_ren, char *file_path);
+void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
 Line *Alloc_line_node(int row);
 
 Result *make_prompt_buffer(int x, int y);
