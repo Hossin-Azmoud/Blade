@@ -22,6 +22,7 @@ int test() {
 
 int editor(int argc, char **argv)
 {
+    Vec2 Vcur = { 0 }; 
     char *file;
     editorMode mode = NORMAL;
     char notification_buffer[1024] = {0};
@@ -34,7 +35,7 @@ int editor(int argc, char **argv)
         .count=0,
         .max_padding=0
     };
-
+    int highlighted_bytes = 0;
     Lines_renderer *line_ren =  &line_ren_raw;
 
     bool deleted_char = false;
@@ -71,13 +72,16 @@ int editor(int argc, char **argv)
     editor_apply_move(line_ren);
 
     while ((c = getch()) != KEY_F(1)) {
-        
         switch (c) {
 			case KEY_F(2): {
                 exit_pressed = true;
             } break;
             case CTRL('v'): {
                 mode = VISUAL;
+                // we mark the chords of the start position!
+                Vcur.x = line_ren->current->x;
+                Vcur.y = line_ren->current->y;
+                Vcur._line = line_ren->current;
             } break;
              case CTRL('n'): {
                 mode = NORMAL;
@@ -89,9 +93,13 @@ int editor(int argc, char **argv)
                 int saved_bytes = save_file(file, line_ren->origin, false);
                 sprintf(notification_buffer, "[ %dL %d bytes were written ]\n", line_ren->count, saved_bytes);
             } break;
-            case KEY_BACKSPACE: {
-                editor_backspace(line_ren);
-                deleted_char = true;
+            case KEY_BACKSPACE: { 
+                if (mode == INSERT) {
+                    editor_backspace(line_ren);
+                    deleted_char = true;
+                } else {
+                    editor_up(line_ren);
+                }
 			} break;
 			case KEY_UP: {
 			    editor_up(line_ren); 
@@ -106,7 +114,7 @@ int editor(int argc, char **argv)
                 editor_right(line_ren);
             } break;
             case TAB: {
-                editor_tabs(line_ren->current);
+                if (mode == INSERT) editor_tabs(line_ren->current);
             } break;
 			case KEY_HOME:{
                 line_ren->current->x = 0;
@@ -115,22 +123,34 @@ int editor(int argc, char **argv)
                 if (line_ren->current->size > 0) 
                     line_ren->current->x = line_ren->current->size;
 			} break;
-
 			default: {
                 if (c == '\n') {
-                    editor_new_line(line_ren);
-                    if (!line_ren->count) 
-                        line_ren->count++;
+                    if (mode == VISUAL || mode == NORMAL) {
+                        editor_down(line_ren);
+                    } else if (mode == INSERT) {
+                        editor_new_line(line_ren);
+                        if (!line_ren->count) 
+                            line_ren->count++;    
+                    }
                     goto RENDER;
-                } 
-                line_push_char(line_ren->current, c);
-                if (!line_ren->count) line_ren->count++;
+                }
+                if (mode == INSERT) {
+                    line_push_char(line_ren->current, c);
+                    if (!line_ren->count) line_ren->count++;
+                }
+                // TODO: make some other commands for the other mode insted of writing text!
             };
         }
 
     RENDER:
         erase();
         render_lines(line_ren);
+        
+        // Highlight if the current context is VISUAL.
+        if (mode == VISUAL) {
+            highlighted_bytes = highlight_until_current_col (Vcur, line_ren);
+            sprintf(notification_buffer, "[ %d bytes were Highlighted]\n", highlighted_bytes);
+        }
 
         if (deleted_char) {
             delch();

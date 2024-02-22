@@ -38,6 +38,7 @@ static void init_colors()
     init_color(COLOR_YELLOW, 996, 905, 82);
     init_color(COLOR_BLUE, 0, (44 * 1000) / 255, (84 * 1000)/255);
     init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_BLACK);
+    init_pair(HIGHLIGHT_THEME, COLOR_BLACK, COLOR_WHITE);
     init_pair(SECONDARY_THEME_PAIR, COLOR_BLACK, COLOR_YELLOW);
     init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
     init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
@@ -514,3 +515,94 @@ char *editor_render_startup(int x, int y)
     }
 }
 
+
+static void 
+highlight__ (int y, int x, int size) {
+    mvchgat(y, // Which line
+            x, // Which col to start from
+            size, // where or howmuch to highlight after x.. which is position x + size
+            A_NORMAL, 
+            HIGHLIGHT_THEME, 
+            NULL);
+}
+
+int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
+{
+    int highlight_count = 0;
+    int x = start.x, y = start.y;
+    Line *current = line_ren->current;
+    Line *line = NULL;
+
+    if (y == current->y) {
+        if (current->x > x) {
+            
+            highlight__(y,
+                x + line_ren->max_padding,
+                current->x - x
+            );
+            highlight_count = current->x - x;
+            return highlight_count;
+        }
+        
+        highlight__(y,
+            current->x + line_ren->max_padding, 
+            x - current->x + 1 
+        );
+        highlight_count = (x - current->x + 1);
+        return highlight_count;
+    }
+
+    if (y < current->y) {
+        
+        // Highligh current.
+        highlight__(y,
+            x + line_ren->max_padding,
+            (start._line)->size
+        );
+        highlight_count += (start._line)->size;
+        // iterate thro all the lines and highlight them until the current line!
+        line = (start._line)->next;
+        while (line != current) {
+            highlight__(line->y,
+                line_ren->max_padding,
+                (line)->size
+            );
+            line = line->next;
+            highlight_count += (line)->size;
+        }
+
+        highlight__(line->y, 
+            0 + line_ren->max_padding, 
+            line->x);
+        highlight_count += (line)->x;
+        return highlight_count;
+    }
+    
+    if (y > current->y) {
+        
+        // Highligh current.
+        highlight__(y,
+            line_ren->max_padding,
+            x
+        );
+        
+        highlight_count += current->size;
+        // iterate thro all the lines and highlight them until the current line!
+        line = (start._line)->prev;
+        while (line != current) {
+            highlight__(line->y,
+                0 + line_ren->max_padding,
+                (line)->size
+            );
+            line = line->prev;
+            highlight_count += (line)->size;
+        }
+
+        highlight__(line->y, 
+            line->x + line_ren->max_padding, 
+            line->size - line->x);
+        highlight_count += line->size - line->x;
+        return highlight_count;
+    }
+    return highlight_count;
+}

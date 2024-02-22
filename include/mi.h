@@ -7,9 +7,10 @@
 
 // color editor pairs
 #define SECONDARY_THEME_PAIR 1
-#define MAIN_THEME_PAIR 2
-#define ERROR_PAIR      3
-#define BLUE_PAIR       4
+#define MAIN_THEME_PAIR      2
+#define ERROR_PAIR           3
+#define BLUE_PAIR            4
+#define HIGHLIGHT_THEME      5 
 
 #define CTRL(x) ((x) & 0x1F)
 #define LINE_SZ 256
@@ -49,6 +50,16 @@ typedef enum editorMode {
 
 typedef struct Line Line;
 
+typedef struct Vec2 {
+    int x, y;
+    Line *_line;
+} Vec2;
+
+// typedef struct Vcursor {
+//     Vec2 start; // start position in which we will start the coppying!
+//     Vec2 end; // end pos in which the coppying ends!
+// } Vcursor;
+//
 typedef struct Line {
     int x, y, size, padding;
     char line_number[LINE_NUM_MAX];
@@ -95,5 +106,6 @@ void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, 
 Line *Alloc_line_node(int row);
 
 Result *make_prompt_buffer(int x, int y);
+int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
 
 #endif // MI_H
