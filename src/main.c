@@ -25,8 +25,7 @@ int test() {
 int editor(int argc, char **argv)
 {
     open_logger();
-    FILE *logger = get_logger_file_ptr();
-    fprintf(logger, "Hello logger!");
+
     Vec2 copy_start = { 0 }; 
     Vec2 copy_end   = { 0 };
 
@@ -42,6 +41,7 @@ int editor(int argc, char **argv)
         .count=0,
         .max_padding=0
     };
+
     int highlighted_bytes = 0;
     Lines_renderer *line_ren =  &line_ren_raw;
 
@@ -116,10 +116,7 @@ int editor(int argc, char **argv)
             } break;
             case KEY_PASTE_: {
                 // TODO. editor_paste_content
-                editor_paste_content(copy_start, 
-                        copy_end, 
-                        line_ren
-                );
+                editor_paste_content(copy_start, copy_end, line_ren);
             } break;
             case KEY_BACKSPACE: { 
                 if (mode == INSERT) {
@@ -163,7 +160,9 @@ int editor(int argc, char **argv)
                     goto RENDER;
                 }
                 if (mode == INSERT) {
-                    line_push_char(line_ren->current, c);
+                    line_push_char(
+                        line_ren->current, 
+                        c);
                     if (!line_ren->count) line_ren->count++;
                 }
                 // TODO: make some other commands for the other mode insted of writing text!

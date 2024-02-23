@@ -1,4 +1,5 @@
 #include <mi.h>
+#include <logger.h>
 
 // Possible modes in the editor!
 static char *modes[] = { 
@@ -614,36 +615,81 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
 }
 
 void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
-{
+{    
     Vec2 temp = { .x = start.x, .y = start.y, ._line = start._line };
     Line *starting_line, *ending_line;
     Line *curr = NULL;
+    
+    if (start.y == end.y) { // We need to copy one line!
+
+        curr = start._line;
+        int start_idx = (start.x > end.x) ? end.x : start.x;
+        int end_idx   = (start.x > end.x) ? start.x : end.x;
+        
+        for (; start_idx < end_idx; start_idx++) {
+            if (curr->content[start_idx] == 0) break;
+            line_push_char(line_ren->current, curr->content[start_idx]);
+        }
+
+        return;
+    }
 
     if (start.y > end.y) {
         start = end;
         end = temp;
     }
 
+    fprintf(
+        get_logger_file_ptr(),
+        "Starting Vec: (%d, %d)\n",
+        start.x, start.y
+    );    
+    
+    fprintf(
+        get_logger_file_ptr(),
+        "Ending Vec: (%d, %d)\n",
+        end.x, end.y
+    );    
+    
+    
+
     starting_line = start._line;
     ending_line   = end._line;
     curr = starting_line;
 
-    for (int i = start.x; (i < curr->size) && (curr->content[i]); i++) {
-        line_push_char(line_ren->current, curr->content[i]);
+    for (int i = start.x; (i < curr->size); i++) {
+
+        // fprintf(get_logger_file_ptr(),
+        //     "Pushing Char (Line : %d, idx: %d): %c\n",
+        //     start.y, i,
+        //     curr->content[i]
+        // );
+        
+        if (curr->content[i] == 0) break;
+        line_push_char(line_ren->current, 
+            curr->content[i]
+        );
     }
+
     editor_new_line(line_ren);
     curr = curr->next;
-    while (curr != ending_line && curr) {
+    while (curr != ending_line) {
         for (int i = 0; i < curr->size && curr->content[i]; i++) {
+            if (curr->content[i] == 0) break;
             line_push_char(line_ren->current, curr->content[i]);
         }
+
         editor_new_line(line_ren);
         curr = curr->next;
     }
 
-    for (int i = 0; (i < curr->size) && (i < end.x) && curr && curr->content[i]; i++) {
-      line_push_char(line_ren->current, curr->content[i]);
+    for (int i = 0; (i < ending_line->size) && (i < end.x); i++) {
+        if (ending_line->content[i] == 0) break;
+        line_push_char(line_ren->current, 
+            ending_line->content[i]);
     }
+
+    return;
 }
 
 
