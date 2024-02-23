@@ -1,10 +1,14 @@
 #ifndef MI_H
 #define MI_H
 #include <ncurses.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+#define KEY_ESC 27
+#define KEY_COPY_ 'y'
+#define KEY_PASTE_ 'p'
 // color editor pairs
 #define SECONDARY_THEME_PAIR 1
 #define MAIN_THEME_PAIR      2
@@ -107,5 +111,6 @@ Line *Alloc_line_node(int row);
 
 Result *make_prompt_buffer(int x, int y);
 int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
+void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren);
 
 #endif // MI_H

@@ -1,7 +1,8 @@
 Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
 
 I Need:
-    [] Pick better coloring for the editor.
+    [*] Pick better coloring for the editor.
     [] Modes (Normal, Visual, Insert).
+    []  Add copy/paste functionality
     [] Commads (Change file name, atleast).
     

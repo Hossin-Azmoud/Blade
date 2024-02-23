@@ -1,4 +1,6 @@
 #include <mi.h>
+#include <logger.h>
+
 /***
  *
  * TODO:
@@ -22,7 +24,12 @@ int test() {
 
 int editor(int argc, char **argv)
 {
-    Vec2 Vcur = { 0 }; 
+    open_logger();
+    FILE *logger = get_logger_file_ptr();
+    fprintf(logger, "Hello logger!");
+    Vec2 copy_start = { 0 }; 
+    Vec2 copy_end   = { 0 };
+
     char *file;
     editorMode mode = NORMAL;
     char notification_buffer[1024] = {0};
@@ -72,6 +79,7 @@ int editor(int argc, char **argv)
     editor_apply_move(line_ren);
 
     while ((c = getch()) != KEY_F(1)) {
+        
         switch (c) {
 			case KEY_F(2): {
                 exit_pressed = true;
@@ -79,11 +87,11 @@ int editor(int argc, char **argv)
             case CTRL('v'): {
                 mode = VISUAL;
                 // we mark the chords of the start position!
-                Vcur.x = line_ren->current->x;
-                Vcur.y = line_ren->current->y;
-                Vcur._line = line_ren->current;
+                copy_start.x = line_ren->current->x;
+                copy_start.y = line_ren->current->y;
+                copy_start._line = line_ren->current;
             } break;
-             case CTRL('n'): {
+            case CTRL('n'): {
                 mode = NORMAL;
             } break;
             case CTRL('t'): {
@@ -92,6 +100,26 @@ int editor(int argc, char **argv)
             case CTRL('x'): {
                 int saved_bytes = save_file(file, line_ren->origin, false);
                 sprintf(notification_buffer, "[ %dL %d bytes were written ]\n", line_ren->count, saved_bytes);
+            } break;
+            case KEY_COPY_: {
+                if (mode == VISUAL) {
+                    // Store into about end of the highlighting in some struct.
+                    copy_end.x = line_ren->current->x;
+                    copy_end.y = line_ren->current->y;
+                    copy_end._line = line_ren->current;
+
+                    mode = NORMAL;
+                    sprintf(notification_buffer, "[ (%d, %d) -> (%d, %d)]\n", 
+                            copy_start.x, copy_start.y,
+                            copy_end.x, copy_end.y);
+                }
+            } break;
+            case KEY_PASTE_: {
+                // TODO. editor_paste_content
+                editor_paste_content(copy_start, 
+                        copy_end, 
+                        line_ren
+                );
             } break;
             case KEY_BACKSPACE: { 
                 if (mode == INSERT) {
@@ -144,11 +172,12 @@ int editor(int argc, char **argv)
 
     RENDER:
         erase();
+
         render_lines(line_ren);
         
         // Highlight if the current context is VISUAL.
         if (mode == VISUAL) {
-            highlighted_bytes = highlight_until_current_col (Vcur, line_ren);
+            highlighted_bytes = highlight_until_current_col (copy_start, line_ren);
             sprintf(notification_buffer, "[ %d bytes were Highlighted]\n", highlighted_bytes);
         }
 
@@ -172,6 +201,8 @@ int editor(int argc, char **argv)
     if (!exit_pressed) {
         endwin();
         save_file(file, line_ren->origin, true);
+        
+        close_logger();
         return 0;
     }
 
@@ -179,5 +210,6 @@ int editor(int argc, char **argv)
 EXIT_AND_RELEASE_RESOURCES:
     endwin();
     free_lines(line_ren->origin);
-	return 0;
+	close_logger();
+    return 0;
 }

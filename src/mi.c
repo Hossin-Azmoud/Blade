@@ -1,5 +1,6 @@
 #include <mi.h>
 
+// Possible modes in the editor!
 static char *modes[] = { 
     "NORMAL",
     "VISUAL",
@@ -229,19 +230,22 @@ void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode_,
     move(line_ren->current->y, line_ren->current->x);
 }
 
+// isalnum,  isalpha, isascii, isblank, iscntrl, isdigit, isgraph, islower, isprint, ispunct, isspace, isupper, isxdigit, isalnum_l, isalpha_l, 
+// isas‐cii_l, isblank_l, iscntrl_l, isdigit_l, isgraph_l, islower_l, isprint_l, ispunct_l, isspace_l, isupper_l, isxdigit_l  -  character  classification functions.
 void char_inject(Line *line, char c)
 {
-    memmove((line->content + line->x + 1),
-        (line->content + line->x),
-        line->size - line->x);
-    line->content[line->x++] = c;
-    line->size++;
+    if (isalnum(c) || ispunct(c) || isspace(c)) {
+        memmove((line->content + line->x + 1),
+            (line->content + line->x),
+            line->size - line->x);
+        line->content[line->x++] = c;
+        line->size++;
+    }
 }
 
 void line_push_char(Line *line, char c)
 {
     char_inject(line, c);
-
     switch (c) {
         case OPAR: {
             char_inject(line, CPAR);
@@ -533,20 +537,19 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
     Line *current = line_ren->current;
     Line *line = NULL;
 
-    if (y == current->y) {
+    if (y - line_ren->start->y == current->y - line_ren->start->y) {
         if (current->x > x) {
-            
-            highlight__(y,
+            highlight__(y - line_ren->start->y,
                 x + line_ren->max_padding,
                 current->x - x
             );
+
             highlight_count = current->x - x;
             return highlight_count;
         }
-        
-        highlight__(y,
+        highlight__(y - line_ren->start->y,
             current->x + line_ren->max_padding, 
-            x - current->x + 1 
+            x - current->x
         );
         highlight_count = (x - current->x + 1);
         return highlight_count;
@@ -555,15 +558,16 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
     if (y < current->y) {
         
         // Highligh current.
-        highlight__(y,
+        highlight__(y - line_ren->start->y,
             x + line_ren->max_padding,
             (start._line)->size
         );
+
         highlight_count += (start._line)->size;
         // iterate thro all the lines and highlight them until the current line!
         line = (start._line)->next;
         while (line != current) {
-            highlight__(line->y,
+            highlight__(line->y - line_ren->start->y,
                 line_ren->max_padding,
                 (line)->size
             );
@@ -571,17 +575,17 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
             highlight_count += (line)->size;
         }
 
-        highlight__(line->y, 
+        highlight__(line->y - line_ren->start->y, 
             0 + line_ren->max_padding, 
             line->x);
         highlight_count += (line)->x;
         return highlight_count;
     }
-    
-    if (y > current->y) {
+ 
+    if (y  > current->y) {
         
         // Highligh current.
-        highlight__(y,
+        highlight__(y - line_ren->start->y,
             line_ren->max_padding,
             x
         );
@@ -590,7 +594,7 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
         // iterate thro all the lines and highlight them until the current line!
         line = (start._line)->prev;
         while (line != current) {
-            highlight__(line->y,
+            highlight__(line->y - line_ren->start->y,
                 0 + line_ren->max_padding,
                 (line)->size
             );
@@ -598,11 +602,51 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
             highlight_count += (line)->size;
         }
 
-        highlight__(line->y, 
+        highlight__(line->y - line_ren->start->y, 
             line->x + line_ren->max_padding, 
             line->size - line->x);
+    
         highlight_count += line->size - line->x;
         return highlight_count;
     }
+
     return highlight_count;
 }
+
+void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
+{
+    Vec2 temp = { .x = start.x, .y = start.y, ._line = start._line };
+    Line *starting_line, *ending_line;
+    Line *curr = NULL;
+
+    if (start.y > end.y) {
+        start = end;
+        end = temp;
+    }
+
+    starting_line = start._line;
+    ending_line   = end._line;
+    curr = starting_line;
+
+    for (int i = start.x; (i < curr->size) && (curr->content[i]); i++) {
+        line_push_char(line_ren->current, curr->content[i]);
+    }
+    editor_new_line(line_ren);
+    curr = curr->next;
+    while (curr != ending_line && curr) {
+        for (int i = 0; i < curr->size && curr->content[i]; i++) {
+            line_push_char(line_ren->current, curr->content[i]);
+        }
+        editor_new_line(line_ren);
+        curr = curr->next;
+    }
+
+    for (int i = 0; (i < curr->size) && (i < end.x) && curr && curr->content[i]; i++) {
+      line_push_char(line_ren->current, curr->content[i]);
+    }
+}
+
+
+
+
+
