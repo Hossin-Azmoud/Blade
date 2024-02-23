@@ -71,25 +71,27 @@ int editor(int argc, char **argv)
 
     erase();   
     line_ren->count = load_file(file, line_ren);
-
     render_lines(line_ren);
     editor_details(line_ren, file, mode, notification_buffer);
-
-
     editor_apply_move(line_ren);
 
     while ((c = getch()) != KEY_F(1)) {
-        
+        if (is_move(c)) {
+            handle_move(c, line_ren);
+            goto RENDER;
+        }
+        // Global cases that apply in every mode.
         switch (c) {
-			case KEY_F(2): {
-                exit_pressed = true;
-            } break;
             case CTRL('v'): {
                 mode = VISUAL;
                 // we mark the chords of the start position!
                 copy_start.x = line_ren->current->x;
                 copy_start.y = line_ren->current->y;
                 copy_start._line = line_ren->current;
+            } break;
+
+			case KEY_F(2): {
+                exit_pressed = true;
             } break;
             case CTRL('n'): {
                 mode = NORMAL;
@@ -101,73 +103,52 @@ int editor(int argc, char **argv)
                 int saved_bytes = save_file(file, line_ren->origin, false);
                 sprintf(notification_buffer, "[ %dL %d bytes were written ]\n", line_ren->count, saved_bytes);
             } break;
-            case KEY_COPY_: {
-                if (mode == VISUAL) {
+            default: {} break;
+        }
+
+        // Actions that depend on the mode.
+        switch (mode) {
+            case VISUAL: {
+                if (c == KEY_COPY_) {
                     // Store into about end of the highlighting in some struct.
                     copy_end.x = line_ren->current->x;
                     copy_end.y = line_ren->current->y;
                     copy_end._line = line_ren->current;
-
                     mode = NORMAL;
                     sprintf(notification_buffer, "[ (%d, %d) -> (%d, %d)]\n", 
                             copy_start.x, copy_start.y,
                             copy_end.x, copy_end.y);
                 }
             } break;
-            case KEY_PASTE_: {
-                // TODO. editor_paste_content
-                editor_paste_content(copy_start, copy_end, line_ren);
+            case NORMAL: {
+                if (c == KEY_PASTE_)
+                    editor_paste_content(copy_start, copy_end, line_ren);
             } break;
-            case KEY_BACKSPACE: { 
-                if (mode == INSERT) {
-                    editor_backspace(line_ren);
-                    deleted_char = true;
-                } else {
-                    editor_up(line_ren);
+            case INSERT: {
+                switch (c) {
+                    case TAB: {
+                        editor_tabs(line_ren->current);
+                    } break;
+                    case KEY_BACKSPACE: { 
+                        editor_backspace(line_ren);
+                        deleted_char = true;
+			        } break;
+			
+			        default: {
+                        if (c == '\n') {
+                            editor_new_line(line_ren);
+                            if (!line_ren->count) line_ren->count++;    
+                            goto RENDER;
+                        }
+
+                        line_push_char(line_ren->current, c);
+                        if (!line_ren->count) line_ren->count++;
+                    } break;
                 }
-			} break;
-			case KEY_UP: {
-			    editor_up(line_ren); 
             } break;
-			case KEY_DOWN: {                
-                editor_down(line_ren);
-            } break;
-			case KEY_LEFT: {
-                editor_left(line_ren);
-            } break;
-			case KEY_RIGHT: {
-                editor_right(line_ren);
-            } break;
-            case TAB: {
-                if (mode == INSERT) editor_tabs(line_ren->current);
-            } break;
-			case KEY_HOME:{
-                line_ren->current->x = 0;
-            } break;
-			case KEY_END: {
-                if (line_ren->current->size > 0) 
-                    line_ren->current->x = line_ren->current->size;
-			} break;
-			default: {
-                if (c == '\n') {
-                    if (mode == VISUAL || mode == NORMAL) {
-                        editor_down(line_ren);
-                    } else if (mode == INSERT) {
-                        editor_new_line(line_ren);
-                        if (!line_ren->count) 
-                            line_ren->count++;    
-                    }
-                    goto RENDER;
-                }
-                if (mode == INSERT) {
-                    line_push_char(
-                        line_ren->current, 
-                        c);
-                    if (!line_ren->count) line_ren->count++;
-                }
-                // TODO: make some other commands for the other mode insted of writing text!
-            };
+            default: {} break;
         }
+
 
     RENDER:
         erase();

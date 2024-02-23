@@ -199,7 +199,8 @@ void editor_backspace(Lines_renderer *line_ren)
             next->prev = prev;
         
         free(current);
-    
+        line_ren->count--;
+
         line_ren->current = prev; // go back one line.
         lines_shift(next, -1); 
         return;
@@ -673,6 +674,7 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
 
     editor_new_line(line_ren);
     curr = curr->next;
+    
     while (curr != ending_line) {
         for (int i = 0; i < curr->size && curr->content[i]; i++) {
             if (curr->content[i] == 0) break;

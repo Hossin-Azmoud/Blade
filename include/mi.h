@@ -96,10 +96,6 @@ void editor_backspace(Lines_renderer *line_ren);
 char *editor_render_startup(int x, int y);
 
 
-void editor_up(Lines_renderer *line_ren);
-void editor_left(Lines_renderer *line_ren);
-void editor_down(Lines_renderer *line_ren);
-void editor_right(Lines_renderer *line_ren);
 
 void editor_apply_move(Lines_renderer *line_ren);
 
@@ -110,7 +106,16 @@ void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, 
 Line *Alloc_line_node(int row);
 
 Result *make_prompt_buffer(int x, int y);
-int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
-void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren);
+int    highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
+void   editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren);
+
+
+// Editor movement stuff..
+void editor_up(Lines_renderer *line_ren);
+void editor_left(Lines_renderer *line_ren);
+void editor_down(Lines_renderer *line_ren);
+void editor_right(Lines_renderer *line_ren);
+void handle_move(int c, Lines_renderer *line_ren);
+bool is_move(int key);
 
 #endif // MI_H
