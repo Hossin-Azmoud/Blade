@@ -80,7 +80,7 @@ int load_file(char *file_path, Lines_renderer *line_ren)
             new->prev = line_ren->current;
             line_ren->current = new;
 
-            if (line_ren->current->y - line_ren->start->y == line_ren->win_h - 4) { 
+            if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ - 1) { 
                 // when we reach the last row that will be rendered we nark i.
                 line_ren->end = line_ren->current;
             }
@@ -302,7 +302,7 @@ void editor_new_line(Lines_renderer *line_ren)
         line_ren->end = new;
         line_ren->current = new;
         
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) {
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1) {
             line_ren->start = line_ren->start->next;
         }
 
@@ -317,7 +317,7 @@ void editor_new_line(Lines_renderer *line_ren)
         line_ren->current->next = new; // correct
         next->prev = new;
         lines_shift(new->next, 1);
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) 
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1) 
             line_ren->end = line_ren->end->prev;
 
         line_ren->current = line_ren->current->next;
@@ -342,7 +342,7 @@ void editor_new_line(Lines_renderer *line_ren)
             new->size
         );
 
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) 
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_  - 1) 
             line_ren->end = line_ren->end->prev;
 
         lines_shift(new->next, 1);
@@ -357,7 +357,7 @@ void editor_new_line(Lines_renderer *line_ren)
         );
 
         line_ren->end = new;
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - 4) {
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1) {
             line_ren->start = line_ren->start->next;
         }
     }

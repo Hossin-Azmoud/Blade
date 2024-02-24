@@ -24,7 +24,7 @@ void editor_left(Lines_renderer *line_ren)
 void editor_down(Lines_renderer *line_ren)
 {
     if (line_ren->current->next){
-        if (line_ren->current->y - line_ren->start->y == line_ren->win_h - 4) {
+        if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ - 1) {
             line_ren->start = line_ren->start->next;
             if (line_ren->end->next) {
                 line_ren->end = line_ren->end->next;
@@ -42,10 +42,7 @@ void editor_right(Lines_renderer *line_ren)
 
 void editor_apply_move(Lines_renderer *line_ren)
 {
-
-    move(line_ren->current->y - line_ren->start->y, 
-        line_ren->current->x + line_ren->max_padding
-    );
+    move(line_ren->current->y - line_ren->start->y, line_ren->current->x + line_ren->max_padding);
 }
 
 bool is_move(int key)

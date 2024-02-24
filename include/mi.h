@@ -6,12 +6,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ESC 0x1b
-#define KEY_COPY_ 'y'
-#define KEY_PASTE_ 'p'
+#define ESC         0x1b
+#define KEY_COPY_   'y'
+#define KEY_PASTE_  'p'
 #define KEY_INSERT_ 'i'
 #define KEY_VISUAL_ 'v'
-#define KEY_SAVE_ 'w'
+#define KEY_SAVE_   'w'
+#define MENU_HEIGHT_ 1
 
 // color editor pairs
 #define SECONDARY_THEME_PAIR 1
