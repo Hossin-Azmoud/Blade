@@ -1,10 +1,10 @@
-Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
-
+Colors: Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
 I Need:
     [*] Pick better coloring for the editor.
     [*] Modes (Normal, Visual, Insert).
-    [*]  Add copy/paste functionality
-    [] Organize features!
-    
+    [*] Add copy/paste functionality
+    [*] Organize features!
+    []  Handle mouse pressing.
+    []  add text highlighting for python as a test..
     [] Commads (Change file name, atleast).
-    
+
