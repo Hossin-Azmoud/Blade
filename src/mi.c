@@ -245,9 +245,14 @@ void char_inject(Line *line, char c)
     }
 }
 
-void line_push_char(Line *line, char c)
+void line_push_char(Line *line, char c, bool pasted)
 {
     char_inject(line, c);
+
+    if (pasted) {
+        return;
+    }
+
     switch (c) {
         case OPAR: {
             char_inject(line, CPAR);
@@ -276,7 +281,7 @@ void line_push_char(Line *line, char c)
 void editor_tabs(Line *line)
 {
     for (int i = 0; i < 4; ++i)
-        line_push_char(line, ' ');
+        line_push_char(line, ' ', true);
 }
 
 void editor_new_line(Lines_renderer *line_ren)
@@ -629,7 +634,7 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
         
         for (; start_idx < end_idx; start_idx++) {
             if (curr->content[start_idx] == 0) break;
-            line_push_char(line_ren->current, curr->content[start_idx]);
+            line_push_char(line_ren->current, curr->content[start_idx], true);
         }
 
         return;
@@ -668,7 +673,8 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
         
         if (curr->content[i] == 0) break;
         line_push_char(line_ren->current, 
-            curr->content[i]
+            curr->content[i],
+            true
         );
     }
 
@@ -678,7 +684,7 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
     while (curr != ending_line) {
         for (int i = 0; i < curr->size && curr->content[i]; i++) {
             if (curr->content[i] == 0) break;
-            line_push_char(line_ren->current, curr->content[i]);
+            line_push_char(line_ren->current, curr->content[i], true);
         }
 
         editor_new_line(line_ren);
@@ -688,13 +694,10 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
     for (int i = 0; (i < ending_line->size) && (i < end.x); i++) {
         if (ending_line->content[i] == 0) break;
         line_push_char(line_ren->current, 
-            ending_line->content[i]);
+            ending_line->content[i],
+            true
+        );
     }
-
     return;
 }
-
-
-
-
 

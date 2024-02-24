@@ -6,9 +6,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#define KEY_ESC 27
+#define ESC 0x1b
 #define KEY_COPY_ 'y'
 #define KEY_PASTE_ 'p'
+#define KEY_INSERT_ 'i'
+#define KEY_VISUAL_ 'v'
+#define KEY_SAVE_ 'w'
+
 // color editor pairs
 #define SECONDARY_THEME_PAIR 1
 #define MAIN_THEME_PAIR      2
@@ -16,7 +20,7 @@
 #define BLUE_PAIR            4
 #define HIGHLIGHT_THEME      5 
 
-#define CTRL(x) ((x) & 0x1F)
+#define CTRL(x) ((x) & 037)
 #define LINE_SZ 256
 #define LINE_NUM_MAX 8
 #define TAB '\t'
@@ -101,7 +105,7 @@ void editor_apply_move(Lines_renderer *line_ren);
 
 void editor_new_line(Lines_renderer *line_ren);
 void free_lines(Line *lines);
-void line_push_char(Line *line, char c);
+void line_push_char(Line *line, char c, bool pasted);
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
 Line *Alloc_line_node(int row);
 

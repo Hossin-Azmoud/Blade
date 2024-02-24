@@ -80,32 +80,20 @@ int editor(int argc, char **argv)
             handle_move(c, line_ren);
             goto RENDER;
         }
-        // Global cases that apply in every mode.
-        switch (c) {
-            case CTRL('v'): {
-                mode = VISUAL;
-                // we mark the chords of the start position!
-                copy_start.x = line_ren->current->x;
-                copy_start.y = line_ren->current->y;
-                copy_start._line = line_ren->current;
-            } break;
 
-			case KEY_F(2): {
+        // Globals.
+        switch (c) {
+
+            case KEY_F(2): {
                 exit_pressed = true;
             } break;
-            case CTRL('n'): {
-                mode = NORMAL;
-            } break;
-            case CTRL('t'): {
-                mode = INSERT;
-            } break;
-            case CTRL('x'): {
-                int saved_bytes = save_file(file, line_ren->origin, false);
-                sprintf(notification_buffer, "[ %dL %d bytes were written ]\n", line_ren->count, saved_bytes);
-            } break;
-            default: {} break;
         }
-
+        // Switch To NORMAL Mode using escape
+        if (c == ESC) {
+            mode = NORMAL;
+            goto RENDER;
+        }
+         
         // Actions that depend on the mode.
         switch (mode) {
             case VISUAL: {
@@ -121,8 +109,26 @@ int editor(int argc, char **argv)
                 }
             } break;
             case NORMAL: {
-                if (c == KEY_PASTE_)
-                    editor_paste_content(copy_start, copy_end, line_ren);
+                switch (c) {
+                    case KEY_PASTE_: {
+                        editor_paste_content(copy_start, copy_end, line_ren);
+                    } break;
+                    case KEY_INSERT_: {
+                        mode = INSERT;
+                    } break;
+                    case KEY_VISUAL_: {
+                        mode = VISUAL;
+                        // we mark the chords of the start position!
+                        copy_start.x = line_ren->current->x;
+                        copy_start.y = line_ren->current->y;
+                        copy_start._line = line_ren->current;
+                    } break;
+                    case KEY_SAVE_: {
+                        int saved_bytes = save_file(file, line_ren->origin, false);
+                        sprintf(notification_buffer, "[ %dL %d bytes were written ]\n", line_ren->count, saved_bytes);
+                    } break;
+                    default: {} break;
+                }
             } break;
             case INSERT: {
                 switch (c) {
@@ -141,20 +147,28 @@ int editor(int argc, char **argv)
                             goto RENDER;
                         }
 
-                        line_push_char(line_ren->current, c);
+                        line_push_char(line_ren->current, c, false);
                         if (!line_ren->count) line_ren->count++;
                     } break;
                 }
             } break;
             default: {} break;
         }
-
+        
+        if (!(isalnum(c) || ispunct(c) || isspace(c)))
+        {
+            if (c == CTRL(KEY_LEFT)) {
+                sprintf(notification_buffer, "[ CTRL_KEY_LEFT was clicked. ]\n");
+            } else if (c == CTRL(KEY_RIGHT)) {
+                sprintf(notification_buffer, "[ CTRL_KEY_RIGHT was clicked. ]\n");
+            } else {
+                sprintf(notification_buffer, "[ 0x%04x was clicked. ]\n", c);
+            }
+        }
 
     RENDER:
         erase();
-
         render_lines(line_ren);
-        
         // Highlight if the current context is VISUAL.
         if (mode == VISUAL) {
             highlighted_bytes = highlight_until_current_col (copy_start, line_ren);
@@ -171,10 +185,7 @@ int editor(int argc, char **argv)
         }
 
         editor_details(line_ren, file, mode, notification_buffer);
-
-        if (strlen(notification_buffer) > 0) 
-            memset(notification_buffer, 0, strlen(notification_buffer));
-
+        if (strlen(notification_buffer) > 0) memset(notification_buffer, 0, strlen(notification_buffer));
         editor_apply_move(line_ren);
     }
 
