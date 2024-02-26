@@ -182,6 +182,13 @@ int editor(int argc, char **argv)
             break;
         }
 
+        // Dis does not work ;(
+        // if (!(mode == INSERT))
+        //     _setcursortype(_SOLIDCURSOR);
+        // else {
+        //     _setcursortype(_NORMALCURSOR);
+        // }
+
         editor_details(line_ren, file, mode, notification_buffer);
         if (strlen(notification_buffer) > 0) memset(notification_buffer, 0, strlen(notification_buffer));
         editor_apply_move(line_ren);
@@ -203,3 +210,4 @@ EXIT_AND_RELEASE_RESOURCES:
 	close_logger();
     return 0;
 }
+

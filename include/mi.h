@@ -15,6 +15,9 @@
 #define KEY_SAVE_   'w'
 #define KEY_DEL     0x014a
 #define MENU_HEIGHT_ 1
+#define L_SHIFT 0x189
+#define R_SHIFT 0x192
+
 
 // color editor pairs
 #define SECONDARY_THEME_PAIR 1
@@ -137,3 +140,4 @@ void handle_move(int c, Lines_renderer *line_ren);
 bool is_move(int key);
 
 #endif // MI_H
+

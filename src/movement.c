@@ -47,13 +47,18 @@ void editor_apply_move(Lines_renderer *line_ren)
 
 bool is_move(int key)
 {
-    return ((key == KEY_UP) || (key == KEY_DOWN) || (key == KEY_LEFT) || (key == KEY_RIGHT)) || (key == KEY_END) || (key == KEY_HOME) || (key == KEY_MOUSE);
+    return ((key == KEY_UP) || (key == KEY_DOWN) || (key == KEY_LEFT) 
+        || (key == KEY_RIGHT)) 
+        || (key == KEY_END) 
+        || (key == KEY_HOME) 
+        || (key == KEY_MOUSE)
+        || (key == L_SHIFT)
+        || (key == R_SHIFT);
 }
 
 void handle_move(int c, Lines_renderer *line_ren)
 {
     char *current_char;
-    int space_count = 0;
     charType _type;
     MEVENT event;
 
@@ -103,33 +108,65 @@ void handle_move(int c, Lines_renderer *line_ren)
             }
         } break;
         // Speedy keys..
-        case KEY_SLEFT: {
+        case L_SHIFT: {
             // TODO: Implement this
+            editor_left(line_ren);
             {
                 current_char = (line_ren->current->content + line_ren->current->x);
                 _type = get_class(*current_char);
                 current_char--;
-
-                while (_type == get_class(*(current_char)) || ((get_class(*(current_char)) == SPACE) && space_count == 0))
+                while (_type == get_class(*(current_char)) || get_class(*(current_char)) == SPACE)
                 {
                     editor_left(line_ren);
 
                     if (line_ren->current->x - 1 < 0)
                         break;
                     
-                    if (get_class(*(current_char)) == SPACE) space_count++;
+                    if (get_class(*(current_char)) == SPACE) {
+                        editor_right(line_ren);
+                        break;
+                    }
 
                     current_char--;
                 }
             }
         } break;
-        case KEY_SRIGHT: {
+        case R_SHIFT: {
             // TODO: Implement this
             editor_right(line_ren);
+            {
+                current_char = (line_ren->current->content + line_ren->current->x);
+                _type = get_class(*current_char);
+                current_char++;
+                while (_type == get_class(*(current_char)) || get_class(*(current_char)) == SPACE)
+                {
+                    editor_right(line_ren);
+
+                    if (line_ren->current->x + 1 >= line_ren->current->size)
+                        break;
+                    
+                    if (get_class(*(current_char)) == SPACE) 
+                    {
+                        editor_right(line_ren);
+                        break;
+                    }
+
+                    current_char++;
+                }
+            }
         } break;
-        
         default: {} break;
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 
