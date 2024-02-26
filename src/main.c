@@ -16,11 +16,12 @@ int test() {
 
 int editor(int argc, char **argv)
 {
+    
     open_logger();
     // curs_set(1);
     Vec2 copy_start = { 0 }; 
     Vec2 copy_end   = { 0 };
-
+    vKeyBindingQueue binding = { 0 };
     char *file;
     editorMode mode = NORMAL;
     char notification_buffer[1024] = {0};
@@ -116,7 +117,18 @@ int editor(int argc, char **argv)
                         int saved_bytes = save_file(file, line_ren->origin, false);
                         sprintf(notification_buffer, "[ %dL %d bytes were written ]\n", line_ren->count, saved_bytes);
                     } break;
-                    default: {} break;
+                    default: {
+                        if (binding.size < MAX_KEY_BINDIND)
+                            binding.keys[binding.size++] = (char) c;
+                        if (binding.size == MAX_KEY_BINDIND) {
+                            // TODO: Process Key binding.
+                            sprintf(notification_buffer, "Key binding: %c%c\n", 
+                                    binding.keys[0], 
+                                    binding.keys[1]);
+                            memset(binding.keys, 0, strlen(binding.keys));
+                            binding.size = 0;
+                        }
+                    } break;
                 }
             } break;
             case INSERT: {

@@ -153,7 +153,6 @@ void editor_dl(Line *line)
 void editor_backspace(Lines_renderer *line_ren)
 {
     Line *next, *prev, *current;
-
     // NORMAL backspacing. 
     if (line_ren->current->x > 0) {
         memmove(

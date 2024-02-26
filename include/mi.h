@@ -27,7 +27,7 @@
 #define HIGHLIGHT_THEME      5 
 
 #define CTRL(x) ((x) & 037)
-#define LINE_SZ 256
+#define LINE_SZ 64
 #define LINE_NUM_MAX 8
 #define TAB '\t'
 #define NL  '\n'
@@ -71,6 +71,11 @@ typedef enum editorMode {
     INSERT
 } editorMode;
 
+#define MAX_KEY_BINDIND 2
+typedef struct vKeyBindingQueue {
+    char keys[MAX_KEY_BINDIND];
+    int size;
+} vKeyBindingQueue;
 
 typedef struct Line Line;
 
