@@ -1,13 +1,5 @@
 #include <mi.h>
-#include <logger.h>
 
-/***
- *
- * TODO:
- * - Handle memory moves when the cursor is on a line and a x>0 column. (*) Done
- * - Handle pages and pages Up/Down keys. (*) Done
- * - Handle backspace left age case!
- ***/
 #define T 0
 // #define DEBUG
 int editor(int argc, char **argv);
@@ -25,7 +17,7 @@ int test() {
 int editor(int argc, char **argv)
 {
     open_logger();
-
+    // curs_set(1);
     Vec2 copy_start = { 0 }; 
     Vec2 copy_end   = { 0 };
 
@@ -41,21 +33,17 @@ int editor(int argc, char **argv)
         .count=0,
         .max_padding=0
     };
-
     int highlighted_bytes = 0;
     Lines_renderer *line_ren =  &line_ren_raw;
-
     bool deleted_char = false;
     int c = 0;
+    bool exit_pressed = false;
     line_ren->origin  = Alloc_line_node(0);
-
     line_ren->start   = line_ren->origin;
     line_ren->end     = line_ren->origin; 
     line_ren->current = line_ren->origin; 
 
-    bool exit_pressed = false;   
-    win = init_editor();
-    
+    win = init_editor();    
     getmaxyx(win, 
              line_ren->win_h, 
              line_ren->win_w); 
@@ -71,10 +59,17 @@ int editor(int argc, char **argv)
 
     erase();   
     line_ren->count = load_file(file, line_ren);
+
     render_lines(line_ren);
     editor_details(line_ren, file, mode, notification_buffer);
     editor_apply_move(line_ren);
 
+    {
+        // Mouse stuff.
+        mousemask(ALL_MOUSE_EVENTS, NULL);
+        mouseinterval(0);
+    }
+    
     while ((c = getch()) != KEY_F(1)) {
         if (is_move(c)) {
             handle_move(c, line_ren);
@@ -83,17 +78,17 @@ int editor(int argc, char **argv)
 
         // Globals.
         switch (c) {
-
             case KEY_F(2): {
                 exit_pressed = true;
             } break;
         }
         // Switch To NORMAL Mode using escape
-        if (c == ESC) {
+        if (c == CTRL('n')) {
             mode = NORMAL;
             goto RENDER;
         }
-         
+
+        
         // Actions that depend on the mode.
         switch (mode) {
             case VISUAL: {
@@ -139,14 +134,17 @@ int editor(int argc, char **argv)
                         editor_backspace(line_ren);
                         deleted_char = true;
 			        } break;
-			
-			        default: {
-                        if (c == '\n') {
-                            editor_new_line(line_ren);
-                            if (!line_ren->count) line_ren->count++;    
-                            goto RENDER;
-                        }
-
+                    case KEY_DEL: {
+                        // TODO: Implement this.
+                        editor_dl(line_ren->current);
+                        deleted_char = true;
+                    } break;		
+                    case NL: {
+                        editor_new_line(line_ren);
+                        if (!line_ren->count) line_ren->count++;    
+                        goto RENDER;
+                    } break;
+                    default: {
                         line_push_char(line_ren->current, c, false);
                         if (!line_ren->count) line_ren->count++;
                     } break;
@@ -187,6 +185,7 @@ int editor(int argc, char **argv)
         editor_details(line_ren, file, mode, notification_buffer);
         if (strlen(notification_buffer) > 0) memset(notification_buffer, 0, strlen(notification_buffer));
         editor_apply_move(line_ren);
+        refresh();
     }
 
     if (!exit_pressed) {

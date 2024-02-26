@@ -1,5 +1,6 @@
 #ifndef MI_H
 #define MI_H
+#include <logger.h>
 #include <ncurses.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -12,6 +13,7 @@
 #define KEY_INSERT_ 'i'
 #define KEY_VISUAL_ 'v'
 #define KEY_SAVE_   'w'
+#define KEY_DEL     0x014a
 #define MENU_HEIGHT_ 1
 
 // color editor pairs
@@ -38,6 +40,16 @@
 #define DQUOTE '\"'
 #define SQUOTE '\''
 #define WLCM_BUFF "(WELLCOME TO MI EDITOR V0.1!)"
+
+typedef enum charType {
+    NUMBER,
+    SYMBOL,
+    ALPHABET,
+    SPACE,
+    UNK
+} charType;
+
+charType get_class(int key);
 
 typedef enum ResultType {
     SUCCESS,
@@ -70,9 +82,9 @@ typedef struct Vec2 {
 // } Vcursor;
 //
 typedef struct Line {
-    int x, y, size, padding;
+    int x, y, size, padding, cap;
     char line_number[LINE_NUM_MAX];
-    char content[LINE_SZ];
+    char *content;
     Line *next, *prev;
 } Line;
     
@@ -101,6 +113,7 @@ void editor_backspace(Lines_renderer *line_ren);
 char *editor_render_startup(int x, int y);
 
 
+void editor_dl(Line *line);
 
 void editor_apply_move(Lines_renderer *line_ren);
 

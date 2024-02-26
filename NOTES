@@ -4,6 +4,7 @@ I Need:
     [*] Modes (Normal, Visual, Insert).
     [*] Add copy/paste functionality
     [*] Organize features!
+    []  Handle Shift + key
     []  Handle mouse pressing.
     []  add text highlighting for python as a test..
     [] Commads (Change file name, atleast).

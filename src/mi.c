@@ -16,10 +16,10 @@ Line *Alloc_line_node(int row)
     line->prev = NULL;
     line->x    = 0;
     line->size = 0;
+    line->cap  = LINE_SZ;
     line->y    = row;
-
-    for (int i = 0; i < LINE_SZ; ++i)
-        line->content[i] = 0x0;
+    line->content = malloc(LINE_SZ);
+    memset(line->content, 0, LINE_SZ);
 
     return (line);
 }
@@ -63,7 +63,6 @@ WINDOW *init_editor()
 
 int load_file(char *file_path, Lines_renderer *line_ren)
 {
-    Line *new = NULL;
     char c;
     FILE *Stream = fopen(file_path, "r");
     char line_number[LINE_NUM_MAX] = { 0 };
@@ -75,25 +74,14 @@ int load_file(char *file_path, Lines_renderer *line_ren)
 
     while((c = fgetc(Stream)) != EOF) {
         if (c == '\n') {
-            new = Alloc_line_node(line_ren->current->y + 1);
-            line_ren->current->next = new;
-            new->prev = line_ren->current;
-            line_ren->current = new;
-
-            if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ - 1) { 
-                // when we reach the last row that will be rendered we nark i.
-                line_ren->end = line_ren->current;
-            }
-
-            line_ren->count++;
-        } else {
-            line_ren->current->content[line_ren->current->x++] = c;
-            line_ren->current->size++;
+            editor_new_line(line_ren);
+            continue;
         }
 
+        line_push_char(line_ren->current, c, true);
         if (!line_ren->count) line_ren->count++;
     }
-    
+
     if (line_ren->count > 1 && (line_ren->start == line_ren->end)) {
         line_ren->end = line_ren->current;
     }
@@ -119,7 +107,10 @@ int save_file(char *file_path, Line *lines, bool release)
         next = current->next;
 
         if (release)
+        {
+            free(current->content);
             free(current);
+        }
         
         current = next;
     }
@@ -134,6 +125,7 @@ void free_lines(Line *lines) {
 
     for (; (current);) {
         next = current->next;
+        free(current->content);
         free(current);
         current = next;
     }
@@ -155,6 +147,23 @@ static void render_line(Line *line, int offset, int max_padding)
     
     for (x = 0; x < line->size; ++x) {
          mvaddch(line->y - offset, x + n, line->content[x]);
+    }
+}
+
+void editor_dl(Line *line) 
+{
+    // NORMAL del. 
+    if (line->x > 0) {
+        memmove(
+            line->content + line->x,
+            line->content + line->x + 1,
+            line->size - line->x
+        );
+   
+        line->x--;
+        line->size--;
+        line->content[line->size] = 0;
+        return;
     }
 }
 
@@ -198,6 +207,7 @@ void editor_backspace(Lines_renderer *line_ren)
         if (next)
             next->prev = prev;
         
+        free(current->content);
         free(current);
         line_ren->count--;
 
@@ -237,6 +247,7 @@ void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode_,
 void char_inject(Line *line, char c)
 {
     if (isalnum(c) || ispunct(c) || isspace(c)) {
+        
         memmove((line->content + line->x + 1),
             (line->content + line->x),
             line->size - line->x);
@@ -247,8 +258,12 @@ void char_inject(Line *line, char c)
 
 void line_push_char(Line *line, char c, bool pasted)
 {
-    char_inject(line, c);
+    if (line->size + 1 == line->cap) {
+        line->cap *= 2;
+        line->content = realloc(line->content, line->cap);
+    }
 
+    char_inject(line, c);
     if (pasted) {
         return;
     }
@@ -645,17 +660,17 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
         end = temp;
     }
 
-    fprintf(
-        get_logger_file_ptr(),
-        "Starting Vec: (%d, %d)\n",
-        start.x, start.y
-    );    
-    
-    fprintf(
-        get_logger_file_ptr(),
-        "Ending Vec: (%d, %d)\n",
-        end.x, end.y
-    );    
+    // fprintf(
+    //     get_logger_file_ptr(),
+    //     "Starting Vec: (%d, %d)\n",
+    //     start.x, start.y
+    // );    
+    // 
+    // fprintf(
+    //     get_logger_file_ptr(),
+    //     "Ending Vec: (%d, %d)\n",
+    //     end.x, end.y
+    // );    
     
     
 
@@ -664,12 +679,6 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
     curr = starting_line;
 
     for (int i = start.x; (i < curr->size); i++) {
-
-        // fprintf(get_logger_file_ptr(),
-        //     "Pushing Char (Line : %d, idx: %d): %c\n",
-        //     start.y, i,
-        //     curr->content[i]
-        // );
         
         if (curr->content[i] == 0) break;
         line_push_char(line_ren->current, 
