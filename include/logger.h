@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define LOGGER_FILE "Logs.mi.txt"
+#define LOGGER_FILE "./logs/Logs.mi.txt"
 
 void open_logger();
 void close_logger();

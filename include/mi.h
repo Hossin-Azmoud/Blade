@@ -114,6 +114,7 @@ void render_lines(Lines_renderer *line_ren);
 void editor_tabs(Line *line);
 void editor_backspace(Lines_renderer *line_ren);
 char *editor_render_startup(int x, int y);
+void lines_shift(Line *head, int num);
 
 
 void editor_dl(Line *line);

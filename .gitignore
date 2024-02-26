@@ -2,7 +2,7 @@
 ./mi
 bin/
 files/
-
+logs/
 
 # Prerequisites
 *.d

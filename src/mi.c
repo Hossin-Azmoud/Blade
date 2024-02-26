@@ -8,30 +8,6 @@ static char *modes[] = {
     "INSERT"
 };
 
-Line *Alloc_line_node(int row)
-{
-    Line *line = (Line *)malloc(sizeof(Line));
-
-    line->next = NULL;
-    line->prev = NULL;
-    line->x    = 0;
-    line->size = 0;
-    line->cap  = LINE_SZ;
-    line->y    = row;
-    line->content = malloc(LINE_SZ);
-    memset(line->content, 0, LINE_SZ);
-
-    return (line);
-}
-
-static void lines_shift(Line *head, int num) {
-
-    Line *curr = head;
-    for (;curr;) {
-        curr->y += num;
-        curr = curr->next;
-    }
-}
 static void init_colors() 
 {
     start_color();
@@ -57,7 +33,12 @@ WINDOW *init_editor()
     init_colors();
 
     wbkgd(win, COLOR_PAIR(COLOR_BLACK));
-
+    set_escdelay(0); 
+    {
+        // Mouse stuff.
+        mousemask(ALL_MOUSE_EVENTS, NULL);
+        mouseinterval(0);
+    }
     return win;
 }
 

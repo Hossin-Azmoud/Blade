@@ -63,13 +63,7 @@ int editor(int argc, char **argv)
     render_lines(line_ren);
     editor_details(line_ren, file, mode, notification_buffer);
     editor_apply_move(line_ren);
-
-    {
-        // Mouse stuff.
-        mousemask(ALL_MOUSE_EVENTS, NULL);
-        mouseinterval(0);
-    }
-    
+     
     while ((c = getch()) != KEY_F(1)) {
         if (is_move(c)) {
             handle_move(c, line_ren);
@@ -83,7 +77,7 @@ int editor(int argc, char **argv)
             } break;
         }
         // Switch To NORMAL Mode using escape
-        if (c == CTRL('n')) {
+        if (c == ESC) {
             mode = NORMAL;
             goto RENDER;
         }
