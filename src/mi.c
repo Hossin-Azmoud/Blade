@@ -74,7 +74,9 @@ int load_file(char *file_path, Lines_renderer *line_ren)
 
     while((c = fgetc(Stream)) != EOF) {
         if (c == '\n') {
-            editor_new_line(line_ren);
+            editor_new_line(line_ren, false);
+            if (line_ren->current->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1) 
+                line_ren->end = line_ren->current->prev;
             continue;
         }
 
@@ -299,7 +301,7 @@ void editor_tabs(Line *line)
         line_push_char(line, ' ', true);
 }
 
-void editor_new_line(Lines_renderer *line_ren)
+void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
 {
     Line *new, *next;
     char line_number[LINE_NUM_MAX] = { 0 };
@@ -314,11 +316,11 @@ void editor_new_line(Lines_renderer *line_ren)
     {
         line_ren->current->next = new;
         new->prev = line_ren->current;
-        line_ren->end = new;
         line_ren->current = new;
         
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1) {
+        if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
             line_ren->start = line_ren->start->next;
+            line_ren->end = new;
         }
 
         line_ren->count++;
@@ -332,7 +334,7 @@ void editor_new_line(Lines_renderer *line_ren)
         line_ren->current->next = new; // correct
         next->prev = new;
         lines_shift(new->next, 1);
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1) 
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) 
             line_ren->end = line_ren->end->prev;
 
         line_ren->current = line_ren->current->next;
@@ -371,9 +373,10 @@ void editor_new_line(Lines_renderer *line_ren)
                 new->size
         );
 
-        line_ren->end = new;
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1) {
+        
+        if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
             line_ren->start = line_ren->start->next;
+            line_ren->end = new;
         }
     }
 
@@ -687,7 +690,7 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
         );
     }
 
-    editor_new_line(line_ren);
+    editor_new_line(line_ren, true);
     curr = curr->next;
     
     while (curr != ending_line) {
@@ -696,7 +699,7 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
             line_push_char(line_ren->current, curr->content[i], true);
         }
 
-        editor_new_line(line_ren);
+        editor_new_line(line_ren, true);
         curr = curr->next;
     }
 

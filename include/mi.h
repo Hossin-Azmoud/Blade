@@ -120,7 +120,7 @@ void editor_dl(Line *line);
 
 void editor_apply_move(Lines_renderer *line_ren);
 
-void editor_new_line(Lines_renderer *line_ren);
+void editor_new_line(Lines_renderer *line_ren, bool reset_borders);
 void free_lines(Line *lines);
 void line_push_char(Line *line, char c, bool pasted);
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);

@@ -59,7 +59,7 @@ int editor(int argc, char **argv)
 
     erase();   
     line_ren->count = load_file(file, line_ren);
-
+    
     render_lines(line_ren);
     editor_details(line_ren, file, mode, notification_buffer);
     editor_apply_move(line_ren);
@@ -140,7 +140,7 @@ int editor(int argc, char **argv)
                         deleted_char = true;
                     } break;		
                     case NL: {
-                        editor_new_line(line_ren);
+                        editor_new_line(line_ren, true);
                         if (!line_ren->count) line_ren->count++;    
                         goto RENDER;
                     } break;
