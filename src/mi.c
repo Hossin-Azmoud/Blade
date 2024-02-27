@@ -246,9 +246,8 @@ void line_push_char(Line *line, char c, bool pasted)
     }
 
     char_inject(line, c);
-    if (pasted) {
+    if (pasted)
         return;
-    }
 
     switch (c) {
         case OPAR: {
@@ -297,10 +296,9 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         line_ren->current->next = new;
         new->prev = line_ren->current;
         line_ren->current = new;
-        
+        line_ren->end = new;
         if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
             line_ren->start = line_ren->start->next;
-            line_ren->end = new;
         }
 
         line_ren->count++;
@@ -353,10 +351,9 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
                 new->size
         );
 
-        
+        line_ren->end = new;
         if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
             line_ren->start = line_ren->start->next;
-            line_ren->end = new;
         }
     }
 
@@ -618,6 +615,23 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
     return highlight_count;
 }
 
+static char *get_string_chunk(char *s, int start, int end, int size)
+{
+    int n = (size - start) - (size - end);
+    int it = start, ci = 0;
+    
+    if (n) {
+        char *chunk = malloc((size - start) - (size - end) + 1);
+        for (; it < end; ++it, ++ci) {
+            chunk[ci] = s[it];
+        }
+        chunk[ci] = 0;
+        return chunk;
+    }
+
+    return NULL;
+}
+
 void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
 {    
     Vec2 temp = { .x = start.x, .y = start.y, ._line = start._line };
@@ -625,16 +639,16 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
     Line *curr = NULL;
     
     if (start.y == end.y) { // We need to copy one line!
-
+        
         curr = start._line;
         int start_idx = (start.x > end.x) ? end.x : start.x;
         int end_idx   = (start.x > end.x) ? start.x : end.x;
-        
-        for (; start_idx < end_idx; start_idx++) {
-            if (curr->content[start_idx] == 0) break;
-            line_push_char(line_ren->current, curr->content[start_idx], true);
+        char *chunk = get_string_chunk(curr->content, start_idx, end_idx, curr->size);
+        for (int i = 0; chunk[i]; i++) {
+            line_push_char(line_ren->current, chunk[i], true);
         }
 
+        free(chunk);
         return;
     }
 
@@ -642,20 +656,6 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
         start = end;
         end = temp;
     }
-
-    // fprintf(
-    //     get_logger_file_ptr(),
-    //     "Starting Vec: (%d, %d)\n",
-    //     start.x, start.y
-    // );    
-    // 
-    // fprintf(
-    //     get_logger_file_ptr(),
-    //     "Ending Vec: (%d, %d)\n",
-    //     end.x, end.y
-    // );    
-    
-    
 
     starting_line = start._line;
     ending_line   = end._line;
@@ -692,4 +692,3 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
     }
     return;
 }
-

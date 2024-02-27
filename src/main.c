@@ -32,8 +32,9 @@ int editor(int argc, char **argv)
         .end=NULL, 
         .current=NULL, 
         .count=0,
-        .max_padding=0
+        .max_padding=2
     };
+
     int highlighted_bytes = 0;
     Lines_renderer *line_ren =  &line_ren_raw;
     bool deleted_char = false;
@@ -120,6 +121,7 @@ int editor(int argc, char **argv)
                     default: {
                         if (binding.size < MAX_KEY_BINDIND)
                             binding.keys[binding.size++] = (char) c;
+                        // TODO: Make binding copy whole line with `yy`, and delete whole line with `dd`
                         if (binding.size == MAX_KEY_BINDIND) {
                             // TODO: Process Key binding.
                             sprintf(notification_buffer, "Key binding: %c%c\n", 

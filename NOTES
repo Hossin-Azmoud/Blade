@@ -6,6 +6,15 @@ I Need:
     [*] Organize features!
     [*]  Handle Shift + key
     [*]  Handle mouse pressing.
+    [] remove the old way of copy paste and introdude a struct.. ClipBoard to be used as a storage for any coppied or deled lines.
+    PROTO:
+
+    {
+        int size, cap,
+        char data[]
+    }
+
+    [] add some keybindings
     []  add text highlighting for python as a test..
     [] Commads (Change file name, atleast).
 

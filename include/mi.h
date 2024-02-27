@@ -72,23 +72,27 @@ typedef enum editorMode {
 } editorMode;
 
 #define MAX_KEY_BINDIND 2
+
+typedef enum bindingKind {
+    COPY_LINE, // yy
+    DEL_LINE,  // dd || cc
+    NOT_VALID
+} bindingKind;
+
 typedef struct vKeyBindingQueue {
     char keys[MAX_KEY_BINDIND];
     int size;
+    bindingKind kind;
 } vKeyBindingQueue;
 
 typedef struct Line Line;
-
 typedef struct Vec2 {
     int x, y;
     Line *_line;
 } Vec2;
 
-// typedef struct Vcursor {
-//     Vec2 start; // start position in which we will start the coppying!
-//     Vec2 end; // end pos in which the coppying ends!
-// } Vcursor;
-//
+
+
 typedef struct Line {
     int x, y, size, padding, cap;
     char line_number[LINE_NUM_MAX];
@@ -111,7 +115,10 @@ typedef struct Result {
     ErrorType  etype;
     char *data;
 } Result;
-
+typedef struct Editor {
+    Lines_renderer line_ren;
+    editorMode mode;
+} Editor;
 WINDOW *init_editor();
 int load_file(char *file_path, Lines_renderer *line_ren);
 int save_file(char *file_path, Line *lines, bool release);
@@ -144,6 +151,10 @@ void editor_down(Lines_renderer *line_ren);
 void editor_right(Lines_renderer *line_ren);
 void handle_move(int c, Lines_renderer *line_ren);
 bool is_move(int key);
+
+void editor_handle_binding(vKeyBindingQueue *bindings);
+void editor_identify_binding(vKeyBindingQueue *bindings);
+
 
 #endif // MI_H
 
