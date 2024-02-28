@@ -10,8 +10,15 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         } break;
         case DEL_LINE: {
             CLIPBOARD_SET(line_ren->current->content);
+            if (line_ren->current->prev != NULL) {
+                line_ren->current->size = 0; // Set the size to zero so the line can be disconnected and freed!
+                line_disconnect_from_ren(line_ren);
+                return;
+            }
+            
+            line_ren->current->x = 0;
+            memset(line_ren->current->content, 0, line_ren->current->size);
             line_ren->current->size = 0; // Set the size to zero so the line can be disconnected and freed!
-            line_disconnect_from_ren(line_ren);
         } break;
         case NOT_VALID: {
         } break;

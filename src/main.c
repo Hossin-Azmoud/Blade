@@ -7,7 +7,10 @@ int test();
 
 int main(int argc, char **argv) {
     if (T) return test();
-    return editor(argc, argv);
+    int ret = editor(argc, argv);
+    CLIPBOARD_FREE();
+    close_logger();
+    return ret;
 }
 
 int test() {
@@ -94,31 +97,22 @@ int editor(int argc, char **argv)
                     copy_end.y = line_ren->current->y;
                     copy_end._line = line_ren->current;
                     mode = NORMAL;
-                    sprintf(notification_buffer, "[ (%d, %d) -> (%d, %d)]\n", 
-                            copy_start.x, copy_start.y,
-                            copy_end.x, copy_end.y);
+                    clipboard_save_chunk(copy_start, copy_end);
                 }
             } break;
+            
             case NORMAL: {
                 switch (c) {
                     case KEY_PASTE_: {
                         // TODO: Make clipboard be synced with the VISUAL mode clipboard_
-                        char *data = CLIPBOARD_GET();
-                        if (data) {
-                            line_ren->current->x = line_ren->current->size;
-                            editor_new_line(line_ren, true);
-                            for (; *data; data++) {
-                                line_push_char(line_ren->current, *data, false);
-                            }
-                        } else { editor_paste_content(copy_start, copy_end, line_ren); }
-                        
+                        editor_push_data_from_clip(line_ren);
                     } break;
                     case KEY_INSERT_: {
                         mode = INSERT;
                     } break;
                     case KEY_VISUAL_: {
-                        mode = VISUAL;
                         // we mark the chords of the start position!
+                        mode = VISUAL;
                         copy_start.x = line_ren->current->x;
                         copy_start.y = line_ren->current->y;
                         copy_start._line = line_ren->current;
@@ -212,8 +206,6 @@ int editor(int argc, char **argv)
     if (!exit_pressed) {
         endwin();
         save_file(file, line_ren->origin, true);
-        
-        close_logger();
         return 0;
     }
 
@@ -221,7 +213,6 @@ int editor(int argc, char **argv)
 EXIT_AND_RELEASE_RESOURCES:
     endwin();
     free_lines(line_ren->origin);
-	close_logger();
     return 0;
 }
 

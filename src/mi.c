@@ -176,7 +176,7 @@ void editor_backspace(Lines_renderer *line_ren)
 
 void line_disconnect_from_ren(Lines_renderer *line_ren)
 {
-
+    
     Line *current = line_ren->current;
     Line *prev = current->prev;
     Line *next = current->next;
@@ -191,12 +191,11 @@ void line_disconnect_from_ren(Lines_renderer *line_ren)
         prev->size += current->size;
     }
 
-    
     prev->next = next;
 
     if (next)
         next->prev = prev;
-    
+
     free(current->content);
     free(current);
     line_ren->count--;
@@ -619,41 +618,28 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
     return highlight_count;
 }
 
-static char *get_string_chunk(char *s, int start, int end, int size)
+static void get_string_chunk(Chunk *c, char *s, int start, int end, int size)
 {
     int n = (size - start) - (size - end);
-    int it = start, ci = 0;
-    
     if (n) {
-        char *chunk = malloc((size - start) - (size - end) + 1);
-        for (; it < end; ++it, ++ci) {
-            chunk[ci] = s[it];
-        }
-        chunk[ci] = 0;
-        return chunk;
+        for (int it = start; it < end; ++it)
+            chunk_append_char(c, s[it]);
     }
-
-    return NULL;
 }
 
-void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
-{    
+void clipboard_save_chunk(Vec2 start, Vec2 end)
+{
     Vec2 temp = { .x = start.x, .y = start.y, ._line = start._line };
     Line *starting_line, *ending_line;
     Line *curr = NULL;
-    
+    Chunk *chunk = chunk_new();
+
     if (start.y == end.y) { // We need to copy one line!
-        
         curr = start._line;
         int start_idx = (start.x > end.x) ? end.x : start.x;
         int end_idx   = (start.x > end.x) ? start.x : end.x;
-        char *chunk = get_string_chunk(curr->content, start_idx, end_idx, curr->size);
-        for (int i = 0; chunk[i]; i++) {
-            line_push_char(line_ren->current, chunk[i], true);
-        }
-
-        free(chunk);
-        return;
+        get_string_chunk(chunk, curr->content, start_idx, end_idx, curr->size);
+        goto SET_AND_EX;
     }
 
     if (start.y > end.y) {
@@ -665,34 +651,41 @@ void editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren)
     ending_line   = end._line;
     curr = starting_line;
 
-    for (int i = start.x; (i < curr->size); i++) {
-        
-        if (curr->content[i] == 0) break;
-        line_push_char(line_ren->current, 
-            curr->content[i],
-            true
-        );
-    }
+    get_string_chunk(chunk, 
+        curr->content, 
+        start.x, 
+        curr->size, 
+        curr->size
+    );
 
-    editor_new_line(line_ren, true);
+    chunk_append_char(chunk, '\n');
+    // editor_new_line(line_ren, true);
     curr = curr->next;
     
     while (curr != ending_line) {
-        for (int i = 0; i < curr->size && curr->content[i]; i++) {
-            if (curr->content[i] == 0) break;
-            line_push_char(line_ren->current, curr->content[i], true);
-        }
+        
+        get_string_chunk(chunk, 
+            curr->content, 
+            0,
+            curr->size, 
+            curr->size
+        );
 
-        editor_new_line(line_ren, true);
+        chunk_append_char(chunk, '\n');
         curr = curr->next;
     }
-
-    for (int i = 0; (i < ending_line->size) && (i < end.x); i++) {
-        if (ending_line->content[i] == 0) break;
-        line_push_char(line_ren->current, 
-            ending_line->content[i],
-            true
+    
+    if (curr) {
+        get_string_chunk(chunk, 
+            curr->content, 
+            0,
+            curr->size, 
+            curr->size
         );
+
+        chunk_append_char(chunk, '\n');
     }
-    return;
+SET_AND_EX:
+    CLIPBOARD_SET(chunk->data);
+    free(chunk);
 }

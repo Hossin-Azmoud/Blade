@@ -17,6 +17,7 @@
 #define MENU_HEIGHT_ 1
 #define L_SHIFT 0x189
 #define R_SHIFT 0x192
+
 // clipboard api
 typedef enum ClipBoardEvent {
     CFREE,
@@ -95,7 +96,13 @@ typedef struct vKeyBindingQueue {
     bindingKind kind;
 } vKeyBindingQueue;
 
+typedef struct Chunk {
+    char *data;
+    int cap, size;
+} Chunk;
+
 typedef struct Line Line;
+
 typedef struct Vec2 {
     int x, y;
     Line *_line;
@@ -135,6 +142,7 @@ int save_file(char *file_path, Line *lines, bool release);
 void render_lines(Lines_renderer *line_ren);
 void editor_tabs(Line *line);
 void editor_backspace(Lines_renderer *line_ren);
+void editor_push_data_from_clip(Lines_renderer *line_ren);
 char *editor_render_startup(int x, int y);
 void lines_shift(Line *head, int num);
 
@@ -146,7 +154,6 @@ void editor_apply_move(Lines_renderer *line_ren);
 void editor_new_line(Lines_renderer *line_ren, bool reset_borders);
 void free_lines(Line *lines);
 void line_push_char(Line *line, char c, bool pasted);
-
 void line_disconnect_from_ren(Lines_renderer *line_ren);
 
 Line *Alloc_line_node(int row);
@@ -154,7 +161,7 @@ Line *Alloc_line_node(int row);
 Result *make_prompt_buffer(int x, int y);
 int    highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
 void   editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren);
-
+void  clipboard_save_chunk(Vec2 start, Vec2 end);
 
 // Editor movement stuff..
 void editor_up(Lines_renderer *line_ren);
@@ -166,6 +173,11 @@ bool is_move(int key);
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
+// CHUNK
 
+void  chunk_append_s(Chunk *c, char *str);
+void  chunk_append_char(Chunk *c, char chr);
+Chunk *chunk_new();
+void  chunk_distroy(Chunk *c);
 #endif // MI_H
 
