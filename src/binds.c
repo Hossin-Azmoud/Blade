@@ -1,13 +1,20 @@
 #include <mi.h>
 
-void editor_handle_binding(vKeyBindingQueue *bindings)
+void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
 {
     editor_identify_binding(bindings);
     switch (bindings->kind)
     {
-        case COPY_LINE: {} break;
-        case DEL_LINE: {} break;
-        case NOT_VALID: {} break;
+        case COPY_LINE: {
+            CLIPBOARD_SET(line_ren->current->content);
+        } break;
+        case DEL_LINE: {
+            CLIPBOARD_SET(line_ren->current->content);
+            line_ren->current->size = 0; // Set the size to zero so the line can be disconnected and freed!
+            line_disconnect_from_ren(line_ren);
+        } break;
+        case NOT_VALID: {
+        } break;
         default: {} break;
     }
 }

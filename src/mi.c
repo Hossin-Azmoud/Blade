@@ -152,7 +152,6 @@ void editor_dl(Line *line)
 
 void editor_backspace(Lines_renderer *line_ren)
 {
-    Line *next, *prev, *current;
     // NORMAL backspacing. 
     if (line_ren->current->x > 0) {
         memmove(
@@ -169,37 +168,42 @@ void editor_backspace(Lines_renderer *line_ren)
     
     // if the cursor is on the first col of a line and we need to shift lines and data  backward
     if (line_ren->current->x == 0 && line_ren->current->prev) {
-        current = line_ren->current;
-        prev = current->prev;
-        next = current->next;
-
-        if (current->size) {
-            // move all the data locateed in the curr line to the end of the prev line!
-            memmove(
-                prev->content + prev->size,
-                current->content,
-                current->size
-            );
-            prev->size += current->size;
-        }
-
-        
-        prev->next = next;
-
-        if (next)
-            next->prev = prev;
-        
-        free(current->content);
-        free(current);
-        line_ren->count--;
-
-        line_ren->current = prev; // go back one line.
-        lines_shift(next, -1); 
-        return;
+        line_disconnect_from_ren(line_ren);
     }
 
     line_ren->current->content[line_ren->current->x] = 0;
 }
+
+void line_disconnect_from_ren(Lines_renderer *line_ren)
+{
+
+    Line *current = line_ren->current;
+    Line *prev = current->prev;
+    Line *next = current->next;
+
+    if (current->size) {
+        // move all the data locateed in the curr line to the end of the prev line!
+        memmove(
+            prev->content + prev->size,
+            current->content,
+            current->size
+        );
+        prev->size += current->size;
+    }
+
+    
+    prev->next = next;
+
+    if (next)
+        next->prev = prev;
+    
+    free(current->content);
+    free(current);
+    line_ren->count--;
+    line_ren->current = prev; // go back one line.
+    lines_shift(next, -1); 
+}
+
 void render_lines(Lines_renderer *line_ren)
 {
     Line *current = line_ren->start;

@@ -102,7 +102,16 @@ int editor(int argc, char **argv)
             case NORMAL: {
                 switch (c) {
                     case KEY_PASTE_: {
-                        editor_paste_content(copy_start, copy_end, line_ren);
+                        // TODO: Make clipboard be synced with the VISUAL mode clipboard_
+                        char *data = CLIPBOARD_GET();
+                        if (data) {
+                            line_ren->current->x = line_ren->current->size;
+                            editor_new_line(line_ren, true);
+                            for (; *data; data++) {
+                                line_push_char(line_ren->current, *data, false);
+                            }
+                        } else { editor_paste_content(copy_start, copy_end, line_ren); }
+                        
                     } break;
                     case KEY_INSERT_: {
                         mode = INSERT;
@@ -121,13 +130,10 @@ int editor(int argc, char **argv)
                     default: {
                         if (binding.size < MAX_KEY_BINDIND)
                             binding.keys[binding.size++] = (char) c;
-                        // TODO: Make binding copy whole line with `yy`, and delete whole line with `dd`
+                            // TODO: Make binding copy whole line with `yy`, and delete whole line with `dd`
                         if (binding.size == MAX_KEY_BINDIND) {
                             // TODO: Process Key binding.
-                            sprintf(notification_buffer, "Key binding: %c%c\n", 
-                                    binding.keys[0], 
-                                    binding.keys[1]);
-                            memset(binding.keys, 0, strlen(binding.keys));
+                            editor_handle_binding(line_ren, &binding);
                             binding.size = 0;
                         }
                     } break;

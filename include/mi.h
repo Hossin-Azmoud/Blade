@@ -17,7 +17,17 @@
 #define MENU_HEIGHT_ 1
 #define L_SHIFT 0x189
 #define R_SHIFT 0x192
+// clipboard api
+typedef enum ClipBoardEvent {
+    CFREE,
+    CGET,
+    CSET
+} ClipBoardEvent;
 
+void *clipboard(ClipBoardEvent e, char *data);
+#define CLIPBOARD_SET(data) clipboard(CSET, data);
+#define CLIPBOARD_GET() (char *) clipboard(CGET, NULL);
+#define CLIPBOARD_FREE() clipboard(CFREE, NULL);
 
 // color editor pairs
 #define SECONDARY_THEME_PAIR 1
@@ -136,7 +146,9 @@ void editor_apply_move(Lines_renderer *line_ren);
 void editor_new_line(Lines_renderer *line_ren, bool reset_borders);
 void free_lines(Line *lines);
 void line_push_char(Line *line, char c, bool pasted);
-void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
+
+void line_disconnect_from_ren(Lines_renderer *line_ren);
+
 Line *Alloc_line_node(int row);
 
 Result *make_prompt_buffer(int x, int y);
@@ -151,10 +163,9 @@ void editor_down(Lines_renderer *line_ren);
 void editor_right(Lines_renderer *line_ren);
 void handle_move(int c, Lines_renderer *line_ren);
 bool is_move(int key);
-
-void editor_handle_binding(vKeyBindingQueue *bindings);
+void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
+void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
-
 
 #endif // MI_H
 
