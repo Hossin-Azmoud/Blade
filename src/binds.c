@@ -3,7 +3,7 @@
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
 {
     editor_identify_binding(bindings);
-    switch (bindings->kind)
+   switch (bindings->kind)
     {
         case COPY_LINE: {
             CLIPBOARD_SET(line_ren->current->content);
@@ -26,9 +26,9 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
     }
 }
 
+
 void editor_identify_binding(vKeyBindingQueue *bindings)
 {
-    
     if (!bindings->size)
     {
         bindings->kind = NOT_VALID;
@@ -37,12 +37,12 @@ void editor_identify_binding(vKeyBindingQueue *bindings)
 
     if (bindings->keys[0] == 'y' && bindings->keys[1] == 'y') { // Copy the current line into clipboard.
         bindings->kind = COPY_LINE;
-        return; 
+        return;
     }
 
     if (bindings->keys[0] == 'd' && bindings->keys[1] == 'd') { // delete the current line into clipboard.
         bindings->kind = DEL_LINE;
-        return; 
+        return;
     }
-}
 
+}

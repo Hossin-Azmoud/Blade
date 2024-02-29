@@ -21,7 +21,7 @@ void *clipboard(ClipBoardEvent e, char *data)
             clipboard->size = 0;
             chunk_append_s(clipboard, data);
         } break;
-        default: {};
+        default: {}; // unreachable code. NORMALLY haha.
     }
 
     return NULL;
@@ -31,15 +31,19 @@ void *clipboard(ClipBoardEvent e, char *data)
 void editor_push_data_from_clip(Lines_renderer *line_ren)
 {
     char *data = CLIPBOARD_GET();
+
     if (data) {
         line_ren->current->x = line_ren->current->size;
         editor_new_line(line_ren, true);
+
         for (; *data; data++) {
             if (*data == '\n') {
                 editor_new_line(line_ren, true);
                 continue;
             }
+
             line_push_char(line_ren->current, *data, true);
         }
+        editor_new_line(line_ren, true);
     }                        
 }

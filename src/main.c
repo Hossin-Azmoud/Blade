@@ -1,6 +1,6 @@
 #include <mi.h>
 
-#define T 0
+#define T 1
 // #define DEBUG
 int editor(int argc, char **argv);
 int test();
@@ -14,6 +14,51 @@ int main(int argc, char **argv) {
 }
 
 int test() {
+    char *buff = "Hello I am something!";
+    int str_sz = strlen(buff);
+    // int sz = 3;
+    // char *kwords[sz] = {
+    //     "def", "for", "while"
+    // };
+
+    MIToken toks[1024] = { 0 };
+    int token_idx = 0;
+    int xs = 0, xe = 0, x = 0;
+
+    while (isspace(buff[x])) x++;
+    xs = x;
+
+    for (; x < str_sz; ++x) {
+
+        if (x == str_sz - 1) {
+            xe = x;
+            (toks + token_idx)->xend = xe;
+            (toks + token_idx)->xstart = xs;
+            break;
+        };
+
+        if (isspace(buff[x])) { 
+            xe = x - 1;
+            (toks + token_idx)->xend = xe;
+            (toks + token_idx)->xstart = xs;
+            while (isspace(buff[x])) x++;
+            xs = x;
+            token_idx++;
+        };
+    }
+
+    printf("processed: %s\n", buff);
+    for (int i = 0; i <= token_idx; ++i) {
+        printf("----------------------------\n");
+        printf("s: %d\n", (toks + i)->xstart);
+        printf("e: %d\n", (toks + i)->xend);
+        printf("String: |");
+        for (int x = (toks + i)->xstart; x <= (toks + i)->xend; ++x) {
+            printf("%c", buff[x]);
+        }
+        printf("|\n");
+    }
+
     return 0;
 }
 

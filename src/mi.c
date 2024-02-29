@@ -53,11 +53,15 @@ int load_file(char *file_path, Lines_renderer *line_ren)
         goto SET_PROPS;
     }
 
-    while((c = fgetc(Stream)) != EOF) {
+    while ((c = fgetc(Stream)) != EOF) {
         if (c == '\n') {
             editor_new_line(line_ren, false);
-            if (line_ren->current->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1) 
+            
+            if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ ) {
                 line_ren->end = line_ren->current->prev;
+                fprintf(get_logger_file_ptr(), "LINE_END: %d\n", line_ren->current->y);
+            }
+
             continue;
         }
 
@@ -299,9 +303,10 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         line_ren->current->next = new;
         new->prev = line_ren->current;
         line_ren->current = new;
-        line_ren->end = new;
+        
         if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
             line_ren->start = line_ren->start->next;
+            line_ren->end = new;
         }
 
         line_ren->count++;
@@ -340,7 +345,7 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
             new->size
         );
 
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_  - 1) 
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_  - 1)
             line_ren->end = line_ren->end->prev;
 
         lines_shift(new->next, 1);

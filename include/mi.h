@@ -90,11 +90,21 @@ typedef enum bindingKind {
     NOT_VALID
 } bindingKind;
 
+typedef enum MITokenType {
+    STR,
+    KEYWORD
+} MITokenType;
+
 typedef struct vKeyBindingQueue {
     char keys[MAX_KEY_BINDIND];
     int size;
     bindingKind kind;
 } vKeyBindingQueue;
+
+typedef struct MIToken {
+    int xstart, xend, y;
+    MITokenType kind;
+} MIToken;
 
 typedef struct Chunk {
     char *data;
@@ -108,13 +118,12 @@ typedef struct Vec2 {
     Line *_line;
 } Vec2;
 
-
-
 typedef struct Line {
-    int x, y, size, padding, cap;
-    char line_number[LINE_NUM_MAX];
-    char *content;
-    Line *next, *prev;
+    int     x, y, size, padding, cap;
+    char    line_number[LINE_NUM_MAX];
+    char    *content;
+    Line    *next, *prev;
+    MIToken *Tokens;
 } Line;
     
 typedef struct Lines_renderer {

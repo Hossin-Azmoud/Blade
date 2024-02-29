@@ -1,5 +1,5 @@
 CC=gcc
-TEST_FILE=./files/test_file.c
+TEST_FILE=./src/test.c
 INCLUDE=-I./include
 CFLAGS=-Wall -pedantic -Werror -g -ggdb -Wextra -std=c11
 SRC=./src/*.c
