@@ -95,6 +95,7 @@ typedef enum MITokenType {
     KEYWORD
 } MITokenType;
 
+
 typedef struct vKeyBindingQueue {
     char keys[MAX_KEY_BINDIND];
     int size;
@@ -103,6 +104,7 @@ typedef struct vKeyBindingQueue {
 
 typedef struct MIToken {
     int xstart, xend, y;
+    char data[512];
     MITokenType kind;
 } MIToken;
 

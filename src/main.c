@@ -13,27 +13,37 @@ int main(int argc, char **argv) {
     return ret;
 }
 
+bool is_keywrd(char *keywords[], char *word, int keywords_sz) {
+    
+    for (int it = 0; it < keywords_sz; ++it) {
+        if (strcmp(keywords[it], word) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int test() {
-    char *buff = "Hello I am something!";
+    char *buff = "    \tHello I am something def !";
     int str_sz = strlen(buff);
-    // int sz = 3;
-    // char *kwords[sz] = {
-    //     "def", "for", "while"
-    // };
+    
+    int sz = 3;
+    char *kwords[] = { "def", "for", "while" };
 
     MIToken toks[1024] = { 0 };
     int token_idx = 0;
-    int xs = 0, xe = 0, x = 0;
-
+    int xs = 0, xe = 0, x = 0, data_idx = 0;
     while (isspace(buff[x])) x++;
     xs = x;
 
-    for (; x < str_sz; ++x) {
+    for (; x < str_sz; ++x, data_idx++) {
 
         if (x == str_sz - 1) {
             xe = x;
             (toks + token_idx)->xend = xe;
             (toks + token_idx)->xstart = xs;
+            (toks + token_idx)->data[data_idx] = buff[x];
             break;
         };
 
@@ -44,7 +54,12 @@ int test() {
             while (isspace(buff[x])) x++;
             xs = x;
             token_idx++;
-        };
+            data_idx = 0;
+            (toks + token_idx)->data[data_idx] = buff[x];
+            continue;
+        }
+        // Not a space and not the latest.
+        (toks + token_idx)->data[data_idx] = buff[x];
     }
 
     printf("processed: %s\n", buff);
@@ -52,11 +67,11 @@ int test() {
         printf("----------------------------\n");
         printf("s: %d\n", (toks + i)->xstart);
         printf("e: %d\n", (toks + i)->xend);
-        printf("String: |");
-        for (int x = (toks + i)->xstart; x <= (toks + i)->xend; ++x) {
-            printf("%c", buff[x]);
-        }
-        printf("|\n");
+        printf("String: |%s|\n", (toks + i)->data);
+        printf("Iskeyword: %s\n", 
+            is_keywrd(kwords, (toks + i)->data, sz) ? "true" : "false"
+        );
+
     }
 
     return 0;
@@ -64,7 +79,6 @@ int test() {
 
 int editor(int argc, char **argv)
 {
-    
     open_logger();
     // curs_set(1);
     Vec2 copy_start = { 0 }; 
