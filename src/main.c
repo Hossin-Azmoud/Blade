@@ -13,67 +13,26 @@ int main(int argc, char **argv) {
     return ret;
 }
 
-bool is_keywrd(char *keywords[], char *word, int keywords_sz) {
-    
-    for (int it = 0; it < keywords_sz; ++it) {
-        if (strcmp(keywords[it], word) == 0) {
-            return true;
-        }
-    }
 
-    return false;
-}
 
 int test() {
-    char *buff = "    \tHello I am something def !";
-    int str_sz = strlen(buff);
-    
-    int sz = 3;
-    char *kwords[] = { "def", "for", "while" };
+    char *src = "def hello_nigga()";
+    Line *line = Alloc_line_node(0);
+    KeywordList *keywords_list = get_keywords_list("py");
+    strcpy(line->content, src);
+    line->size = strlen(src);
+    tokenize_line(line, keywords_list);
+    printf("[DONE]\n");
+    printf("Text: %s\n", line->content);
 
-    MIToken toks[1024] = { 0 };
-    int token_idx = 0;
-    int xs = 0, xe = 0, x = 0, data_idx = 0;
-    while (isspace(buff[x])) x++;
-    xs = x;
-
-    for (; x < str_sz; ++x, data_idx++) {
-
-        if (x == str_sz - 1) {
-            xe = x;
-            (toks + token_idx)->xend = xe;
-            (toks + token_idx)->xstart = xs;
-            (toks + token_idx)->data[data_idx] = buff[x];
-            break;
-        };
-
-        if (isspace(buff[x])) { 
-            xe = x - 1;
-            (toks + token_idx)->xend = xe;
-            (toks + token_idx)->xstart = xs;
-            while (isspace(buff[x])) x++;
-            xs = x;
-            token_idx++;
-            data_idx = 0;
-            (toks + token_idx)->data[data_idx] = buff[x];
-            continue;
-        }
-        // Not a space and not the latest.
-        (toks + token_idx)->data[data_idx] = buff[x];
-    }
-
-    printf("processed: %s\n", buff);
-    for (int i = 0; i <= token_idx; ++i) {
-        printf("----------------------------\n");
-        printf("s: %d\n", (toks + i)->xstart);
-        printf("e: %d\n", (toks + i)->xend);
-        printf("String: |%s|\n", (toks + i)->data);
-        printf("Iskeyword: %s\n", 
-            is_keywrd(kwords, (toks + i)->data, sz) ? "true" : "false"
+    for (int it = 0; it < line->token_list.size; ++it) {
+        printf("[%i] (%i -> %i) %s\n", it, 
+           (line->token_list._list + it)->xstart,
+           (line->token_list._list + it)->xend, 
+           get_token_kind_s((line->token_list._list + it)->kind)
         );
 
     }
-
     return 0;
 }
 

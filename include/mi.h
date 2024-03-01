@@ -38,10 +38,12 @@ void *clipboard(ClipBoardEvent e, char *data);
 #define HIGHLIGHT_THEME      5 
 
 #define CTRL(x) ((x) & 037)
-#define LINE_SZ 64
+#define LINE_SZ 512
 #define LINE_NUM_MAX 8
+#define MAX_TOKENS 64
 #define TAB '\t'
 #define NL  '\n'
+#define KEYWORDLIST_SZ 1
 
 #define OPAR '('
 #define CPAR ')'
@@ -90,6 +92,13 @@ typedef enum bindingKind {
     NOT_VALID
 } bindingKind;
 
+// It is okay cuz it does not need to be dynamic..
+typedef struct KeywordList {
+    int size;
+    char *extension;
+    char *_list[100];
+} KeywordList;
+
 typedef enum MITokenType {
     STR,
     KEYWORD
@@ -103,10 +112,15 @@ typedef struct vKeyBindingQueue {
 } vKeyBindingQueue;
 
 typedef struct MIToken {
-    int xstart, xend, y;
-    char data[512];
     MITokenType kind;
+    int xstart, xend;
+    /* char data[512]; */
 } MIToken;
+
+typedef struct TokenList {
+    MIToken *_list;
+    int size, cap;
+} TokenList;
 
 typedef struct Chunk {
     char *data;
@@ -121,11 +135,11 @@ typedef struct Vec2 {
 } Vec2;
 
 typedef struct Line {
-    int     x, y, size, padding, cap;
+    int     x, y, size, padding, cap, tokens_size;
     char    line_number[LINE_NUM_MAX];
     char    *content;
     Line    *next, *prev;
-    MIToken *Tokens;
+    TokenList token_list;
 } Line;
     
 typedef struct Lines_renderer {
@@ -190,5 +204,13 @@ void  chunk_append_s(Chunk *c, char *str);
 void  chunk_append_char(Chunk *c, char chr);
 Chunk *chunk_new();
 void  chunk_distroy(Chunk *c);
+
+// Token List ops
+void token_list_append(TokenList *list, MITokenType kind, int xstart, int xend);
+void tokenize_line(Line *line, KeywordList *keywords_list);
+KeywordList *get_keywords_list(char *ext);
+bool is_keywrd(char *keywords[], char *word, int keywords_sz);
+char *get_token_kind_s(MITokenType t);
+
 #endif // MI_H
 

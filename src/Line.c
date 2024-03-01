@@ -11,8 +11,12 @@ Line *Alloc_line_node(int row)
     line->cap  = LINE_SZ;
     line->y    = row;
     line->content = malloc(LINE_SZ);
-    memset(line->content, 0, LINE_SZ);
-
+    memset(line->content, 0x0, LINE_SZ);
+    
+    line->token_list = (TokenList){0}; 
+    (line->token_list)._list = malloc(sizeof (MIToken) * MAX_TOKENS);
+    memset(line->token_list._list, 0x0, sizeof (MIToken) * MAX_TOKENS);
+    (line->token_list).cap = MAX_TOKENS;
     return (line);
 }
 
