@@ -1,6 +1,6 @@
 #include <mi.h>
 
-#define T 1
+#define T 0
 // #define DEBUG
 int editor(int argc, char **argv);
 int test();
@@ -12,8 +12,6 @@ int main(int argc, char **argv) {
     close_logger();
     return ret;
 }
-
-
 
 int test() {
     open_logger();

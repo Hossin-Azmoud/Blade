@@ -6,7 +6,7 @@ I Need:
     [*] Organize features!
     [*]  Handle Shift + key
     [*]  Handle mouse pressing.
-    [] remove the old way of copy paste and introdude a struct.. ClipBoard to be used as a storage for any coppied or deled lines.
+    [*] remove the old way of copy paste and introdude a struct.. ClipBoard to be used as a storage for any coppied or deled lines.
     PROTO:
 
     {
@@ -14,7 +14,9 @@ I Need:
         char data[]
     }
 
-    [] add some keybindings
-    []  add text highlighting for python as a test..
-    [] Commads (Change file name, atleast).
+    [*] add some keybindings
+    [(50%) done]  add text highlighting for python as a test..
+    []  Make the editor know which script it is edeting then apply this to the lexer so the syntax highlighting becomes better.
+    []  Work on colors and UI.
+    []  Commads (Change file name, atleast).
 
