@@ -29,6 +29,20 @@ void lines_shift(Line *head, int num) {
     }
 }
 
+
+void free_lines(Line *lines) {
+    Line *next = NULL;
+    Line *current = lines;
+
+    for (; (current);) {
+        next = current->next;
+        free(current->content);
+        free((current->token_list)._list);
+        free(current);
+        
+        current = next;
+    }
+}
 // Line *line_at(Line *current, int y) {
 //     Line *it =   current;
 //     if (current->y < y + )

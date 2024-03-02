@@ -15,11 +15,15 @@ static void init_colors()
     init_color(COLOR_BLACK, 62, 94, 125);
     init_color(COLOR_YELLOW, 996, 905, 82);
     init_color(COLOR_BLUE, 0, (44 * 1000) / 255, (84 * 1000)/255);
+    init_color(COLOR_RED, (210 * 1000) / 255, (31 * 1000) / 255, (60 * 1000) / 255);
+
     init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_BLACK);
     init_pair(HIGHLIGHT_THEME, COLOR_BLACK, COLOR_WHITE);
+    
     init_pair(SECONDARY_THEME_PAIR, COLOR_BLACK, COLOR_YELLOW);
     init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
     init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
+    init_pair(SYNTAX_PAIR, COLOR_RED, COLOR_BLACK);
 }
 
 WINDOW *init_editor()
@@ -55,11 +59,10 @@ int load_file(char *file_path, Lines_renderer *line_ren)
 
     while ((c = fgetc(Stream)) != EOF) {
         if (c == '\n') {
+            retokenize_line(line_ren->current, get_keywords_list("py"));
             editor_new_line(line_ren, false);
-            
             if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ ) {
                 line_ren->end = line_ren->current->prev;
-                fprintf(get_logger_file_ptr(), "LINE_END: %d\n", line_ren->current->y);
             }
 
             continue;
@@ -76,6 +79,7 @@ int load_file(char *file_path, Lines_renderer *line_ren)
 SET_PROPS:
     line_ren->max_padding = sprintf(line_number, "%u", line_ren->current->y + 1) + 1;
     if (line_ren->max_padding < 1) line_ren->max_padding++;
+    retokenize_line(line_ren->current, get_keywords_list("py"));
     line_ren->current = line_ren->start;
     if (Stream) fclose(Stream);
     return line_ren->count;
@@ -106,17 +110,6 @@ int save_file(char *file_path, Line *lines, bool release)
     return bytes_saved;
 }
 
-void free_lines(Line *lines) {
-    Line *next = NULL;
-    Line *current = lines;
-
-    for (; (current);) {
-        next = current->next;
-        free(current->content);
-        free(current);
-        current = next;
-    }
-}
 
 static void render_line(Line *line, int offset, int max_padding)
 {
@@ -212,6 +205,22 @@ void render_lines(Lines_renderer *line_ren)
     Line *current = line_ren->start;
     while (current) {
         render_line(current, line_ren->start->y, line_ren->max_padding);
+        
+
+        for (int it = 0; it < (current->token_list).size; ++it) {
+             
+            mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    (current->token_list._list[it].kind == KEYWORD) ? SYNTAX_PAIR : MAIN_THEME_PAIR, 
+            NULL);
+            // fprintf(get_logger_file_ptr(), "(%i, %i) (%s)\n", 
+            //     ((current->token_list)._list + it)->xstart, 
+            //     ((current->token_list)._list + it)->xend,
+            //     get_token_kind_s(((current->token_list)._list + it)->kind));
+        }
+
         if (current == line_ren->end) break;
         current = current->next;
     }
@@ -222,6 +231,7 @@ void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode_,
 
     char details_buffer[LINE_SZ] = { 0 };
     char *mode = modes[mode_];
+
     sprintf(details_buffer, "row: %d col: %d line_count: %d ", line_ren->current->x + 1, line_ren->current->y + 1, line_ren->count);
     mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
     mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR, NULL);
@@ -303,10 +313,10 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         line_ren->current->next = new;
         new->prev = line_ren->current;
         line_ren->current = new;
-        
+        if (reset_borders) line_ren->end = new;
         if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
             line_ren->start = line_ren->start->next;
-            line_ren->end = new;
+            
         }
 
         line_ren->count++;

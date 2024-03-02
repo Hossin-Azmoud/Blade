@@ -1,6 +1,6 @@
 #include <mi.h>
 
-#define T 1
+#define T 0
 // #define DEBUG
 int editor(int argc, char **argv);
 int test();
@@ -16,12 +16,12 @@ int main(int argc, char **argv) {
 
 
 int test() {
-    char *src = "def hello_nigga()";
+    char *src = "def hello_nigga() for";
     Line *line = Alloc_line_node(0);
     KeywordList *keywords_list = get_keywords_list("py");
     strcpy(line->content, src);
     line->size = strlen(src);
-    tokenize_line(line, keywords_list);
+    retokenize_line(line, keywords_list);
     printf("[DONE]\n");
     printf("Text: %s\n", line->content);
 
@@ -192,6 +192,7 @@ int editor(int argc, char **argv)
 
     RENDER:
         erase();
+        retokenize_line(line_ren->current, get_keywords_list("py"));
         render_lines(line_ren);
         // Highlight if the current context is VISUAL.
         if (mode == VISUAL) {

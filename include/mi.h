@@ -36,6 +36,7 @@ void *clipboard(ClipBoardEvent e, char *data);
 #define ERROR_PAIR           3
 #define BLUE_PAIR            4
 #define HIGHLIGHT_THEME      5 
+#define SYNTAX_PAIR          6
 
 #define CTRL(x) ((x) & 037)
 #define LINE_SZ 512
@@ -99,9 +100,12 @@ typedef struct KeywordList {
     char *_list[100];
 } KeywordList;
 
+// TODO: IMPLEMET FUNCTIONS THAT CAN COLLECT THESE TOKENS..
 typedef enum MITokenType {
-    STR,
-    KEYWORD
+    STR_LIT, // NOT::IMPL
+    NUMBER_LIT,  // NOT::IMPL
+    KEYWORD, // NOT::IMPL
+    ID // NOT::IMPL
 } MITokenType;
 
 
@@ -207,7 +211,7 @@ void  chunk_distroy(Chunk *c);
 
 // Token List ops
 void token_list_append(TokenList *list, MITokenType kind, int xstart, int xend);
-void tokenize_line(Line *line, KeywordList *keywords_list);
+void retokenize_line(Line *line, KeywordList *keywords_list);
 KeywordList *get_keywords_list(char *ext);
 bool is_keywrd(char *keywords[], char *word, int keywords_sz);
 char *get_token_kind_s(MITokenType t);
