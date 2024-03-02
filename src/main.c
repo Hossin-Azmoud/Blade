@@ -1,6 +1,6 @@
 #include <mi.h>
 
-#define T 0
+#define T 1
 // #define DEBUG
 int editor(int argc, char **argv);
 int test();
@@ -16,7 +16,8 @@ int main(int argc, char **argv) {
 
 
 int test() {
-    char *src = "def hello_nigga() for";
+    open_logger();
+    char *src = "if if else xyz xyz123 123xyz  \"Hello\" + - * / ";
     Line *line = Alloc_line_node(0);
     KeywordList *keywords_list = get_keywords_list("py");
     strcpy(line->content, src);
@@ -33,6 +34,7 @@ int test() {
         );
 
     }
+    
     return 0;
 }
 

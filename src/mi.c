@@ -23,7 +23,8 @@ static void init_colors()
     init_pair(SECONDARY_THEME_PAIR, COLOR_BLACK, COLOR_YELLOW);
     init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
     init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
-    init_pair(SYNTAX_PAIR, COLOR_RED, COLOR_BLACK);
+    init_pair(KEYWORD_SYNTAX_PAIR, COLOR_RED, COLOR_BLACK);
+    init_pair(STRING_LIT_PAIR, COLOR_GREEN, COLOR_BLACK);
 }
 
 WINDOW *init_editor()
@@ -205,20 +206,28 @@ void render_lines(Lines_renderer *line_ren)
     Line *current = line_ren->start;
     while (current) {
         render_line(current, line_ren->start->y, line_ren->max_padding);
-        
-
         for (int it = 0; it < (current->token_list).size; ++it) {
-             
-            mvchgat(current->y - line_ren->start->y, 
+            if (current->token_list._list[it].kind == KEYWORD) {
+                mvchgat(current->y - line_ren->start->y, 
                     ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
                     ((current->token_list)._list + it)->xend + line_ren->max_padding, 
                     A_NORMAL, 
-                    (current->token_list._list[it].kind == KEYWORD) ? SYNTAX_PAIR : MAIN_THEME_PAIR, 
-            NULL);
-            // fprintf(get_logger_file_ptr(), "(%i, %i) (%s)\n", 
-            //     ((current->token_list)._list + it)->xstart, 
-            //     ((current->token_list)._list + it)->xend,
-            //     get_token_kind_s(((current->token_list)._list + it)->kind));
+                    KEYWORD_SYNTAX_PAIR, 
+                    NULL);
+            }
+
+            if (current->token_list._list[it].kind == STR_LIT) {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    STRING_LIT_PAIR,
+                    NULL);
+            } 
+            fprintf(get_logger_file_ptr(), "(%i, %i) (%s)\n", 
+                ((current->token_list)._list + it)->xstart, 
+                ((current->token_list)._list + it)->xend,
+                get_token_kind_s(((current->token_list)._list + it)->kind));
         }
 
         if (current == line_ren->end) break;
@@ -241,7 +250,7 @@ void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode_,
     move(line_ren->current->y, line_ren->current->x);
 }
 
-// isalnum,  isalpha, isascii, isblank, iscntrl, isdigit, isgraph, islower, isprint, ispunct, isspace, isupper, isxdigit, isalnum_l, isalpha_l, 
+ // isalnum,  isalpha, isascii, isblank, iscntrl, isdigit, isgraph, islower, isprint, ispunct, isspace, isupper, isxdigit, isalnum_l, isalpha_l, 
 // isas‐cii_l, isblank_l, iscntrl_l, isdigit_l, isgraph_l, islower_l, isprint_l, ispunct_l, isspace_l, isupper_l, isxdigit_l  -  character  classification functions.
 void char_inject(Line *line, char c)
 {
