@@ -1,6 +1,7 @@
 #include <mi.h>
 #include <logger.h>
-
+#define COLOR_GREY_   8
+#define COLOR_YELLOW_ 9
 // Possible modes in the editor!
 static char *modes[] = { 
     "NORMAL",
@@ -8,24 +9,27 @@ static char *modes[] = {
     "INSERT"
 };
 
+
 static void init_colors() 
 {
     start_color();
-    // pair_number, foreground, background
-    init_color(COLOR_BLACK, 62, 94, 125);
-    init_color(COLOR_YELLOW, 996, 905, 82);
-    init_color(COLOR_BLUE, 0, (44 * 1000) / 255, (84 * 1000)/255);
-    init_color(COLOR_RED, (210 * 1000) / 255, (31 * 1000) / 255, (60 * 1000) / 255);
 
-    init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_BLACK);
-    init_pair(HIGHLIGHT_THEME, COLOR_BLACK, COLOR_WHITE);
-    init_pair(SECONDARY_THEME_PAIR, COLOR_BLACK, COLOR_YELLOW);
+    // pair_number, foreground, background
+    make_new_color_u32(COLOR_GREY_, 0x1C1A27);
+    make_new_color_u32(COLOR_YELLOW_, 0xfb8d1a);
+    
+    make_new_color(COLOR_BLUE, 0, 44, 84); 
+    make_new_color(COLOR_RED, 210, 31, 60); 
+
+    init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_GREY_);
+    init_pair(HIGHLIGHT_THEME, COLOR_GREY_, COLOR_WHITE);
+    init_pair(SECONDARY_THEME_PAIR, COLOR_GREY_, COLOR_YELLOW_);
     init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
     init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
-    init_pair(KEYWORD_SYNTAX_PAIR, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(CALL_SYNTAX_PAIR, COLOR_CYAN, COLOR_BLACK);
+    init_pair(KEYWORD_SYNTAX_PAIR, COLOR_YELLOW_, COLOR_GREY_);
+    init_pair(CALL_SYNTAX_PAIR, COLOR_CYAN, COLOR_GREY_);
 
-    init_pair(STRING_LIT_PAIR, COLOR_GREEN, COLOR_BLACK);
+    init_pair(STRING_LIT_PAIR, COLOR_GREEN, COLOR_GREY_);
 }
 
 WINDOW *init_editor()
@@ -38,7 +42,7 @@ WINDOW *init_editor()
     cbreak();
     init_colors();
 
-    wbkgd(win, COLOR_PAIR(COLOR_BLACK));
+    wbkgd(win, COLOR_PAIR(COLOR_GREY_));
     set_escdelay(0); 
     {
         // Mouse stuff.
@@ -206,7 +210,7 @@ static void add_syntax_(Line *current, Lines_renderer *line_ren)
     // retokenize the line..    
     ScriptType script_type = line_ren->script_type;
     if (script_type == UNSUP) return; // Make sure that the script is supported..
-    retokenize_line(current, get_keywords_list(script_type));
+    retokenize_line(current, script_type);
     for (int it = 0; it < (current->token_list).size; ++it) {
         switch (current->token_list._list[it].kind) {
             case KEYWORD: {

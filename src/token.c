@@ -57,12 +57,12 @@ static int trim_spaces_left(char *buff, int curr) {
     return i;
 }
 
-void retokenize_line(Line *line, KeywordList *keywords_list)
+void retokenize_line(Line *line, ScriptType script_type)
 {
     char temp[512] = { 0 };
     int xend = 0, xstart = 0, data_idx = 0, x = 0;
-    // char c = 0;
-    
+    KeywordList *keywords_list = get_keywords_list(script_type);     
+
     if (line->token_list.size > 0) {
         // Reinit the tokens.
         line->token_list._list = memset(line->token_list._list, 0, sizeof(line->token_list._list[0]) * line->token_list.cap);

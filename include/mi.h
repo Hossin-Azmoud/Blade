@@ -245,13 +245,14 @@ void  chunk_distroy(Chunk *c);
 
 // Token List ops
 void token_list_append(TokenList *list, MITokenType kind, int xstart, int xend);
-void retokenize_line(Line *line, KeywordList *keywords_list);
+void retokenize_line(Line *line, ScriptType script_type);
 KeywordList *get_keywords_list(ScriptType s);
 bool is_keywrd(char *keywords[], char *word, int keywords_sz);
 char *get_token_kind_s(MITokenType t);
 
 ScriptType get_script_type(char *spath);
 char *script_type_as_str(ScriptType s);
-
+void make_new_color(int index, int r, int g, int b);
+void make_new_color_u32(int index, uint32_t color);
 #endif // MI_H
 

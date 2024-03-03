@@ -74,8 +74,13 @@ int editor(int argc, char **argv)
     render_lines(line_ren);
     editor_details(line_ren, file, mode, notification_buffer);
     editor_apply_move(line_ren);
-     
+    // TODO: void compute_layout (Lines_renderer *line_ren);
+    // it adjusts the start and end of the layout so it can be suitable with the current row count
     while ((c = getch()) != KEY_F(1)) {
+        getmaxyx(win, 
+             line_ren->win_h, 
+             line_ren->win_w); 
+        // compute_layout(line_ren);
         if (is_move(c)) {
             handle_move(c, line_ren);
             goto RENDER;
