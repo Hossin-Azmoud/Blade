@@ -2,6 +2,7 @@
 #include <logger.h>
 #define COLOR_GREY_   8
 #define COLOR_YELLOW_ 9
+#define COLOR_APPLE 10
 // Possible modes in the editor!
 static char *modes[] = { 
     "NORMAL",
@@ -13,11 +14,10 @@ static char *modes[] = {
 static void init_colors() 
 {
     start_color();
-
     // pair_number, foreground, background
-    make_new_color_u32(COLOR_GREY_, 0x1C1A27);
-    make_new_color_u32(COLOR_YELLOW_, 0xfb8d1a);
-    
+    make_new_color_u32(COLOR_GREY_, 0x04081a);
+    make_new_color_u32(COLOR_YELLOW_, 0xf9ca24);
+    make_new_color_u32(COLOR_APPLE, 0x6ab04c);
     make_new_color(COLOR_BLUE, 0, 44, 84); 
     make_new_color(COLOR_RED, 210, 31, 60); 
 
@@ -29,7 +29,7 @@ static void init_colors()
     init_pair(KEYWORD_SYNTAX_PAIR, COLOR_YELLOW_, COLOR_GREY_);
     init_pair(CALL_SYNTAX_PAIR, COLOR_CYAN, COLOR_GREY_);
 
-    init_pair(STRING_LIT_PAIR, COLOR_GREEN, COLOR_GREY_);
+    init_pair(STRING_LIT_PAIR, COLOR_APPLE, COLOR_GREY_);
 }
 
 WINDOW *init_editor()
