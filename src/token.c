@@ -42,11 +42,12 @@ KeywordList *get_keywords_list(char *ext)
     static KeywordList list[KEYWORDLIST_SZ] = {
         [0] = {
             .extension="py", 
-            .size=18,
+            .size=19,
             ._list={
                 "def", 
                 "for", 
-                "if", 
+                "if",
+                "self",
                 "while", 
                 "else", 
                 "elif", 
@@ -103,7 +104,7 @@ void retokenize_line(Line *line, KeywordList *keywords_list)
     
     if (line->token_list.size > 0) {
         // Reinit the tokens.
-        memset(line->token_list._list, 0, sizeof(line->token_list._list[0]) * line->token_list.cap);
+        line->token_list._list = memset(line->token_list._list, 0, sizeof(line->token_list._list[0]) * line->token_list.cap);
         line->token_list.size = 0;
     }
 
@@ -113,40 +114,33 @@ void retokenize_line(Line *line, KeywordList *keywords_list)
 
         // Collect a string lit.
         if (line->content[x] == '\"' || line->content[x] == '\'') {
-            xstart = x;
-            temp[data_idx++] = line->content[x++];
-
+            x++;
             while (x < line->size) {
                 switch (line->content[x]) {
                     case '\'':
                     case '\"': {
-                        if (line->content[x] == line->content[xstart]) {
-                            xend = x;
-                            temp[data_idx] = line->content[x];
-                            token_list_append(&(line->token_list), STR_LIT, xstart, xend);
-                            data_idx = 0;
-                            memset(temp, 0,  512);
-                            temp[data_idx++] = line->content[x++];
-                            goto next;        
-                        }
-                        temp[data_idx++] = line->content[x++];
+                        xend = x;
+                        x++;
+                        goto next;
                     } break;
                     case '\\': {
-                        if (x + 1 < line->size) {
-                            temp[data_idx++] = line->content[x++]; 
-                            temp[data_idx++] = line->content[x++];
-                        }
+                        if (x + 1 < line->size)
+                            x = x + 2;
                     } break;
                     default: {
-                        temp[data_idx++] = line->content[x++];
+                        x++;
                     } break;
                 }
             }
 
+            xend = x++;
             next:
-            // Incomplete string literal
-            if (x == line->size && line->content[xend] != line->content[xstart]) {
-                xend = x - 1;    
+            if (line->content[xend] == line->content[xstart]) {
+                token_list_append(&(line->token_list), 
+                                  STR_LIT, 
+                                  xstart, 
+                                  xend);
+            } else {
                 token_list_append(&(line->token_list), 
                     STR_LIT_INCOM, 
                     xstart, 
@@ -159,39 +153,33 @@ void retokenize_line(Line *line, KeywordList *keywords_list)
         // isalnum,  isalpha, isascii, isblank, iscntrl, isdigit, isgraph, islower, isprint, ispunct, isspace, isupper, isxdigit, isalnum_l, isalpha_l, isas‐cii_l, isblank_l, iscntrl_l, isdigit_l, isgraph_l, islower_l, isprint_l, ispunct_l, isspace_l, isupper_l, isxdigit_l  -  character  classification
         // Digit collector
         if (isdigit(line->content[x])) {
-            xstart = x;
-            temp[data_idx++] = line->content[x++];
-
+            x++;
             while (isdigit(line->content[x]) && x < line->size) {
-                temp[data_idx++] = line->content[x++];
-                xend = x - 1;
+               x++;
             }
-
+            xend = (x - 1);
             token_list_append(&(line->token_list), 
-                    NUMBER_LIT,
-                    xstart,
-                    xend);
-            data_idx = 0;
-            memset(temp, 0,  512);
+                NUMBER_LIT,
+                xstart,
+                xend
+            );
             continue;
         }
 
         // For ids, keywords and other syntaxes!
         if (isalpha(line->content[x]) || line->content[x] == '_') {
-            xstart = x;
             temp[data_idx++] = line->content[x++];
-
             while ((isalnum(line->content[x]) || (line->content[x] == '_')) && x < line->size) {
-                temp[data_idx++] = line->content[x];
-                xend = x;
-                x++;
+                temp[data_idx++] = line->content[x++];
             }
 
+            xend = (x - 1);
             fprintf(get_logger_file_ptr(), "ADDDING : %s\n", temp);
             token_list_append(&(line->token_list), 
                 (is_keywrd(keywords_list->_list, temp, keywords_list->size)) ? KEYWORD : ID,
                 xstart,
-                xend);
+                xend
+            );
             data_idx = 0;
             memset(temp, 0,  512);
             continue;
@@ -234,6 +222,12 @@ void retokenize_line(Line *line, KeywordList *keywords_list)
                 } break;
                 
                 case OPAR: {
+                    if (line->token_list.size > 0) {
+                        if (line->token_list._list[line->token_list.size - 1].kind == ID) {
+                            line->token_list._list[line->token_list.size - 1].kind = CALL;
+                        }
+                    }
+
                     token_list_append(&(line->token_list), OPAR_, x, x);
                     x++;
                 } break;

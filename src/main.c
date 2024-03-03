@@ -15,22 +15,20 @@ int main(int argc, char **argv) {
 
 int test() {
     open_logger();
-    char *src = "if if else xyz xyz123 123xyz  \"Hello\" + - * / ";
+    char *src = "from sys import (platform, path, exit)";
     Line *line = Alloc_line_node(0);
-    KeywordList *keywords_list = get_keywords_list("py");
     strcpy(line->content, src);
+    line->x = strlen(src);
     line->size = strlen(src);
+    KeywordList *keywords_list = get_keywords_list("py");
     retokenize_line(line, keywords_list);
-    printf("[DONE]\n");
-    printf("Text: %s\n", line->content);
-
+    printf("TEXT: %s\n", line->content);
     for (int it = 0; it < line->token_list.size; ++it) {
         printf("[%i] (%i -> %i) %s\n", it, 
            (line->token_list._list + it)->xstart,
-           (line->token_list._list + it)->xend, 
-           get_token_kind_s((line->token_list._list + it)->kind)
+           (line->token_list._list + it)->xend,
+            get_token_kind_s((line->token_list._list + it)->kind)
         );
-
     }
     
     return 0;
@@ -192,8 +190,8 @@ int editor(int argc, char **argv)
 
     RENDER:
         erase();
-        retokenize_line(line_ren->current, get_keywords_list("py"));
         render_lines(line_ren);
+
         // Highlight if the current context is VISUAL.
         if (mode == VISUAL) {
             highlighted_bytes = highlight_until_current_col (copy_start, line_ren);
@@ -208,13 +206,6 @@ int editor(int argc, char **argv)
         if (exit_pressed) {
             break;
         }
-
-        // Dis does not work ;(
-        // if (!(mode == INSERT))
-        //     _setcursortype(_SOLIDCURSOR);
-        // else {
-        //     _setcursortype(_NORMALCURSOR);
-        // }
 
         editor_details(line_ren, file, mode, notification_buffer);
         if (strlen(notification_buffer) > 0) memset(notification_buffer, 0, strlen(notification_buffer));

@@ -19,11 +19,12 @@ static void init_colors()
 
     init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_BLACK);
     init_pair(HIGHLIGHT_THEME, COLOR_BLACK, COLOR_WHITE);
-    
     init_pair(SECONDARY_THEME_PAIR, COLOR_BLACK, COLOR_YELLOW);
     init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
     init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
-    init_pair(KEYWORD_SYNTAX_PAIR, COLOR_RED, COLOR_BLACK);
+    init_pair(KEYWORD_SYNTAX_PAIR, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(CALL_SYNTAX_PAIR, COLOR_CYAN, COLOR_BLACK);
+
     init_pair(STRING_LIT_PAIR, COLOR_GREEN, COLOR_BLACK);
 }
 
@@ -155,12 +156,12 @@ void editor_backspace(Lines_renderer *line_ren)
         memmove(
             line_ren->current->content + line_ren->current->x - 1,
             line_ren->current->content + line_ren->current->x,
-            line_ren->current->size - line_ren->current->x
+            line_ren->current->size - line_ren->current->x + 1
         );
    
+        line_ren->current->content[line_ren->current->size] = 0;
         line_ren->current->x--;
         line_ren->current->size--;
-        line_ren->current->content[line_ren->current->size] = 0;
         return;
     }
     
@@ -206,28 +207,45 @@ void render_lines(Lines_renderer *line_ren)
     Line *current = line_ren->start;
     while (current) {
         render_line(current, line_ren->start->y, line_ren->max_padding);
+        retokenize_line(current, get_keywords_list("py"));
         for (int it = 0; it < (current->token_list).size; ++it) {
-            if (current->token_list._list[it].kind == KEYWORD) {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    KEYWORD_SYNTAX_PAIR, 
-                    NULL);
-            }
+            switch (current->token_list._list[it].kind) {
+                case KEYWORD: {
+                    mvchgat(current->y - line_ren->start->y, 
+                        ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                        ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                        A_NORMAL, 
+                        KEYWORD_SYNTAX_PAIR,
+                        NULL);
+                } break; 
+                case STR_LIT: {
+                    mvchgat(current->y - line_ren->start->y, 
+                        ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                        ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                        A_NORMAL, 
+                        STRING_LIT_PAIR,
+                        NULL);
+                } break;
+                case  CALL: {
+                    // 
+                    mvchgat(current->y - line_ren->start->y, 
+                        ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                        ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                        A_NORMAL, 
+                        CALL_SYNTAX_PAIR,
+                        NULL);
 
-            if (current->token_list._list[it].kind == STR_LIT) {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    STRING_LIT_PAIR,
-                    NULL);
-            } 
-            fprintf(get_logger_file_ptr(), "(%i, %i) (%s)\n", 
-                ((current->token_list)._list + it)->xstart, 
-                ((current->token_list)._list + it)->xend,
-                get_token_kind_s(((current->token_list)._list + it)->kind));
+                } break;
+
+                default: {
+                    mvchgat(current->y - line_ren->start->y, 
+                        ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                        ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                        A_NORMAL, 
+                        MAIN_THEME_PAIR,
+                        NULL);
+                } break;
+            }
         }
 
         if (current == line_ren->end) break;
