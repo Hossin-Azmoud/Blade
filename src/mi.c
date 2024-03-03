@@ -61,7 +61,6 @@ int load_file(char *file_path, Lines_renderer *line_ren)
 
     while ((c = fgetc(Stream)) != EOF) {
         if (c == '\n') {
-            retokenize_line(line_ren->current, get_keywords_list("py"));
             editor_new_line(line_ren, false);
             if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ ) {
                 line_ren->end = line_ren->current->prev;
@@ -81,7 +80,6 @@ int load_file(char *file_path, Lines_renderer *line_ren)
 SET_PROPS:
     line_ren->max_padding = sprintf(line_number, "%u", line_ren->current->y + 1) + 1;
     if (line_ren->max_padding < 1) line_ren->max_padding++;
-    retokenize_line(line_ren->current, get_keywords_list("py"));
     line_ren->current = line_ren->start;
     if (Stream) fclose(Stream);
     return line_ren->count;
@@ -202,52 +200,60 @@ void line_disconnect_from_ren(Lines_renderer *line_ren)
     lines_shift(next, -1); 
 }
 
+
+static void add_syntax_(Line *current, Lines_renderer *line_ren)
+{
+    // retokenize the line..    
+    ScriptType script_type = line_ren->script_type;
+    if (script_type == UNSUP) return; // Make sure that the script is supported..
+    retokenize_line(current, get_keywords_list(script_type));
+    for (int it = 0; it < (current->token_list).size; ++it) {
+        switch (current->token_list._list[it].kind) {
+            case KEYWORD: {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    KEYWORD_SYNTAX_PAIR,
+                    NULL);
+            } break; 
+            case STR_LIT: {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    STRING_LIT_PAIR,
+                    NULL);
+            } break;
+            case  CALL: {
+                // 
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    CALL_SYNTAX_PAIR,
+                    NULL);
+
+            } break;
+
+            default: {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    MAIN_THEME_PAIR,
+                    NULL);
+            } break;
+        }
+    }
+}
+
 void render_lines(Lines_renderer *line_ren)
 {
     Line *current = line_ren->start;
     while (current) {
         render_line(current, line_ren->start->y, line_ren->max_padding);
-        retokenize_line(current, get_keywords_list("py"));
-        for (int it = 0; it < (current->token_list).size; ++it) {
-            switch (current->token_list._list[it].kind) {
-                case KEYWORD: {
-                    mvchgat(current->y - line_ren->start->y, 
-                        ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                        ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                        A_NORMAL, 
-                        KEYWORD_SYNTAX_PAIR,
-                        NULL);
-                } break; 
-                case STR_LIT: {
-                    mvchgat(current->y - line_ren->start->y, 
-                        ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                        ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                        A_NORMAL, 
-                        STRING_LIT_PAIR,
-                        NULL);
-                } break;
-                case  CALL: {
-                    // 
-                    mvchgat(current->y - line_ren->start->y, 
-                        ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                        ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                        A_NORMAL, 
-                        CALL_SYNTAX_PAIR,
-                        NULL);
-
-                } break;
-
-                default: {
-                    mvchgat(current->y - line_ren->start->y, 
-                        ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                        ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                        A_NORMAL, 
-                        MAIN_THEME_PAIR,
-                        NULL);
-                } break;
-            }
-        }
-
+        add_syntax_(current, line_ren);
         if (current == line_ren->end) break;
         current = current->next;
     }

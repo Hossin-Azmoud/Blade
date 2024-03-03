@@ -37,45 +37,6 @@ char *get_token_kind_s(MITokenType t)
     } 
 }
 
-KeywordList *get_keywords_list(char *ext)
-{
-    static KeywordList list[KEYWORDLIST_SZ] = {
-        [0] = {
-            .extension="py", 
-            .size=19,
-            ._list={
-                "def", 
-                "for", 
-                "if",
-                "self",
-                "while", 
-                "else", 
-                "elif", 
-                "True", 
-                "False", 
-                "max",
-                "min",
-                "match",
-                "class",
-                "str",
-                "range",
-                "in",
-                "while",
-                "import",
-                "from",
-                "lambda"
-            },
-        }
-    };
-
-    for (int it = 0; it < KEYWORDLIST_SZ; ++it) {
-        if (strcmp(ext, list[it].extension) == 0) {
-            return (list + it);
-        }
-    }
-
-    return NULL;
-}
 
 void token_list_append(TokenList *list, MITokenType kind, int xstart, int xend)
 {
@@ -174,7 +135,6 @@ void retokenize_line(Line *line, KeywordList *keywords_list)
             }
 
             xend = (x - 1);
-            fprintf(get_logger_file_ptr(), "ADDDING : %s\n", temp);
             token_list_append(&(line->token_list), 
                 (is_keywrd(keywords_list->_list, temp, keywords_list->size)) ? KEYWORD : ID,
                 xstart,
@@ -329,3 +289,4 @@ bool is_keywrd(char *keywords[], char *word, int keywords_sz) {
 
     return false;
 }
+

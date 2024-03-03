@@ -45,7 +45,6 @@ void *clipboard(ClipBoardEvent e, char *data);
 #define MAX_TOKENS 64
 #define TAB '\t'
 #define NL  '\n'
-#define KEYWORDLIST_SZ 1
 
 #define OPAR '('
 #define CPAR ')'
@@ -79,6 +78,13 @@ typedef enum ErrorType {
     EXIT_SIG,
     EMPTY_BUFF
 } ErrorType;
+
+typedef enum ScriptType {
+    PYTHON = 0,
+    C,
+    JS,
+    UNSUP
+} ScriptType;
 
 typedef enum editorMode {
     NORMAL = 0,
@@ -177,13 +183,14 @@ typedef struct Line {
 } Line;
     
 typedef struct Lines_renderer {
-    Line   *origin;
-    Line   *start;
-    Line   *end;
-    Line   *current;
-    int    win_h, win_w;
-    int    max_padding;
-    int    count;
+    Line       *origin;
+    Line       *start;
+    Line       *end;
+    Line       *current;
+    int        win_h, win_w;
+    int        max_padding;
+    ScriptType script_type;
+    int        count;
 } Lines_renderer;
 
 typedef struct Result {
@@ -191,10 +198,7 @@ typedef struct Result {
     ErrorType  etype;
     char *data;
 } Result;
-typedef struct Editor {
-    Lines_renderer line_ren;
-    editorMode mode;
-} Editor;
+
 WINDOW *init_editor();
 int load_file(char *file_path, Lines_renderer *line_ren);
 int save_file(char *file_path, Line *lines, bool release);
@@ -242,9 +246,12 @@ void  chunk_distroy(Chunk *c);
 // Token List ops
 void token_list_append(TokenList *list, MITokenType kind, int xstart, int xend);
 void retokenize_line(Line *line, KeywordList *keywords_list);
-KeywordList *get_keywords_list(char *ext);
+KeywordList *get_keywords_list(ScriptType s);
 bool is_keywrd(char *keywords[], char *word, int keywords_sz);
 char *get_token_kind_s(MITokenType t);
+
+ScriptType get_script_type(char *spath);
+char *script_type_as_str(ScriptType s);
 
 #endif // MI_H
 

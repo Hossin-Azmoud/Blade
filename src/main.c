@@ -15,22 +15,12 @@ int main(int argc, char **argv) {
 
 int test() {
     open_logger();
-    char *src = "from sys import (platform, path, exit)";
-    Line *line = Alloc_line_node(0);
-    strcpy(line->content, src);
-    line->x = strlen(src);
-    line->size = strlen(src);
-    KeywordList *keywords_list = get_keywords_list("py");
-    retokenize_line(line, keywords_list);
-    printf("TEXT: %s\n", line->content);
-    for (int it = 0; it < line->token_list.size; ++it) {
-        printf("[%i] (%i -> %i) %s\n", it, 
-           (line->token_list._list + it)->xstart,
-           (line->token_list._list + it)->xend,
-            get_token_kind_s((line->token_list._list + it)->kind)
-        );
-    }
+    ScriptType script_type = get_script_type("k.js");
+    KeywordList *list = get_keywords_list(script_type);
     
+    for (int i = 0; i < list->size; i++) {
+        printf("[%s] %s\n", script_type_as_str(script_type), list->_list[i]);
+    }
     return 0;
 }
 
@@ -63,7 +53,8 @@ int editor(int argc, char **argv)
     line_ren->start   = line_ren->origin;
     line_ren->end     = line_ren->origin; 
     line_ren->current = line_ren->origin; 
-
+    
+    
     win = init_editor();    
     getmaxyx(win, 
              line_ren->win_h, 
@@ -77,10 +68,9 @@ int editor(int argc, char **argv)
     } else {
         file = argv[1];
     }
-
+    line_ren->script_type = get_script_type (file);
     erase();   
     line_ren->count = load_file(file, line_ren);
-    
     render_lines(line_ren);
     editor_details(line_ren, file, mode, notification_buffer);
     editor_apply_move(line_ren);
