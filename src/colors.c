@@ -1,4 +1,5 @@
 #include <mi.h>
+
 void make_new_color(int index, int r, int g, int b)
 {
     if (index > 255) return;

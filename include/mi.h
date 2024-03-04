@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <clipboard.h>
+#include <colors.h>
 
 #define ESC         0x1b
 #define KEY_COPY_   'y'
@@ -18,27 +20,8 @@
 #define L_SHIFT 0x189
 #define R_SHIFT 0x192
 
-// clipboard api
-typedef enum ClipBoardEvent {
-    CFREE,
-    CGET,
-    CSET
-} ClipBoardEvent;
-
-void *clipboard(ClipBoardEvent e, char *data);
-#define CLIPBOARD_SET(data) clipboard(CSET, data);
-#define CLIPBOARD_GET() (char *) clipboard(CGET, NULL);
-#define CLIPBOARD_FREE() clipboard(CFREE, NULL);
 
 // color editor pairs
-#define SECONDARY_THEME_PAIR 1
-#define MAIN_THEME_PAIR      2
-#define ERROR_PAIR           3
-#define BLUE_PAIR            4
-#define HIGHLIGHT_THEME      5 
-#define KEYWORD_SYNTAX_PAIR  6
-#define STRING_LIT_PAIR      7
-#define CALL_SYNTAX_PAIR     8
 #define CTRL(x) ((x) & 037)
 #define LINE_SZ 512
 #define LINE_NUM_MAX 8
@@ -115,7 +98,11 @@ typedef enum MITokenType {
     NUMBER_LIT,
     KEYWORD,
     ID,
+    /* Special tokens. */
     CALL,
+    C_INCLUDE,
+    C_DEFINE,
+    COMMENT,
     /* Syms */
     EQ, // =
     GT, // >
@@ -252,7 +239,5 @@ char *get_token_kind_s(MITokenType t);
 
 ScriptType get_script_type(char *spath);
 char *script_type_as_str(ScriptType s);
-void make_new_color(int index, int r, int g, int b);
-void make_new_color_u32(int index, uint32_t color);
 #endif // MI_H
 

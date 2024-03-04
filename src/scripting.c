@@ -14,10 +14,6 @@ char *script_type_as_str(ScriptType s)
 
 KeywordList *get_keywords_list(ScriptType s)
 {
-    // PYTHON = 0,
-    // C,
-    // JS,
-    // UNSUP
     static KeywordList list[UNSUP] = {
         [PYTHON] = {
             .size=23,
@@ -141,9 +137,7 @@ KeywordList *get_keywords_list(ScriptType s)
         }
     };
 
-    if (s < UNSUP) {
-        return (list + s);
-    }
+    if (s < UNSUP) return (list + s);
     return NULL;
 }
 
@@ -160,14 +154,11 @@ ScriptType get_script_type(char *spath)
         it--;
     }
     
-    if (*extension == 0) {
-        return UNSUP;
-    } else {
-        if (!strcmp(extension, ".py")) return PYTHON;
-        if (!strcmp(extension, ".js")) return JS;
-        if (!strcmp(extension, ".c"))  return C;
-        else {
-            return UNSUP;
-        }
-    }
+    if (*extension == 0)return UNSUP;
+    
+    if (!strcmp(extension, ".py")) return PYTHON;
+    if (!strcmp(extension, ".js")) return JS;
+    if (!strcmp(extension, ".c"))  return C;
+
+    return UNSUP;
 }

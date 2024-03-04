@@ -177,6 +177,10 @@ void retokenize_line(Line *line, ScriptType script_type)
                 } break;
                        
                 case '#': {
+                    if (script_type == PYTHON) {
+                        token_list_append(&(line->token_list), COMMENT, x, line->size);
+                        return;
+                    }
                     token_list_append(&(line->token_list), HASHTAG, x, x);
                     x++;
                 } break;
@@ -262,6 +266,13 @@ void retokenize_line(Line *line, ScriptType script_type)
                 } break;
 
                 case '/': {
+                    if ((x + 1 < line->size)) {
+                        if (script_type == C && line->content[x + 1] == '/') {
+                            // WE Collect a comment.
+                            token_list_append(&(line->token_list), COMMENT, x, line->size);
+                            return;
+                        }
+                    }
                     token_list_append(&(line->token_list), FSLASH, x, x);
                     x++;
                 } break;
