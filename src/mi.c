@@ -12,10 +12,11 @@ static void init_colors()
 {
     start_color();
     // pair_number, foreground, background
-    make_new_color_u32(COLOR_GREY_, 0x04081a);
-    make_new_color_u32(COLOR_YELLOW_, 0xf9ca24);
-    make_new_color_u32(COLOR_APPLE, 0x6ab04c);
-    make_new_color_u32(COLOR_COMMENT, 0x212e1f); 
+    make_new_color_u32(COLOR_SILVER_,  0x4bcffa);
+    make_new_color_u32(COLOR_GREY_,    0x04081a);
+    make_new_color_u32(COLOR_YELLOW_,  0xf9ca24);
+    make_new_color_u32(COLOR_APPLE,    0x6ab04c);
+    make_new_color_u32(COLOR_COMMENT,  0x212e1f); 
     make_new_color(COLOR_BLUE, 0, 44, 84); 
     make_new_color(COLOR_RED, 210, 31, 60); 
 
@@ -26,10 +27,9 @@ static void init_colors()
     init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
     init_pair(KEYWORD_SYNTAX_PAIR, COLOR_YELLOW_, COLOR_GREY_);
     init_pair(CALL_SYNTAX_PAIR, COLOR_CYAN, COLOR_GREY_);
-
     init_pair(STRING_LIT_PAIR, COLOR_APPLE, COLOR_GREY_);
-    
     init_pair(COMENT_PAIR, COLOR_COMMENT, COLOR_GREY_);
+    init_pair(NUM_PAIR, COLOR_SILVER_, COLOR_GREY_);
 
 }
 
@@ -246,6 +246,14 @@ static void add_syntax_(Line *current, Lines_renderer *line_ren)
                     ((current->token_list)._list + it)->xend + line_ren->max_padding, 
                     A_NORMAL, 
                     COMENT_PAIR,
+                    NULL);
+            } break;
+            case NUMBER_LIT: {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL,
+                    NUM_PAIR,
                     NULL);
             } break;
             default: {

@@ -16,8 +16,10 @@ KeywordList *get_keywords_list(ScriptType s)
 {
     static KeywordList list[UNSUP] = {
         [PYTHON] = {
-            .size=23,
+            .size=22,
             ._list={
+                "None",
+                "int",
                 "def", 
                 "for", 
                 "if",
@@ -27,12 +29,9 @@ KeywordList *get_keywords_list(ScriptType s)
                 "elif", 
                 "True", 
                 "False", 
-                "max",
-                "min",
                 "match",
                 "class",
                 "str",
-                "range",
                 "in",
                 "while",
                 "import",
@@ -44,7 +43,7 @@ KeywordList *get_keywords_list(ScriptType s)
             },
         },
         [C] = {
-            .size=24,
+            .size=26,
             ._list={
                 "void", 
                 "int", 
@@ -69,7 +68,9 @@ KeywordList *get_keywords_list(ScriptType s)
                 "double",
                 "uint8_t",
                 "uint16_t",
-                "uint32_t"
+                "uint32_t",
+                "static",
+                "extern"
             },
         },
         
