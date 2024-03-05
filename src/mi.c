@@ -30,7 +30,6 @@ static void init_colors()
     init_pair(STRING_LIT_PAIR, COLOR_APPLE, COLOR_GREY_);
     init_pair(COMENT_PAIR, COLOR_COMMENT, COLOR_GREY_);
     init_pair(NUM_PAIR, COLOR_SILVER_, COLOR_GREY_);
-
 }
 
 WINDOW *init_editor()
@@ -43,7 +42,7 @@ WINDOW *init_editor()
     cbreak();
     init_colors();
 
-    wbkgd(win, COLOR_PAIR(COLOR_GREY_));
+    wbkgd(win, COLOR_PAIR(MAIN_THEME_PAIR));
     set_escdelay(0); 
     {
         // Mouse stuff.
@@ -133,6 +132,7 @@ static void render_line(Line *line, int offset, int max_padding)
     for (x = 0; x < line->size; ++x) {
          mvaddch(line->y - offset, x + n, line->content[x]);
     }
+    
 }
 
 void editor_dl(Line *line) 
@@ -159,7 +159,7 @@ void editor_backspace(Lines_renderer *line_ren)
         memmove(
             line_ren->current->content + line_ren->current->x - 1,
             line_ren->current->content + line_ren->current->x,
-            line_ren->current->size - line_ren->current->x + 1
+            line_ren->current->size - line_ren->current->x
         );
    
         line_ren->current->content[line_ren->current->size] = 0;
@@ -222,6 +222,7 @@ static void add_syntax_(Line *current, Lines_renderer *line_ren)
                     KEYWORD_SYNTAX_PAIR,
                     NULL);
             } break; 
+            
             case STR_LIT: {
                 mvchgat(current->y - line_ren->start->y, 
                     ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
@@ -260,7 +261,7 @@ static void add_syntax_(Line *current, Lines_renderer *line_ren)
                 mvchgat(current->y - line_ren->start->y, 
                     ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
                     ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
+                    A_NORMAL,
                     MAIN_THEME_PAIR,
                     NULL);
             } break;

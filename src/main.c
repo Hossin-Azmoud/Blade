@@ -13,14 +13,28 @@ int main(int argc, char **argv) {
     return ret;
 }
 
+void print_token_list(TokenList *list)
+{
+    
+    for (int i = 0; i < list->size; ++i) {
+        printf("(s: %d e: %d) - %s\n", 
+           list->_list[i].xstart, 
+           list->_list[i].xend,
+           get_token_kind_s(list->_list[i].kind)
+        );
+    }
+}
+
 int test() {
     open_logger();
-    ScriptType script_type = get_script_type("k.js");
-    KeywordList *list = get_keywords_list(script_type);
+    const char *src = "function main(name) { console.log(\"Hello: \"name); }";
+    Line *line = Alloc_line_node(0);
+    strcpy(line->content, src);
+    line->size = strlen(src);
     
-    for (int i = 0; i < list->size; i++) {
-        printf("[%s] %s\n", script_type_as_str(script_type), list->_list[i]);
-    }
+    retokenize_line(line, JS);
+    print_token_list(&line->token_list);
+    free_lines(line);
     return 0;
 }
 
@@ -185,6 +199,11 @@ int editor(int argc, char **argv)
 
     RENDER:
         erase();
+        
+        if (deleted_char) {
+            delch();
+            deleted_char = false;
+        }
         render_lines(line_ren);
 
         // Highlight if the current context is VISUAL.
@@ -193,10 +212,6 @@ int editor(int argc, char **argv)
             sprintf(notification_buffer, "[ %d bytes were Highlighted]\n", highlighted_bytes);
         }
 
-        if (deleted_char) {
-            delch();
-            deleted_char = false;
-        }
     
         if (exit_pressed) {
             break;

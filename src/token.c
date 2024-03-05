@@ -33,6 +33,8 @@ char *get_token_kind_s(MITokenType t)
         case FSLASH: return "FSLASH";
         case BSLASH: return "BSLASH";
         case OTHER_PUNCT: return "OTHER_PUNCT";
+        case CALL: return "CALL";
+        case COMMENT: return "COMMENT";
         default: return "UNKNOWN_TOKEN_KIND";
     } 
 }
@@ -51,6 +53,7 @@ void token_list_append(TokenList *list, MITokenType kind, int xstart, int xend)
     current_tok->kind = kind;
     list->size++;
 }
+
 static int trim_spaces_left(char *buff, int curr) {
     int i = curr;
     while (isspace(buff[i]) && buff[i]) i++;
@@ -94,7 +97,8 @@ void retokenize_line(Line *line, ScriptType script_type)
                 }
             }
 
-            xend = x++;
+            xend = x;
+            x++;
             next:
             if (line->content[xend] == line->content[xstart]) {
                 token_list_append(&(line->token_list), 
@@ -115,10 +119,12 @@ void retokenize_line(Line *line, ScriptType script_type)
         // Digit collector
         if (isdigit(line->content[x])) {
             x++;
+
             while (isdigit(line->content[x]) && x < line->size) {
-               x++;
+                xend = (x);
+                x++;
             }
-            xend = (x - 1);
+            
             token_list_append(&(line->token_list), 
                 NUMBER_LIT,
                 xstart,
@@ -131,10 +137,15 @@ void retokenize_line(Line *line, ScriptType script_type)
         if (isalpha(line->content[x]) || line->content[x] == '_') {
             temp[data_idx++] = line->content[x++];
             while ((isalnum(line->content[x]) || (line->content[x] == '_')) && x < line->size) {
+                xend = (x);
                 temp[data_idx++] = line->content[x++];
             }
 
-            xend = (x - 1);
+            if (line->token_list.size > 0) {
+                if (line->token_list._list[line->token_list.size - 1].kind == HASHTAG) {
+                    // TODO: Get the word and see the type of the c_tag is it an #include or a condition #if #endif #ifndef,
+                }
+            }
             token_list_append(&(line->token_list), 
                 (is_keywrd(keywords_list->_list, temp, keywords_list->size)) ? KEYWORD : ID,
                 xstart,
@@ -181,6 +192,7 @@ void retokenize_line(Line *line, ScriptType script_type)
                         token_list_append(&(line->token_list), COMMENT, x, line->size);
                         return;
                     }
+                    
                     token_list_append(&(line->token_list), HASHTAG, x, x);
                     x++;
                 } break;

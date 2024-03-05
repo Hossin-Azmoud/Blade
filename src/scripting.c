@@ -159,7 +159,7 @@ ScriptType get_script_type(char *spath)
     
     if (!strcmp(extension, ".py")) return PYTHON;
     if (!strcmp(extension, ".js")) return JS;
-    if (!strcmp(extension, ".c"))  return C;
+    if (!strcmp(extension, ".c") || !strcmp(extension, ".h"))  return C;
 
     return UNSUP;
 }
