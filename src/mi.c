@@ -172,8 +172,8 @@ void editor_backspace(Lines_renderer *line_ren)
     if (line_ren->current->x == 0 && line_ren->current->prev) {
         line_disconnect_from_ren(line_ren);
     }
-
-    line_ren->current->content[line_ren->current->x] = 0;
+    // Don't uncomment this line, it is a fucking bug..
+    // line_ren->current->content[line_ren->current->x] = 0;
 }
 
 void line_disconnect_from_ren(Lines_renderer *line_ren)

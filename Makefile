@@ -1,4 +1,6 @@
 CC=gcc
+OUT_DIR=./bin
+OUT_FILE=$(OUT_DIR)/mi
 TEST_FILE=./src/test.c
 INCLUDE=-I./include
 CFLAGS=-Wall -pedantic -Werror -g -ggdb -Wextra -std=c11
@@ -7,14 +9,14 @@ LIBS=-lncurses
 all: main
 
 main:
-	$(CC) $(CFLAGS) $(INCLUDE) -o mi $(SRC) $(LIBS)
+	mkdir $(OUT_DIR) ; $(CC) $(CFLAGS) $(INCLUDE) -o $(OUT_FILE) $(SRC) $(LIBS)
 
 run:
-	./mi $(TEST_FILE)
+	$(OUT_FILE) $(TEST_FILE)
 	cat $(TEST_FILE)
 
 debug:
-	valgrind ./mi $(TEST_FILE)
+	valgrind $(OUT_FILE) $(TEST_FILE)
 
 clean:
-	rm ./mi
+	rm $(OUT_FILE) $(TEST_FILE)
