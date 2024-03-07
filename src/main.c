@@ -163,17 +163,25 @@ int _editor_test(char **argv)
             E->char_deleted = false;
         }
  
-        // Highlight if the current context is VISUAL.
-        if (E->mode == VISUAL) {
-            E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
-            sprintf(E->notification_buffer, "[ %d bytes were Highlighted]\n", E->highlighted_data_length);
-        }
     
         if (E->exit_pressed) {
             break;
         }
-        editor_refresh(E);
+        
+        
+        erase();
+
+        render_lines(E->renderer);
+
+        if (E->mode == VISUAL) {
+            E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
+            sprintf(E->notification_buffer, "[ %d bytes were Highlighted]\n", E->highlighted_data_length);
+        }
+        
+        editor_details(E->renderer, E->file, E->mode, E->notification_buffer);
         if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
+        editor_apply_move(E->renderer);
+        refresh();
     }
 
     if (!E->exit_pressed) {

@@ -61,7 +61,7 @@ int load_file(char *file_path, Lines_renderer *line_ren)
 
 SET_PROPS:
     line_ren->max_padding = sprintf(line_number, "%u", line_ren->current->y + 1) + 1;
-    if (line_ren->max_padding < 1) line_ren->max_padding++;
+    // if (line_ren->max_padding < 1) line_ren->max_padding++;
     line_ren->current = line_ren->start;
     if (Stream) fclose(Stream);
     return line_ren->count;
@@ -141,6 +141,7 @@ void editor_backspace(Lines_renderer *line_ren)
         line_ren->current->content[line_ren->current->size] = 0;
         line_ren->current->x--;
         line_ren->current->size--;
+
         return;
     }
     
@@ -543,7 +544,7 @@ char *editor_render_startup(int x, int y)
             case SUCCESS: {
                 strcpy(file_path, res->data);
                 free(res->data);
-                (free(res);
+                free(res);
                 return file_path;
             } break;
             case ERROR: {
@@ -571,7 +572,7 @@ char *editor_render_startup(int x, int y)
 
 
 static void 
-highlight__ (int y, int x, int size) {
+highlight__(int y, int x, int size) {
     mvchgat(y, // Which line
             x, // Which col to start from
             size, // where or howmuch to highlight after x.. which is position x + size

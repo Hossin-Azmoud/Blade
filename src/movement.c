@@ -42,7 +42,9 @@ void editor_right(Lines_renderer *line_ren)
 
 void editor_apply_move(Lines_renderer *line_ren)
 {
-    move(line_ren->current->y - line_ren->start->y, line_ren->current->x + line_ren->max_padding);
+    move(line_ren->current->y - line_ren->start->y, 
+         line_ren->current->x + line_ren->max_padding);
+
 }
 
 bool is_move(int key)
