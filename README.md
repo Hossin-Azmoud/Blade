@@ -28,3 +28,10 @@ Tui text editor made in ncurses
 - To switch to `INSERT` mode press `i` while u r in `NORMAL` mode
 - To copy data around u press on the vim copy key `y` twise then if u want to paste the data u just press `p`
 - To exit press `F2` (file wont be saved tho!)
+
+## Implemented Syntax Highlighting
+(*) Python
+(*) Js
+()  C
+()  Rust
+()  Go

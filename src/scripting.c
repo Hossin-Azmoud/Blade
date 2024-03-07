@@ -16,8 +16,12 @@ KeywordList *get_keywords_list(ScriptType s)
 {
     static KeywordList list[UNSUP] = {
         [PYTHON] = {
-            .size=22,
+            .size=25,
             ._list={
+                "enumerate",
+                "return",
+                "callable",
+                "str",
                 "None",
                 "int",
                 "def", 

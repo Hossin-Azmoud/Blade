@@ -8,31 +8,8 @@ static char *modes[] = {
 };
 
 
-static void init_colors() 
-{
-    start_color();
-    // pair_number, foreground, background
-    make_new_color_u32(COLOR_SILVER_,  0x4bcffa);
-    make_new_color_u32(COLOR_GREY_,    0x04081a);
-    make_new_color_u32(COLOR_YELLOW_,  0xf9ca24);
-    make_new_color_u32(COLOR_APPLE,    0x6ab04c);
-    make_new_color_u32(COLOR_COMMENT,  0x212e1f); 
-    make_new_color(COLOR_BLUE, 0, 44, 84); 
-    make_new_color(COLOR_RED, 210, 31, 60); 
 
-    init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_GREY_);
-    init_pair(HIGHLIGHT_THEME, COLOR_GREY_, COLOR_WHITE);
-    init_pair(SECONDARY_THEME_PAIR, COLOR_GREY_, COLOR_YELLOW_);
-    init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
-    init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
-    init_pair(KEYWORD_SYNTAX_PAIR, COLOR_YELLOW_, COLOR_GREY_);
-    init_pair(CALL_SYNTAX_PAIR, COLOR_CYAN, COLOR_GREY_);
-    init_pair(STRING_LIT_PAIR, COLOR_APPLE, COLOR_GREY_);
-    init_pair(COMENT_PAIR, COLOR_COMMENT, COLOR_GREY_);
-    init_pair(NUM_PAIR, COLOR_SILVER_, COLOR_GREY_);
-}
-
-WINDOW *init_editor()
+WINDOW *init_ncurses_window()
 {
     WINDOW *win = initscr();
 
@@ -49,6 +26,7 @@ WINDOW *init_editor()
         mousemask(ALL_MOUSE_EVENTS, NULL);
         mouseinterval(0);
     }
+
     return win;
 }
 
@@ -114,7 +92,6 @@ int save_file(char *file_path, Line *lines, bool release)
     return bytes_saved;
 }
 
-
 static void render_line(Line *line, int offset, int max_padding)
 {
     int x = 0, n = 0;
@@ -124,7 +101,7 @@ static void render_line(Line *line, int offset, int max_padding)
     for (n = 0; n < line->padding; n++) {
         mvaddch(line->y - offset, n, line_number[n]);
     }
-
+    // TODO: COLORIZE THE LINE NUMBER WITH A BETTER COLOR. (line->y - offset, 0, max_padding, PAIR, NULL);
     for (; n < max_padding; n++) {
         mvaddch(line->y - offset, n, ' ') ;
     }
@@ -132,7 +109,6 @@ static void render_line(Line *line, int offset, int max_padding)
     for (x = 0; x < line->size; ++x) {
          mvaddch(line->y - offset, x + n, line->content[x]);
     }
-    
 }
 
 void editor_dl(Line *line) 
@@ -567,7 +543,7 @@ char *editor_render_startup(int x, int y)
             case SUCCESS: {
                 strcpy(file_path, res->data);
                 free(res->data);
-                free(res);
+                (free(res);
                 return file_path;
             } break;
             case ERROR: {

@@ -4,10 +4,12 @@
 // #define DEBUG
 int editor(int argc, char **argv);
 int test();
+int _editor_test(char **argv);
 
 int main(int argc, char **argv) {
+    (void) argc; 
     if (T) return test();
-    int ret = editor(argc, argv);
+    int ret = _editor_test(argv);
     CLIPBOARD_FREE();
     close_logger();
     return ret;
@@ -31,98 +33,53 @@ int test() {
     Line *line = Alloc_line_node(0);
     strcpy(line->content, src);
     line->size = strlen(src);
-    
     retokenize_line(line, JS);
     print_token_list(&line->token_list);
     free_lines(line);
+
     return 0;
 }
 
-int editor(int argc, char **argv)
+int _editor_test(char **argv)
 {
     open_logger();
-    // curs_set(1);
-    Vec2 copy_start = { 0 }; 
-    Vec2 copy_end   = { 0 };
-    vKeyBindingQueue binding = { 0 };
-    char *file;
-    editorMode mode = NORMAL;
-    char notification_buffer[1024] = {0};
-    WINDOW *win = NULL;
-    Lines_renderer line_ren_raw = {
-        .origin=NULL, 
-        .start=NULL, 
-        .end=NULL, 
-        .current=NULL, 
-        .count=0,
-        .max_padding=2
-    };
-
-    int highlighted_bytes = 0;
-    Lines_renderer *line_ren =  &line_ren_raw;
-    bool deleted_char = false;
+    MiEditor *E = init_editor(argv[1]);
     int c = 0;
-    bool exit_pressed = false;
-    line_ren->origin  = Alloc_line_node(0);
-    line_ren->start   = line_ren->origin;
-    line_ren->end     = line_ren->origin; 
-    line_ren->current = line_ren->origin; 
-    
-    
-    win = init_editor();    
-    getmaxyx(win, 
-             line_ren->win_h, 
-             line_ren->win_w); 
-    if (argc < 2) {
-        file = editor_render_startup(line_ren->win_w / 2, line_ren->win_h / 2);
-        if (file == NULL) {
-            // user cancelled! we quit.
-            goto EXIT_AND_RELEASE_RESOURCES;
-        }
-    } else {
-        file = argv[1];
+    if (E == NULL) {
+        goto EXIT_AND_RELEASE_RESOURCES;
     }
-    line_ren->script_type = get_script_type (file);
-    erase();   
-    line_ren->count = load_file(file, line_ren);
-    render_lines(line_ren);
-    editor_details(line_ren, file, mode, notification_buffer);
-    editor_apply_move(line_ren);
-    // TODO: void compute_layout (Lines_renderer *line_ren);
-    // it adjusts the start and end of the layout so it can be suitable with the current row count
+    
     while ((c = getch()) != KEY_F(1)) {
-        getmaxyx(win, 
-             line_ren->win_h, 
-             line_ren->win_w); 
-        // compute_layout(line_ren);
+        editor_load_layout(E);
+
         if (is_move(c)) {
-            handle_move(c, line_ren);
+            handle_move(c, E->renderer);
             goto RENDER;
         }
 
         // Globals.
         switch (c) {
             case KEY_F(2): {
-                exit_pressed = true;
+                E->exit_pressed = true;
             } break;
         }
+
         // Switch To NORMAL Mode using escape
         if (c == ESC) {
-            mode = NORMAL;
+            E->mode = NORMAL;
             goto RENDER;
         }
 
-        
         // Actions that depend on the mode.
-        switch (mode) {
+        switch (E->mode) {
             case VISUAL: {
                 if (c == KEY_COPY_) {
                     // Store into about end of the highlighting in some struct.
-                    copy_end.x = line_ren->current->x;
-                    copy_end.y = line_ren->current->y;
-                    copy_end._line = line_ren->current;
-                    mode = NORMAL;
-                    clipboard_save_chunk(copy_start, copy_end);
+                    E->highlighted_end.x = E->renderer->current->x; // x=0, Y=0
+                    E->highlighted_end.y = E->renderer->current->y; // x=0, Y=0
+                    E->highlighted_end._line =  E->renderer->current;
+                    E->mode = NORMAL;
+                    clipboard_save_chunk(E->highlighted_start, E->highlighted_end);
                 }
             } break;
             
@@ -130,30 +87,32 @@ int editor(int argc, char **argv)
                 switch (c) {
                     case KEY_PASTE_: {
                         // TODO: Make clipboard be synced with the VISUAL mode clipboard_
-                        editor_push_data_from_clip(line_ren);
+                        editor_push_data_from_clip(E->renderer);
                     } break;
                     case KEY_INSERT_: {
-                        mode = INSERT;
+                        E->mode = INSERT;
                     } break;
                     case KEY_VISUAL_: {
                         // we mark the chords of the start position!
-                        mode = VISUAL;
-                        copy_start.x = line_ren->current->x;
-                        copy_start.y = line_ren->current->y;
-                        copy_start._line = line_ren->current;
+                        E->mode = VISUAL;
+                        E->highlighted_start.x = E->renderer->current->x;
+                        E->highlighted_start.y = E->renderer->current->y;
+                        E->highlighted_start._line = E->renderer->current;
                     } break;
                     case KEY_SAVE_: {
-                        int saved_bytes = save_file(file, line_ren->origin, false);
-                        sprintf(notification_buffer, "[ %dL %d bytes were written ]\n", line_ren->count, saved_bytes);
+                        int saved_bytes = save_file(E->file, E->renderer->origin, false);
+                        sprintf(E->notification_buffer, "[ %dL %d bytes were written ]\n", 
+                            E->renderer->count, 
+                            saved_bytes);
                     } break;
                     default: {
-                        if (binding.size < MAX_KEY_BINDIND)
-                            binding.keys[binding.size++] = (char) c;
+                        if (E->binding_queue.size < MAX_KEY_BINDIND)
+                            E->binding_queue.keys[E->binding_queue.size++] = (char) c;
                             // TODO: Make binding copy whole line with `yy`, and delete whole line with `dd`
-                        if (binding.size == MAX_KEY_BINDIND) {
-                            // TODO: Process Key binding.
-                            editor_handle_binding(line_ren, &binding);
-                            binding.size = 0;
+                        if (E->binding_queue.size == MAX_KEY_BINDIND) {
+                            // TODO: Process Key E->binding_queue.
+                            editor_handle_binding(E->renderer, &E->binding_queue);
+                            E->binding_queue.size = 0;
                         }
                     } break;
                 }
@@ -161,25 +120,25 @@ int editor(int argc, char **argv)
             case INSERT: {
                 switch (c) {
                     case TAB: {
-                        editor_tabs(line_ren->current);
+                        editor_tabs(E->renderer->current);
                     } break;
                     case KEY_BACKSPACE: { 
-                        editor_backspace(line_ren);
-                        deleted_char = true;
+                        editor_backspace(E->renderer);
+                        E->char_deleted = true;
 			        } break;
                     case KEY_DEL: {
                         // TODO: Implement this.
-                        editor_dl(line_ren->current);
-                        deleted_char = true;
+                        editor_dl(E->renderer->current);
+                        E->char_deleted = true;
                     } break;		
                     case NL: {
-                        editor_new_line(line_ren, true);
-                        if (!line_ren->count) line_ren->count++;    
+                        editor_new_line(E->renderer, true);
+                        if (!E->renderer->count) E->renderer->count++;    
                         goto RENDER;
                     } break;
                     default: {
-                        line_push_char(line_ren->current, c, false);
-                        if (!line_ren->count) line_ren->count++;
+                        line_push_char(E->renderer->current, c, false);
+                        if (E->renderer->count) E->renderer->count++;
                     } break;
                 }
             } break;
@@ -189,50 +148,45 @@ int editor(int argc, char **argv)
         if (!(isalnum(c) || ispunct(c) || isspace(c)))
         {
             if (c == CTRL(KEY_LEFT)) {
-                sprintf(notification_buffer, "[ CTRL_KEY_LEFT was clicked. ]\n");
+                sprintf(E->notification_buffer, "[ CTRL_KEY_LEFT was clicked. ]\n");
             } else if (c == CTRL(KEY_RIGHT)) {
-                sprintf(notification_buffer, "[ CTRL_KEY_RIGHT was clicked. ]\n");
+                sprintf(E->notification_buffer, "[ CTRL_KEY_RIGHT was clicked. ]\n");
             } else {
-                sprintf(notification_buffer, "[ 0x%04x was clicked. ]\n", c);
+                sprintf(E->notification_buffer, "[ 0x%04x was clicked. ]\n", c);
             }
         }
 
     RENDER:
-        erase();
         
-        if (deleted_char) {
+        if (E->char_deleted) {
             delch();
-            deleted_char = false;
+            E->char_deleted = false;
         }
-        render_lines(line_ren);
-
+ 
         // Highlight if the current context is VISUAL.
-        if (mode == VISUAL) {
-            highlighted_bytes = highlight_until_current_col (copy_start, line_ren);
-            sprintf(notification_buffer, "[ %d bytes were Highlighted]\n", highlighted_bytes);
+        if (E->mode == VISUAL) {
+            E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
+            sprintf(E->notification_buffer, "[ %d bytes were Highlighted]\n", E->highlighted_data_length);
         }
-
     
-        if (exit_pressed) {
+        if (E->exit_pressed) {
             break;
         }
-
-        editor_details(line_ren, file, mode, notification_buffer);
-        if (strlen(notification_buffer) > 0) memset(notification_buffer, 0, strlen(notification_buffer));
-        editor_apply_move(line_ren);
-        refresh();
+        editor_refresh(E);
+        if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
     }
 
-    if (!exit_pressed) {
+    if (!E->exit_pressed) {
         endwin();
-        save_file(file, line_ren->origin, true);
+        save_file(
+            E->file, 
+            E->renderer->origin, 
+            true);
         return 0;
     }
 
-
 EXIT_AND_RELEASE_RESOURCES:
     endwin();
-    free_lines(line_ren->origin);
+    release_editor(E);
     return 0;
 }
-

@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define LOGGER_FILE "./logs/Logs.mi.txt"
+
+#define LOGGER_FILE "./Logs.mi.txt"
 
 void open_logger();
 void close_logger();
 FILE *get_logger_file_ptr();
-#endif // !LOGGER_H___
+
+#endif // LOGGER_H___

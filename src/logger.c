@@ -1,17 +1,17 @@
 #include <logger.h>
-static FILE *__Log_file = NULL;
+static FILE *stdl = NULL;
 
 void open_logger()
 {
-    __Log_file = fopen(LOGGER_FILE, "w+");
+    stdl = fopen(LOGGER_FILE, "a+");
 }
 
 FILE *get_logger_file_ptr()
 {
-    return (__Log_file);
+    return stdl;
 }
 
 void close_logger()
 {
-    fclose(__Log_file);
+    if (stdl) fclose(stdl);
 }

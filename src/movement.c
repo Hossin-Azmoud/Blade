@@ -110,6 +110,7 @@ void handle_move(int c, Lines_renderer *line_ren)
         // Speedy keys..
         case L_SHIFT: {
             // TODO: Implement this
+            
             editor_left(line_ren);
             {
                 current_char = (line_ren->current->content + line_ren->current->x);
@@ -158,16 +159,3 @@ void handle_move(int c, Lines_renderer *line_ren)
         default: {} break;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

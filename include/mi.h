@@ -186,7 +186,19 @@ typedef struct Result {
     char *data;
 } Result;
 
-WINDOW *init_editor();
+typedef struct MiEditor {
+    char *file;
+    Lines_renderer *renderer;
+    Vec2  highlighted_start, highlighted_end;  // The chordinated of highlighted text.
+    int   highlighted_data_length;
+    char  *notification_buffer;
+    bool  exit_pressed, char_deleted; 
+    editorMode mode;
+    WINDOW *ewindow;
+    vKeyBindingQueue binding_queue;
+} MiEditor;
+
+WINDOW *init_ncurses_window();
 int load_file(char *file_path, Lines_renderer *line_ren);
 int save_file(char *file_path, Line *lines, bool release);
 void render_lines(Lines_renderer *line_ren);
@@ -223,8 +235,8 @@ bool is_move(int key);
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
-// CHUNK
 
+// CHUNK
 void  chunk_append_s(Chunk *c, char *str);
 void  chunk_append_char(Chunk *c, char chr);
 Chunk *chunk_new();
@@ -239,5 +251,10 @@ char *get_token_kind_s(MITokenType t);
 
 ScriptType get_script_type(char *spath);
 char *script_type_as_str(ScriptType s);
+MiEditor *init_editor(char *file_path);
+void editor_load_layout(MiEditor *E);
+void release_editor(MiEditor *E);
+void editor_refresh(MiEditor *E);
+
 #endif // MI_H
 

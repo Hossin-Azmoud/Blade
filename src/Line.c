@@ -39,7 +39,6 @@ void free_lines(Line *lines) {
         free(current->content);
         free((current->token_list)._list);
         free(current);
-        
         current = next;
     }
 }
