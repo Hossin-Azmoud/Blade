@@ -149,6 +149,7 @@ void editor_backspace(Lines_renderer *line_ren)
     if (line_ren->current->x == 0 && line_ren->current->prev) {
         line_disconnect_from_ren(line_ren);
     }
+
     // Don't uncomment this line, it is a fucking bug..
     // line_ren->current->content[line_ren->current->x] = 0;
 }
@@ -167,6 +168,7 @@ void line_disconnect_from_ren(Lines_renderer *line_ren)
             current->content,
             current->size
         );
+
         prev->size += current->size;
     }
 
@@ -179,6 +181,9 @@ void line_disconnect_from_ren(Lines_renderer *line_ren)
     free(current);
     line_ren->count--;
     line_ren->current = prev; // go back one line.
+    if (line_ren->end->next != NULL) {
+        line_ren->end = (line_ren->end->next);
+    }
     lines_shift(next, -1); 
 }
 
