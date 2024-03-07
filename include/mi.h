@@ -101,7 +101,8 @@ typedef enum MITokenType {
     /* Special tokens. */
     CALL,
     C_INCLUDE,
-    C_DEFINE,
+    C_TAG,
+    C_INCLUDE_FILE,
     COMMENT,
     /* Syms */
     EQ, // =

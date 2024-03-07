@@ -163,12 +163,9 @@ int _editor_test(char **argv)
             E->char_deleted = false;
         }
  
-    
         if (E->exit_pressed) {
             break;
         }
-        
-        
         erase();
 
         render_lines(E->renderer);
@@ -198,3 +195,4 @@ EXIT_AND_RELEASE_RESOURCES:
     release_editor(E);
     return 0;
 }
+

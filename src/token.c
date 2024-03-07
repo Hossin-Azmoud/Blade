@@ -141,16 +141,28 @@ void retokenize_line(Line *line, ScriptType script_type)
                 temp[data_idx++] = line->content[x++];
             }
 
-            if (line->token_list.size > 0) {
+            if (line->token_list.size > 0 && script_type == C) {
                 if (line->token_list._list[line->token_list.size - 1].kind == HASHTAG) {
                     // TODO: Get the word and see the type of the c_tag is it an #include or a condition #if #endif #ifndef,
-                }
+                    if (!strcmp(temp, "include")) {
+                        line->token_list._list[line->token_list.size - 1].kind = C_INCLUDE;
+                    } else {
+                        line->token_list._list[line->token_list.size - 1].kind = C_TAG;
+                    }
+    
+                    line->token_list._list[line->token_list.size - 1].xend = xend;
+                    data_idx = 0;
+                    memset(temp, 0,  512);
+                    continue;
+                }                
             }
+
             token_list_append(&(line->token_list), 
                 (is_keywrd(keywords_list->_list, temp, keywords_list->size)) ? KEYWORD : ID,
                 xstart,
                 xend
             );
+
             data_idx = 0;
             memset(temp, 0,  512);
             continue;
@@ -168,6 +180,21 @@ void retokenize_line(Line *line, ScriptType script_type)
                     x++;
                 } break;
                 case '<': {
+                    if (script_type == C) { // gather an include source.
+                        xstart = x;
+
+                        while (x < line->size && line->content[x] != '>') {
+                            x++;
+                        }
+
+                        if (line->content[x] == '>') {
+                            token_list_append(&(line->token_list), C_INCLUDE_FILE, xstart, x);
+                            x++;
+                            continue;
+                        }
+                        x = xstart;
+                    }
+
                     token_list_append(&(line->token_list), LT, x, x);
                     x++;
                 } break;

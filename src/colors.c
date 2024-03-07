@@ -28,9 +28,15 @@ void init_colors()
     make_new_color_u32(COLOR_YELLOW_,  0xf9ca24);
     make_new_color_u32(COLOR_APPLE,    0x6ab04c);
     make_new_color_u32(COLOR_COMMENT,  0x212e1f); 
+    make_new_color_u32(COLOR_TAG, 0xe74c3c);
+    make_new_color_u32(COLOR_BRIGHT_GREEN, 0x2ecc71);
+    make_new_color_u32(COLOR_BRIGHT_YELLOW, 0xf39c12);
     make_new_color(COLOR_BLUE, 0, 44, 84); 
     make_new_color(COLOR_RED, 210, 31, 60); 
-
+    
+    init_pair(BRIGHT_GREEN_PAIR, COLOR_BRIGHT_GREEN, COLOR_GREY_);
+    init_pair(BRIGHT_YELLOW_PAIR, COLOR_BRIGHT_YELLOW, COLOR_GREY_);
+    init_pair(TAG_PAIR, COLOR_TAG, COLOR_GREY_);
     init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_GREY_);
     init_pair(HIGHLIGHT_THEME, COLOR_GREY_, COLOR_WHITE);
     init_pair(SECONDARY_THEME_PAIR, COLOR_GREY_, COLOR_YELLOW_);

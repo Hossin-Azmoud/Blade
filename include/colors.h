@@ -7,6 +7,9 @@
 #define COLOR_APPLE 10
 #define COLOR_COMMENT 11
 #define COLOR_SILVER_ 12
+#define COLOR_TAG 13
+#define COLOR_BRIGHT_GREEN 14
+#define COLOR_BRIGHT_YELLOW 15
 
 // PAIRS INDECES
 #define SECONDARY_THEME_PAIR 1
@@ -19,6 +22,9 @@
 #define CALL_SYNTAX_PAIR     8
 #define COMENT_PAIR          9
 #define NUM_PAIR             10
+#define TAG_PAIR             11
+#define BRIGHT_GREEN_PAIR    12
+#define BRIGHT_YELLOW_PAIR   13
 
 void make_new_color(int index, int r, int g, int b);
 void make_new_color_u32(int index, uint32_t color);

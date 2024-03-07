@@ -199,7 +199,30 @@ static void add_syntax_(Line *current, Lines_renderer *line_ren)
                     KEYWORD_SYNTAX_PAIR,
                     NULL);
             } break; 
-            
+            case C_INCLUDE_FILE: {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    BRIGHT_YELLOW_PAIR,
+                    NULL);
+            } break;
+            case C_INCLUDE: {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    BRIGHT_GREEN_PAIR ,
+                    NULL);
+            } break;
+            case C_TAG: {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL, 
+                    TAG_PAIR,
+                    NULL);
+            } break;
             case STR_LIT: {
                 mvchgat(current->y - line_ren->start->y, 
                     ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
