@@ -148,9 +148,10 @@ KeywordList *get_keywords_list(ScriptType s)
 
 ScriptType get_script_type(char *spath)
 {
-    int it = strlen(spath) - 1;
+    int  it = (strlen(spath) - 1);
     char extension[32] = { 0 };
-    while (it >= 0) {
+
+    while (it >= 0 && *(spath + it)) {
         if (spath[it] == '.') {
             strcpy(extension, (spath + it));
             break;

@@ -37,7 +37,7 @@ MiEditor *init_editor(char *file_path)
     E->renderer->start       = E->renderer->origin;
     E->renderer->end         = E->renderer->origin; 
     E->renderer->current     = E->renderer->origin; 
-    E->renderer->script_type = get_script_type (file_path);
+    E->renderer->script_type = get_script_type (E->file);
     E->renderer->max_padding = 2;
     
     // Load the file that was given to the editor from argv.

@@ -1,15 +1,14 @@
 #include <mi.h>
 
-#define T 0
+#define T 1
 // #define DEBUG
-int editor(int argc, char **argv);
-int test();
-int _editor_test(char **argv);
+int editor(char **argv);
+int test(char **argv);
 
 int main(int argc, char **argv) {
     (void) argc; 
-    if (T) return test();
-    int ret = _editor_test(argv);
+    if (T) return test(argv);
+    int ret = editor(argv);
     CLIPBOARD_FREE();
     close_logger();
     return ret;
@@ -27,20 +26,21 @@ void print_token_list(TokenList *list)
     }
 }
 
-int test() {
-    open_logger();
-    const char *src = "function main(name) { console.log(\"Hello: \"name); }";
-    Line *line = Alloc_line_node(0);
-    strcpy(line->content, src);
-    line->size = strlen(src);
-    retokenize_line(line, JS);
-    print_token_list(&line->token_list);
-    free_lines(line);
+int test(char **argv) {
 
+    char **files = read_entire_dir(argv[1]);
+    printf("%s\n", "./");
+    int it;
+    for (it = 0; files[it]; ++it) {
+        printf("%s\n", files[it]);
+        free(files[it]);
+    }
+    printf("Size = %i\n", it);
+    free(files);
     return 0;
 }
 
-int _editor_test(char **argv)
+int editor(char **argv)
 {
     open_logger();
     MiEditor *E = init_editor(argv[1]);
@@ -137,8 +137,10 @@ int _editor_test(char **argv)
                         goto RENDER;
                     } break;
                     default: {
-                        line_push_char(E->renderer->current, c, false);
-                        if (E->renderer->count) E->renderer->count++;
+                        if (isprint(c)) {
+                            line_push_char(E->renderer->current, c, false);
+                            if (E->renderer->count) E->renderer->count++;
+                        }
                     } break;
                 }
             } break;

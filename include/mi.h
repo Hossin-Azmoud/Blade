@@ -1,6 +1,7 @@
 #ifndef MI_H
 #define MI_H
 #include <logger.h>
+#include <file_browser.h>
 #include <ncurses.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -256,6 +257,5 @@ MiEditor *init_editor(char *file_path);
 void editor_load_layout(MiEditor *E);
 void release_editor(MiEditor *E);
 void editor_refresh(MiEditor *E);
-
 #endif // MI_H
 

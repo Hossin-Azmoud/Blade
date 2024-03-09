@@ -474,8 +474,10 @@ Result *make_prompt_buffer(int x, int y)
     Result *result = malloc(sizeof(Result));
     bool deleted = false;
     
-    result->data = malloc(LINE_SZ);
-    result->type = SUCCESS;
+    result->data  = malloc(LINE_SZ);
+    memset(result->data, 0, LINE_SZ);
+
+    result->type  = SUCCESS;
     result->etype = NONE;
 
     int buffer_idx = 0;
@@ -565,7 +567,8 @@ char *editor_render_startup(int x, int y)
 {
     int prompt_offset = editor_render_help(x, y, NULL);
     Result *res = NULL;
-    char *file_path = malloc(LINE_SZ);
+    char *file_path = (calloc(1, LINE_SZ));
+    
     while (true) {
         res = make_prompt_buffer(prompt_offset, y * 2);
         switch(res->type) {
