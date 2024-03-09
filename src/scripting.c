@@ -139,7 +139,40 @@ KeywordList *get_keywords_list(ScriptType s)
                 "yield",
                 "super"
             },
-        }
+        },
+        [GO] = {
+            .size=27,
+            ._list={
+                "break",
+                "case",
+                "chan",
+                "const",
+                "continue",
+                "default",
+                "defer",
+                "else",
+                "fallthrough",
+                "for",
+                "func",
+                "go",
+                "goto",
+                "if",
+                "import",
+                "interface",
+                "map",
+                "package",
+                "range",
+                "return",
+                "select",
+                "struct",
+                "switch",
+                "type",
+                "var",
+                "true",
+                "false"
+            },
+        }, 
+
     };
 
     if (s < UNSUP) return (list + s);
@@ -164,6 +197,7 @@ ScriptType get_script_type(char *spath)
     
     if (!strcmp(extension, ".py")) return PYTHON;
     if (!strcmp(extension, ".js")) return JS;
+    if (!strcmp(extension, ".go")) return GO;
     if (!strcmp(extension, ".c") || !strcmp(extension, ".h"))  return C;
 
     return UNSUP;

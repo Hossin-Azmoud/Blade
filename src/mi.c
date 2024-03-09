@@ -254,6 +254,14 @@ static void add_syntax_(Line *current, Lines_renderer *line_ren)
                     COMENT_PAIR,
                     NULL);
             } break;
+            case _GENERIC_NULL: {
+                mvchgat(current->y - line_ren->start->y, 
+                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
+                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
+                    A_NORMAL,
+                    NUM_PAIR,
+                    NULL);
+            } break;  
             case NUMBER_LIT: {
                 mvchgat(current->y - line_ren->start->y, 
                     ((current->token_list)._list + it)->xstart + line_ren->max_padding, 

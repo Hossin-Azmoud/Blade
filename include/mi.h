@@ -67,6 +67,7 @@ typedef enum ScriptType {
     PYTHON = 0,
     C,
     JS,
+    GO, 
     UNSUP
 } ScriptType;
 
@@ -104,6 +105,7 @@ typedef enum MITokenType {
     C_INCLUDE,
     C_TAG,
     C_INCLUDE_FILE,
+    _GENERIC_NULL,
     COMMENT,
     /* Syms */
     EQ, // =

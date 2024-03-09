@@ -73,6 +73,8 @@ void retokenize_line(Line *line, ScriptType script_type)
     }
 
     for (; x < line->size;) {
+        data_idx = 0;
+        memset(temp, 0,  512);
         x = trim_spaces_left(line->content, x);
         xstart = x;
 
@@ -151,10 +153,23 @@ void retokenize_line(Line *line, ScriptType script_type)
                     }
     
                     line->token_list._list[line->token_list.size - 1].xend = xend;
-                    data_idx = 0;
-                    memset(temp, 0,  512);
                     continue;
-                }                
+                }            
+            }
+
+            if (script_type == GO) {
+                if (!strcmp(temp, "nil")) {
+                    token_list_append(&(line->token_list), _GENERIC_NULL, xstart, xend);
+                    continue;
+                }
+                
+            }
+
+            if (script_type == C) {
+                if (!strcmp(temp, "NULL")) {
+                    token_list_append(&(line->token_list), _GENERIC_NULL, xstart, xend);
+                    continue;
+                }
             }
 
             token_list_append(&(line->token_list), 
@@ -163,8 +178,6 @@ void retokenize_line(Line *line, ScriptType script_type)
                 xend
             );
 
-            data_idx = 0;
-            memset(temp, 0,  512);
             continue;
         } 
 
@@ -219,7 +232,6 @@ void retokenize_line(Line *line, ScriptType script_type)
                         token_list_append(&(line->token_list), COMMENT, x, line->size);
                         return;
                     }
-                    
                     token_list_append(&(line->token_list), HASHTAG, x, x);
                     x++;
                 } break;
@@ -306,7 +318,7 @@ void retokenize_line(Line *line, ScriptType script_type)
 
                 case '/': {
                     if ((x + 1 < line->size)) {
-                        if (script_type == C && line->content[x + 1] == '/') {
+                        if ((script_type == C || script_type == GO || script_type == JS) && line->content[x + 1] == '/') {
                             // WE Collect a comment.
                             token_list_append(&(line->token_list), COMMENT, x, line->size);
                             return;
@@ -336,7 +348,5 @@ bool is_keywrd(char *keywords[], char *word, int keywords_sz) {
             return true;
         }
     }
-
     return false;
 }
-

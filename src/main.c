@@ -1,6 +1,6 @@
 #include <mi.h>
 
-#define T 1
+#define T 0
 // #define DEBUG
 int editor(char **argv);
 int test(char **argv);
@@ -31,11 +31,11 @@ int test(char **argv) {
     char **files = read_entire_dir(argv[1]);
     printf("%s\n", "./");
     int it;
-    for (it = 0; files[it]; ++it) {
-        printf("%s\n", files[it]);
+    for (it = 2; files[it]; ++it) {
+        printf("%s  ", files[it]);
         free(files[it]);
     }
-    printf("Size = %i\n", it);
+    // printf("Size = %i\n", it);
     free(files);
     return 0;
 }
