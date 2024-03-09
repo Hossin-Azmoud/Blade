@@ -187,6 +187,76 @@ void line_disconnect_from_ren(Lines_renderer *line_ren)
     lines_shift(next, -1); 
 }
 
+static void colorize(int y, int xs, int xe, int pair) {
+    mvchgat(y, xs, xe, A_NORMAL, pair, NULL);
+}
+
+static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {
+    switch (token->kind) {
+        case KEYWORD: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                KEYWORD_SYNTAX_PAIR);
+        } break; 
+        case C_INCLUDE_FILE: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                BRIGHT_YELLOW_PAIR);
+        } break;
+        case C_INCLUDE: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                BRIGHT_GREEN_PAIR);
+        } break;
+        case C_TAG: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                TAG_PAIR);
+        } break;
+        case STR_LIT: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                STRING_LIT_PAIR);
+        } break;
+        case  CALL: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                CALL_SYNTAX_PAIR);
+
+        } break;
+        case COMMENT: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                COMENT_PAIR);
+        } break;
+        case _GENERIC_NULL: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                NUM_PAIR);
+        } break;  
+        case NUMBER_LIT: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                NUM_PAIR);
+        } break;
+        default: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                MAIN_THEME_PAIR
+            );
+        } break;
+    }
+}
 
 static void add_syntax_(Line *current, Lines_renderer *line_ren)
 {
@@ -195,90 +265,10 @@ static void add_syntax_(Line *current, Lines_renderer *line_ren)
     if (script_type == UNSUP) return; // Make sure that the script is supported..
     retokenize_line(current, script_type);
     for (int it = 0; it < (current->token_list).size; ++it) {
-        switch (current->token_list._list[it].kind) {
-            case KEYWORD: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    KEYWORD_SYNTAX_PAIR,
-                    NULL);
-            } break; 
-            case C_INCLUDE_FILE: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    BRIGHT_YELLOW_PAIR,
-                    NULL);
-            } break;
-            case C_INCLUDE: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    BRIGHT_GREEN_PAIR ,
-                    NULL);
-            } break;
-            case C_TAG: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    TAG_PAIR,
-                    NULL);
-            } break;
-            case STR_LIT: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    STRING_LIT_PAIR,
-                    NULL);
-            } break;
-            case  CALL: {
-                // 
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    CALL_SYNTAX_PAIR,
-                    NULL);
-
-            } break;
-            case COMMENT: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL, 
-                    COMENT_PAIR,
-                    NULL);
-            } break;
-            case _GENERIC_NULL: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL,
-                    NUM_PAIR,
-                    NULL);
-            } break;  
-            case NUMBER_LIT: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL,
-                    NUM_PAIR,
-                    NULL);
-            } break;
-            default: {
-                mvchgat(current->y - line_ren->start->y, 
-                    ((current->token_list)._list + it)->xstart + line_ren->max_padding, 
-                    ((current->token_list)._list + it)->xend + line_ren->max_padding, 
-                    A_NORMAL,
-                    MAIN_THEME_PAIR,
-                    NULL);
-            } break;
-        }
+        token_highlight(&(current->token_list._list[it]), 
+            current->y, 
+            line_ren->start->y, 
+            line_ren->max_padding);
     }
 }
 
