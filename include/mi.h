@@ -82,6 +82,7 @@ typedef enum editorMode {
 typedef enum bindingKind {
     COPY_LINE, // yy
     DEL_LINE,  // dd || cc
+    INDENT_LINE,
     NOT_VALID
 } bindingKind;
 

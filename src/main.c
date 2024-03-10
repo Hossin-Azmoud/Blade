@@ -104,7 +104,7 @@ int editor(char **argv)
                         sprintf(E->notification_buffer, "[ %dL %d bytes were written ]\n", 
                             E->renderer->count, 
                             saved_bytes);
-                    } break;
+                    } break; 
                     default: {
                         if (E->binding_queue.size < MAX_KEY_BINDIND)
                             E->binding_queue.keys[E->binding_queue.size++] = (char) c;

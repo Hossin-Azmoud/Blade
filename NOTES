@@ -17,7 +17,7 @@ I Need:
     [*] add some keybindings
     [*]  add text highlighting for python as a test..
     [*]  Make the editor know which script it is edeting then apply this to the lexer so the syntax highlighting becomes better.
-    []  add the cut capability.
+    []  add the cut capability. <- Working here.
     []  add the file browser.
     [...]  refactor -> Working Here.
     [...]  Work on colors and UI. -> Working Here.

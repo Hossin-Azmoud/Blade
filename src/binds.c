@@ -8,6 +8,12 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         case COPY_LINE: {
             CLIPBOARD_SET(line_ren->current->content);
         } break;
+        case INDENT_LINE: {
+            int x = line_ren->current->x;
+            line_ren->current->x = 0;
+            editor_tabs(line_ren->current);
+            line_ren->current->x += x;
+        } break;
         case DEL_LINE: {
             CLIPBOARD_SET(line_ren->current->content);
             if (line_ren->current->prev != NULL) {
@@ -42,6 +48,11 @@ void editor_identify_binding(vKeyBindingQueue *bindings)
 
     if (bindings->keys[0] == 'd' && bindings->keys[1] == 'd') { // delete the current line into clipboard.
         bindings->kind = DEL_LINE;
+        return;
+    }
+
+    if (bindings->keys[0] == '>' && bindings->keys[1] == '>') { // delete the current line into clipboard.
+        bindings->kind = INDENT_LINE;
         return;
     }
 

@@ -49,17 +49,7 @@ void editor_push_data_from_clip(Lines_renderer *line_ren)
         }
         editor_new_line(line_ren, true);
     }
+
     line_ren->current    = temp;
     line_ren->current->x = 0;
 }
-
-
-
-
-
-
-
-
-
-
-
