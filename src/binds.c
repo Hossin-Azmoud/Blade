@@ -14,6 +14,22 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
             editor_tabs(line_ren->current);
             line_ren->current->x += x;
         } break;
+        case UNINDENT_LINE: {
+            int x = line_ren->current->x;
+            
+            line_ren->current->x = 0;
+            while (line_ren->current->content[line_ren->current->x] == ' ' && line_ren->current->x < 4) {
+                line_ren->current->x++;
+            }
+
+            memmove(line_ren->current->content, 
+                    line_ren->current->content + line_ren->current->x, 
+                    line_ren->current->size - line_ren->current->x);
+
+            line_ren->current->size -= line_ren->current->x;
+            line_ren->current->x = (x - line_ren->current->x);
+        } break;
+
         case DEL_LINE: {
             CLIPBOARD_SET(line_ren->current->content);
             if (line_ren->current->prev != NULL) {
@@ -55,5 +71,12 @@ void editor_identify_binding(vKeyBindingQueue *bindings)
         bindings->kind = INDENT_LINE;
         return;
     }
+    
+    if (bindings->keys[0] == '<' && bindings->keys[1] == '<') { // delete the current line into clipboard.
+        bindings->kind = UNINDENT_LINE;
+        return;
+    }
 
+    bindings->kind = NOT_VALID;
+    return;
 }

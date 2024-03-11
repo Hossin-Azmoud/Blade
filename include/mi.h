@@ -1,5 +1,8 @@
 #ifndef MI_H
 #define MI_H
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <logger.h>
 #include <file_browser.h>
 #include <ncurses.h>
@@ -9,6 +12,7 @@
 #include <string.h>
 #include <clipboard.h>
 #include <colors.h>
+#include <assert.h>
 
 #define ESC         0x1b
 #define KEY_COPY_   'y'
@@ -83,6 +87,7 @@ typedef enum bindingKind {
     COPY_LINE, // yy
     DEL_LINE,  // dd || cc
     INDENT_LINE,
+    UNINDENT_LINE,
     NOT_VALID
 } bindingKind;
 

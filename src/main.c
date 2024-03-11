@@ -28,16 +28,17 @@ void print_token_list(TokenList *list)
 
 int test(char **argv) {
 
-    char **files = read_entire_dir(argv[1]);
-    printf("%s\n", "./");
-    int it;
-    for (it = 2; files[it]; ++it) {
-        printf("%s  ", files[it]);
-        free(files[it]);
+    if (argv[1] != NULL) {
+        FileBrowser *fb = new_file_browser(*(argv + 1));
+        
+        printf("pwd = %s\n", fb->pwd);
+        for (size_t i = 0; (i < fb->size); ++i) {
+            printf("%s -> %s\n", fb->entries[i].value, entry_type_as_cstr(fb->entries[i].type));
+        }
+        return 0;
     }
-    // printf("Size = %i\n", it);
-    free(files);
-    return 0;
+
+    return 1;
 }
 
 int editor(char **argv)
@@ -106,13 +107,9 @@ int editor(char **argv)
                             saved_bytes);
                     } break; 
                     default: {
-                        if (E->binding_queue.size < MAX_KEY_BINDIND)
+                        if (E->binding_queue.size < MAX_KEY_BINDIND) {
                             E->binding_queue.keys[E->binding_queue.size++] = (char) c;
                             // TODO: Make binding copy whole line with `yy`, and delete whole line with `dd`
-                        if (E->binding_queue.size == MAX_KEY_BINDIND) {
-                            // TODO: Process Key E->binding_queue.
-                            editor_handle_binding(E->renderer, &E->binding_queue);
-                            E->binding_queue.size = 0;
                         }
                     } break;
                 }
@@ -170,13 +167,24 @@ int editor(char **argv)
         }
         erase();
 
-        render_lines(E->renderer);
+
+        
 
         if (E->mode == VISUAL) {
             E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
             sprintf(E->notification_buffer, "[ %d bytes were Highlighted]\n", E->highlighted_data_length);
+        } else if (E->mode == NORMAL) {
+            sprintf(E->notification_buffer, "[%c] [BINDING: %s]\n", c, E->binding_queue.keys);
+
+            if (E->binding_queue.size == MAX_KEY_BINDIND) {
+                // TODO: Process Key E->binding_queue.
+                editor_handle_binding(E->renderer, &E->binding_queue);
+                memset(E->binding_queue.keys, 0, E->binding_queue.size);
+                E->binding_queue.size = 0;
+            }
         }
-        
+
+        render_lines(E->renderer);
         editor_details(E->renderer, E->file, E->mode, E->notification_buffer);
         if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
         editor_apply_move(E->renderer);
