@@ -11,6 +11,7 @@
 #define COLOR_BRIGHT_GREEN 14
 #define COLOR_BRIGHT_YELLOW 15
 #define COLOR_GREY_LIGHT 16
+
 // PAIRS INDECES
 #define SECONDARY_THEME_PAIR 1
 #define MAIN_THEME_PAIR      2
@@ -25,9 +26,11 @@
 #define TAG_PAIR             11
 #define BRIGHT_GREEN_PAIR    12
 #define BRIGHT_YELLOW_PAIR   13
+#define HIGHLIGHT_WHITE      14
 
 void make_new_color(int index, int r, int g, int b);
 void make_new_color_u32(int index, uint32_t color);
 void init_colors();
+void colorize(int y, int xs, int xe, int pair);
 
 #endif // COLORS_H

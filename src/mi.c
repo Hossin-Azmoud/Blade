@@ -1,3 +1,4 @@
+
 #include <mi.h>
 #include <logger.h>
 // Possible modes in the editor!
@@ -6,8 +7,6 @@ static char *modes[] = {
     "VISUAL",
     "INSERT"
 };
-
-
 
 WINDOW *init_ncurses_window()
 {
@@ -185,10 +184,6 @@ void line_disconnect_from_ren(Lines_renderer *line_ren)
         line_ren->end = (line_ren->end->next);
     }
     lines_shift(next, -1); 
-}
-
-static void colorize(int y, int xs, int xe, int pair) {
-    mvchgat(y, xs, xe, A_NORMAL, pair, NULL);
 }
 
 static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {

@@ -58,12 +58,26 @@ bool is_move(int key)
         || (key == R_SHIFT);
 }
 
-void handle_move(int c, Lines_renderer *line_ren)
+static void fb_handle_mv(int c, FileBrowser *fb)
 {
+    switch (c) {
+        case KEY_UP: {
+            if (fb->cur_row) 
+                fb->cur_row--;
+        } break;
+        case KEY_DOWN: {
+            if (fb->cur_row < fb->size - 1)
+                fb->cur_row++;
+        } break;
+    }
+}
+
+static void renderer_handle_mv (int c, Lines_renderer *line_ren)
+{
+
     char *current_char;
     charType _type;
     MEVENT event;
-
     switch (c) {
         case KEY_UP: {
             editor_up(line_ren); 
@@ -157,6 +171,20 @@ void handle_move(int c, Lines_renderer *line_ren)
                     current_char++;
                 }
             }
+        } break;
+        default: {} break;
+    }
+}
+
+void handle_move(int c, MiEditor *E)
+{
+    switch (E->fb->type) {
+        case FILE__:
+        case NOT_EXIST: {
+            renderer_handle_mv(c, E->renderer);
+        } break;
+        case DIR__: {
+            fb_handle_mv(c, E->fb);
         } break;
         default: {} break;
     }

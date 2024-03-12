@@ -1,5 +1,6 @@
 #ifndef MI_H
 #define MI_H
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -11,9 +12,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <clipboard.h>
-#include <colors.h>
 #include <assert.h>
-
+#include <colors.h>
 #define ESC         0x1b
 #define KEY_COPY_   'y'
 #define KEY_PASTE_  'p'
@@ -206,6 +206,7 @@ typedef struct MiEditor {
     editorMode mode;
     WINDOW *ewindow;
     vKeyBindingQueue binding_queue;
+    FileBrowser *fb;
 } MiEditor;
 
 WINDOW *init_ncurses_window();
@@ -240,7 +241,7 @@ void editor_up(Lines_renderer *line_ren);
 void editor_left(Lines_renderer *line_ren);
 void editor_down(Lines_renderer *line_ren);
 void editor_right(Lines_renderer *line_ren);
-void handle_move(int c, Lines_renderer *line_ren);
+void handle_move(int c, MiEditor *E);
 bool is_move(int key);
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
@@ -261,9 +262,14 @@ char *get_token_kind_s(MITokenType t);
 
 ScriptType get_script_type(char *spath);
 char *script_type_as_str(ScriptType s);
-MiEditor *init_editor(char *file_path);
+MiEditor *init_editor(const char *path);
 void editor_load_layout(MiEditor *E);
 void release_editor(MiEditor *E);
 void editor_refresh(MiEditor *E);
+void editor_render(MiEditor *E);
+void editor_update(int c, MiEditor *E);
+void render_file_browser(MiEditor *E);
+
 #endif // MI_H
+
 

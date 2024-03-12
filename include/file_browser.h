@@ -17,8 +17,9 @@ typedef struct BrowseEntry {
 } BrowseEntry;
 
 typedef struct FileBrowser {
-    size_t cap, size;
+    size_t cap, size, cur_row;
     BrowseEntry *entries;
+    BrowseEntryT type;
     char *pwd;
 } FileBrowser;
 
@@ -27,5 +28,6 @@ BrowseEntryT get_entry_type(char *path);
 char *join_dir(char *old, char *new);
 FileBrowser *new_file_browser(const char *dir_path);
 char *entry_type_as_cstr(BrowseEntryT T);
-
+void release_fb(FileBrowser *fb);
+void fb_update(int c, FileBrowser *fb);
 #endif //FILE_B_H

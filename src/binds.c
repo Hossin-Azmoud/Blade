@@ -8,12 +8,14 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         case COPY_LINE: {
             CLIPBOARD_SET(line_ren->current->content);
         } break;
+        
         case INDENT_LINE: {
             int x = line_ren->current->x;
             line_ren->current->x = 0;
             editor_tabs(line_ren->current);
             line_ren->current->x += x;
         } break;
+        
         case UNINDENT_LINE: {
             int x = line_ren->current->x;
             

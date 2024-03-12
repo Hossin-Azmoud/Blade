@@ -30,6 +30,7 @@ static char *All[] = {
     [DIR__]  = "DIR__",
     [NOT_EXIST] = "NOT_EXIST"
 };
+
 char *entry_type_as_cstr(BrowseEntryT T)
 {
     if (T <= NOT_EXIST) {
@@ -47,45 +48,63 @@ char *join_dir(char *old, char *new)
 static FileBrowser *new_fb(const char *path) {
 
     FileBrowser *fb = malloc(sizeof (FileBrowser));
- 
+    fb->cur_row = 0;
     fb->cap     = FB_MAX_ENT;
     fb->entries = malloc(sizeof(BrowseEntry) * fb->cap);
     memset(fb->entries, 0, sizeof(BrowseEntry) * fb->cap);
-    fb->size = 0;
-    fb->pwd  = malloc(sizeof (path));
-    fb->pwd  = strcpy(fb->pwd, path);
-
+    fb->size    = 0;
+    fb->pwd     = malloc(sizeof (path));
+    fb->pwd     = strcpy(fb->pwd, path);
+    fb->type    = get_entry_type(fb->pwd);
     return fb;
 }
 
-// void release_fb(FileBrowser *fb)
-// {
-//     // Relaase Entries.
-//     for (size_t x = 0; x < fb->size; x++) {
-//         free(fb->entries[x].value);
-//         free(fb->entries[x]);
-//     }
-//
-//     free(fb->entries);
-// }
+static char *string_dup(char *str) {
+    char *s = calloc(1, strlen(str) + 1); 
+    size_t i = 0;
+
+    while (str[i]) {
+        s[i] = str[i];
+        i++;
+    }
+
+    s[i] = 0;
+    return s; 
+}
+
+void release_fb(FileBrowser *fb)
+{
+    // Relaase Entries.
+    for (size_t x = 0; x < fb->size; x++) {
+        free(fb->entries[x].value);
+    }
+
+    free(fb->pwd);
+    free(fb->entries);
+    free(fb);
+}
 
 FileBrowser *new_file_browser(const char *dir_path)
 {
     FileBrowser *fb = new_fb(dir_path);
-    BrowseEntryT t = get_entry_type(fb->pwd);
 
-    if (t == DIR__) {
+    if (fb->type == DIR__) {
         char **files = read_entire_dir(fb->pwd);
 
-        for (size_t i = 0; (files[i]); ++i, fb->size++) {
-            fb->entries[i].type  = get_entry_type(files[i]);
-            fb->entries[i].value = malloc(sizeof(files[i]));
-            fb->entries[i].value = strcpy(fb->entries[i].value, files[i]);
-            free(files[i]);
+        while (files[fb->size] != NULL) {
+            fb->entries[fb->size].type  = get_entry_type(files[fb->size]);
+            fb->entries[fb->size].value = string_dup(files[fb->size]);
+            free(files[fb->size++]);
         }
 
         free(files);
     }
-
+    
     return (fb);
+}
+
+
+void fb_update(int c, FileBrowser *fb)
+{
+    printf("[UPDATING WITH KEY] KEY:%c PWD: %s\n", c, fb->pwd);
 }

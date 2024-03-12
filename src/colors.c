@@ -1,5 +1,9 @@
 #include <mi.h>
 
+void colorize(int y, int xs, int xe, int pair) {
+    mvchgat(y, xs, xe, A_NORMAL, pair, NULL);
+}
+
 void make_new_color(int index, int r, int g, int b)
 {
     if (index > 255) return;
@@ -36,6 +40,7 @@ void init_colors()
     make_new_color(COLOR_RED, 210, 31, 60); 
 
     // pair_number, foreground, background
+    init_pair(HIGHLIGHT_WHITE, COLOR_BLACK, COLOR_WHITE);
     init_pair(BRIGHT_GREEN_PAIR, COLOR_BRIGHT_GREEN, COLOR_GREY_);
     init_pair(BRIGHT_YELLOW_PAIR, COLOR_BRIGHT_YELLOW, COLOR_GREY_);
     init_pair(TAG_PAIR, COLOR_TAG, COLOR_GREY_);
@@ -49,5 +54,5 @@ void init_colors()
     init_pair(STRING_LIT_PAIR, COLOR_APPLE, COLOR_GREY_);
     init_pair(COMENT_PAIR, COLOR_COMMENT, COLOR_GREY_);
     init_pair(NUM_PAIR, COLOR_SILVER_, COLOR_GREY_);
+    
 }
-
