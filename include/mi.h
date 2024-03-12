@@ -14,6 +14,7 @@
 #include <clipboard.h>
 #include <assert.h>
 #include <colors.h>
+#include <common.h>
 #define ESC         0x1b
 #define KEY_COPY_   'y'
 #define KEY_PASTE_  'p'
