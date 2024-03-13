@@ -16,7 +16,9 @@
 #include <colors.h>
 #include <common.h>
 #define ESC         0x1b
+
 #define KEY_COPY_   'y'
+#define KEY_CUT_   'c'
 #define KEY_PASTE_  'p'
 #define KEY_INSERT_ 'i'
 #define KEY_VISUAL_ 'v'
@@ -235,7 +237,7 @@ Line *Alloc_line_node(int row);
 Result *make_prompt_buffer(int x, int y);
 int    highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
 void   editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren);
-void  clipboard_save_chunk(Vec2 start, Vec2 end);
+void clipboard_save_chunk(Vec2 start, Vec2 end, bool cut);
 
 // Editor movement stuff..
 void editor_up(Lines_renderer *line_ren);

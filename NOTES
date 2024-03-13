@@ -20,6 +20,7 @@ I Need:
     []  add the cut capability. <- Working here.
     [...]  refactor -> Working Here.
     [...]  Work on colors and UI. -> Working Here.
+    [] Fix the cut, copy, paste and refactor this feature.
     [] add types for c and python so u can add new types and colorize them differantly. 
     []  add the file browser.
     []  Commads (Change file name, atleast).

@@ -26,10 +26,9 @@ void make_new_color_u32(int index, uint32_t color)
 void init_colors() 
 {
     start_color();
-
     make_new_color_u32(COLOR_SILVER_,  0x4bcffa);
     make_new_color_u32(COLOR_GREY_,    0x04081a);
-    make_new_color_u32(COLOR_GREY_LIGHT, 0x0f173b);
+    make_new_color_u32(COLOR_GREY_LIGHT, 0xFFEDD8);
     make_new_color_u32(COLOR_YELLOW_,  0xf9ca24);
     make_new_color_u32(COLOR_APPLE,    0x6ab04c);
     make_new_color_u32(COLOR_COMMENT,  0x3f553c); 
@@ -45,7 +44,7 @@ void init_colors()
     init_pair(BRIGHT_YELLOW_PAIR, COLOR_BRIGHT_YELLOW, COLOR_GREY_);
     init_pair(TAG_PAIR, COLOR_TAG, COLOR_GREY_);
     init_pair(MAIN_THEME_PAIR, COLOR_WHITE, COLOR_GREY_);
-    init_pair(HIGHLIGHT_THEME, COLOR_WHITE, COLOR_GREY_LIGHT);
+    init_pair(HIGHLIGHT_THEME, COLOR_BLACK, COLOR_GREY_LIGHT);
     init_pair(SECONDARY_THEME_PAIR, COLOR_GREY_, COLOR_YELLOW_);
     init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
     init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);

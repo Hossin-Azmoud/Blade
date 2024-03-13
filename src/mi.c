@@ -696,8 +696,11 @@ static void get_string_chunk(Chunk *c, char *s, int start, int end, int size)
             chunk_append_char(c, s[it]);
     }
 }
-
-void clipboard_save_chunk(Vec2 start, Vec2 end)
+static int cut_data(char *buffer, int cstart, int cend, int size) {
+    memmove(buffer + cstart, buffer + cend, size - cend);
+    return (cend - cstart);
+}
+void clipboard_save_chunk(Vec2 start, Vec2 end, bool cut)
 {
     Vec2 temp = { .x = start.x, .y = start.y, ._line = start._line };
     Line *starting_line, *ending_line;
@@ -709,6 +712,11 @@ void clipboard_save_chunk(Vec2 start, Vec2 end)
         int start_idx = (start.x > end.x) ? end.x : start.x;
         int end_idx   = (start.x > end.x) ? start.x : end.x;
         get_string_chunk(chunk, curr->content, start_idx, end_idx, curr->size);
+        if (cut) {
+            int ncut = cut_data(curr->content, start_idx, end_idx, curr->size);
+            curr->size -= ncut;
+            curr->x    -= ncut;
+        }
         goto SET_AND_EX;
     }
 
@@ -729,6 +737,13 @@ void clipboard_save_chunk(Vec2 start, Vec2 end)
     );
 
     chunk_append_char(chunk, '\n');
+    
+    if (cut) {
+        int ncut = cut_data(curr->content, start.x, curr->size, curr->size);
+        curr->size -= ncut;
+        curr->x    -= ncut;
+    }
+
     // editor_new_line(line_ren, true);
     curr = curr->next;
     
@@ -740,7 +755,12 @@ void clipboard_save_chunk(Vec2 start, Vec2 end)
             curr->size, 
             curr->size
         );
-
+    
+        if (cut) {
+            int ncut = cut_data(curr->content, 0, curr->size, curr->size);
+            curr->size -= ncut;
+            curr->x    -= ncut;
+        }
         chunk_append_char(chunk, '\n');
         curr = curr->next;
     }
@@ -749,10 +769,15 @@ void clipboard_save_chunk(Vec2 start, Vec2 end)
         get_string_chunk(chunk, 
             curr->content, 
             0,
-            curr->size, 
+            end.x, 
             curr->size
         );
 
+        if (cut) {
+            int ncut = cut_data(curr->content, 0, end.x, curr->size);
+            curr->size -= ncut;
+            curr->x    -= ncut;
+        }
         chunk_append_char(chunk, '\n');
     }
 SET_AND_EX:

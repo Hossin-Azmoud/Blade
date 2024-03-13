@@ -174,7 +174,16 @@ void editor_update(int c, MiEditor *E)
                 E->highlighted_end.y = E->renderer->current->y; // x=0, Y=0
                 E->highlighted_end._line =  E->renderer->current;
                 E->mode = NORMAL;
-                clipboard_save_chunk(E->highlighted_start, E->highlighted_end);
+                clipboard_save_chunk(E->highlighted_start, E->highlighted_end, false);
+            }
+            if (c == KEY_CUT_) {
+                // Store into about end of the highlighting in some struct.
+                E->highlighted_end.x = E->renderer->current->x; // x=0, Y=0
+                E->highlighted_end.y = E->renderer->current->y; // x=0, Y=0
+                E->highlighted_end._line =  E->renderer->current;
+                E->mode = NORMAL;
+                clipboard_save_chunk(E->highlighted_start, E->highlighted_end, true);
+                
             }
         } break;
         
