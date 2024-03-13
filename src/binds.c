@@ -50,7 +50,6 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
     }
 }
 
-
 void editor_identify_binding(vKeyBindingQueue *bindings)
 {
     if (!bindings->size)

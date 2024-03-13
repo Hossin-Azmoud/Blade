@@ -59,6 +59,7 @@ static FileBrowser *new_fb(const char *path) {
     return fb;
 }
 
+
 void release_fb(FileBrowser *fb)
 {
     // Relaase Entries.
@@ -91,7 +92,23 @@ FileBrowser *new_file_browser(const char *dir_path)
 }
 
 
+FileBrowser *realloc_fb(FileBrowser *fb, char *next)
+{
+    char *new_path  =  resolve_path(fb->pwd, next);
+
+    if (new_path) {
+        release_fb(fb);
+        fb = new_file_browser(new_path);
+    }
+
+    return fb;
+}
 void fb_update(int c, FileBrowser *fb)
 {
-    printf("[UPDATING WITH KEY] KEY:%c PWD: %s\n", c, fb->pwd);
+    switch (c) {
+        case NL: {
+            fb = realloc_fb(fb, fb->entries[fb->cur_row].value);
+
+        } break;
+    }
 }

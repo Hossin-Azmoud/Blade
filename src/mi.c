@@ -256,9 +256,9 @@ static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {
 static void add_syntax_(Line *current, Lines_renderer *line_ren)
 {
     // retokenize the line..    
-    ScriptType script_type = line_ren->script_type;
+    ScriptType file_type = line_ren->script_type;
     if (script_type == UNSUP) return; // Make sure that the script is supported..
-    retokenize_line(current, script_type);
+    retokenize_line(current, file_type);
     for (int it = 0; it < (current->token_list).size; ++it) {
         token_highlight(&(current->token_list._list[it]), 
             current->y, 

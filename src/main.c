@@ -26,20 +26,14 @@ void print_token_list(TokenList *list)
     }
 }
 
+
 int test(char **argv) {
-
-    if (argv[1] != NULL) {
-        FileBrowser *fb = new_file_browser(*(argv + 1));
-        
-        printf("pwd = %s\n", fb->pwd);
-
-        for (size_t i = 0; (i < fb->size); ++i) {
-            printf("%s -> %s\n", fb->entries[i].value, entry_type_as_cstr(fb->entries[i].type));
-        }
-        return 0;
-    }
-
-    return 1;
+    (void) argv;
+    
+    char *p = resolve_path(".", "main.c");
+    printf("%s\n", p);
+    
+    return 0;
 }
 
 int editor(char **argv)

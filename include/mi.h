@@ -10,7 +10,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
+
 #include <clipboard.h>
 #include <assert.h>
 #include <colors.h>
