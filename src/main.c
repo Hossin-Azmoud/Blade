@@ -44,7 +44,7 @@ int editor(char **argv)
         goto EXIT_AND_RELEASE_RESOURCES;
     }
     
-    while ((c = getch()) != KEY_F(1) && !E->exit_pressed) {
+    while ((c = getch()) != KEY_F(1)) {
         editor_load_layout(E);
 
         if (is_move(c)) {
@@ -55,7 +55,7 @@ int editor(char **argv)
         switch (E->fb->type) 
         {
             case DIR__: {
-                fb_update(c, E->fb);
+                fb_update(c, E);
             } break;
             case FILE__:
             case NOT_EXIST: {
@@ -65,6 +65,7 @@ int editor(char **argv)
         }
     UPDATE_EDITOR:
         editor_render(E);
+        if (E->exit_pressed) break;
     }
 
     if (!E->exit_pressed) {
@@ -72,7 +73,7 @@ int editor(char **argv)
             save_file(
                 E->file, 
                 E->renderer->origin, 
-                true);
+                false);
         }
     }
 

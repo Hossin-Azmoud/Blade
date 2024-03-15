@@ -12,9 +12,7 @@ I Need:
     {
         int size, cap,
         char data[]
-    }
-
-    [*] add some keybindings
+    } [*] add some keybindings
     [*]  add text highlighting for python as a test..
     [*]  Make the editor know which script it is edeting then apply this to the lexer so the syntax highlighting becomes better.
     []  add the cut capability. <- Working here.
@@ -26,3 +24,9 @@ I Need:
     []  Commads (Change file name, atleast).
     
 
+review:
+0 -> When I past coppied contant it makes a new line before inserting the coppied content. which is not good. [FIXED]
+1 -> I need to click f2 twice in order for the editor to quit, it should be only once. [FIXED]
+2 -> `c` copy key should kill a certain cut region, not just delete the content that the region holds. (...)
+    1 -> cutting content from a line and pasting it works. however, it does not work if I want to cut a whole chunk of data (Multline).
+4 -> there is a bug in the cutting functionality that makes the x -> -4 for some reason.

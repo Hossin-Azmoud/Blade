@@ -9,7 +9,7 @@ MiEditor *init_editor(const char *path)
     MiEditor *E = malloc(sizeof(MiEditor));
 
     E->ewindow = init_ncurses_window();
-    E->renderer= malloc(sizeof(Lines_renderer));
+    E->renderer = malloc(sizeof(Lines_renderer));
     editor_load_layout(E);
 
     // If the caller did not supply a file then we ask him in a seperate screen.
@@ -37,7 +37,9 @@ MiEditor *init_editor(const char *path)
     E->mode         = NORMAL;
     
     // Prepare the renderer.
+    
     E->renderer->origin      = Alloc_line_node(0);
+    E->renderer->count       = 0;
     E->renderer->start       = E->renderer->origin;
     E->renderer->end         = E->renderer->origin; 
     E->renderer->current     = E->renderer->origin; 
@@ -45,7 +47,7 @@ MiEditor *init_editor(const char *path)
 
     // If the path that was passed was a file, or if it does not exist. we assign.
     if (E->fb->type == FILE__ || E->fb->type == NOT_EXIST) {
-        E->renderer->script_type = get_script_type (E->file);
+        E->renderer->file_type = get_file_type (E->file);
         load_file(E->file, E->renderer);
     }
     // Init binding queue.    
@@ -109,22 +111,28 @@ void editor_render(MiEditor *E)
         return;
     }
     
-    // Render Lines.     
     curs_set(1);
-    render_lines(E->renderer);
-    if (E->mode == VISUAL) {
-        E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
-        sprintf(E->notification_buffer, "[ %d bytes were Highlighted]\n", E->highlighted_data_length);
-    } else if (E->mode == NORMAL) {
-        sprintf(E->notification_buffer, "[BINDING: %s]\n", E->binding_queue.keys);
-        if (E->binding_queue.size == MAX_KEY_BINDIND) {
-            // TODO: Process Key E->binding_queue.
-            editor_handle_binding(E->renderer, &E->binding_queue);
-            memset(E->binding_queue.keys, 0, E->binding_queue.size);
-            E->binding_queue.size = 0;
-        }
+    
+    switch (E->mode) {
+        case VISUAL: {
+            render_lines(E->renderer);
+            E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
+            sprintf(E->notification_buffer, "(*) %d bytes were selected\n", E->highlighted_data_length);
+        } break;
+        case NORMAL: {
+            if (E->binding_queue.size == MAX_KEY_BINDIND) {
+                // TODO: Process Key E->binding_queue.
+                editor_handle_binding(E->renderer, &E->binding_queue);
+                memset(E->binding_queue.keys, 0, E->binding_queue.size);
+                E->binding_queue.size = 0;
+            }
+            render_lines(E->renderer);
+        } break;
+        default: {
+            render_lines(E->renderer);
+        } break;
     }
-
+    
     editor_details(E->renderer, E->file, E->mode, E->notification_buffer);
     if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
     editor_apply_move(E->renderer);
@@ -174,20 +182,23 @@ void editor_update(int c, MiEditor *E)
                 E->highlighted_end.y = E->renderer->current->y; // x=0, Y=0
                 E->highlighted_end._line =  E->renderer->current;
                 E->mode = NORMAL;
-                clipboard_save_chunk(E->highlighted_start, E->highlighted_end, false);
+                clipboard_save_chunk(E->highlighted_start, E->highlighted_end);
             }
+
             if (c == KEY_CUT_) {
                 // Store into about end of the highlighting in some struct.
                 E->highlighted_end.x = E->renderer->current->x; // x=0, Y=0
                 E->highlighted_end.y = E->renderer->current->y; // x=0, Y=0
                 E->highlighted_end._line =  E->renderer->current;
                 E->mode = NORMAL;
-                clipboard_save_chunk(E->highlighted_start, E->highlighted_end, true);
+                // Since we are cutting lines so a region of the render_lines, or the lines as referred in the struct will be kille
+                // E->renderer->current = clipboard_save_chunk(E->highlighted_start, E->highlighted_end, true);
                 
+                clipboard_cut_chunk(E->renderer, E->highlighted_start, E->highlighted_end);
             }
         } break;
         
-        case NORMAL: {
+        case NORMAL:  {
             switch (c) {
                 case KEY_PASTE_: {
                     // TODO: Make clipboard be synced with the VISUAL mode clipboard_
@@ -205,7 +216,7 @@ void editor_update(int c, MiEditor *E)
                 } break;
                 case KEY_SAVE_: {
                     int saved_bytes = save_file(E->file, E->renderer->origin, false);
-                    sprintf(E->notification_buffer, "[ %dL %d bytes were written ]\n", 
+                    sprintf(E->notification_buffer, "(*) %dL %d bytes were written\n", 
                         E->renderer->count, 
                         saved_bytes);
                 } break; 
@@ -246,19 +257,20 @@ void editor_update(int c, MiEditor *E)
         } break;
         default: {} break;
     }
-    
-    if (!(isalnum(c) || ispunct(c) || isspace(c)))
-    {
-        if (c == CTRL(KEY_LEFT)) {
-            sprintf(E->notification_buffer, "[ CTRL_KEY_LEFT was clicked. ]\n");
-        } else if (c == CTRL(KEY_RIGHT)) {
-            sprintf(E->notification_buffer, "[ CTRL_KEY_RIGHT was clicked. ]\n");
-        } else {
-            sprintf(E->notification_buffer, "[ 0x%04x was clicked. ]\n", c);
-        }
-    }
 }
 
+void fb_update(int c, MiEditor *E)
+{
+    switch (c) {
+        case NL: {
+            BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
+            E->fb   = realloc_fb(E->fb, entry.value);
 
-
-
+            if (entry.type == FILE__) {
+                E->file = string_dup(E->fb->open_entry_path);
+                E->renderer->file_type = get_file_type (E->file);
+                load_file(E->file, E->renderer);
+            }
+        } break;
+    }
+}

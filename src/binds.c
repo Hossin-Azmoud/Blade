@@ -3,7 +3,8 @@
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
 {
     editor_identify_binding(bindings);
-   switch (bindings->kind)
+
+    switch (bindings->kind)
     {
         case COPY_LINE: {
             CLIPBOARD_SET(line_ren->current->content);
@@ -35,8 +36,16 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         case DEL_LINE: {
             CLIPBOARD_SET(line_ren->current->content);
             if (line_ren->current->prev != NULL) {
-                line_ren->current->size = 0; // Set the size to zero so the line can be disconnected and freed!
-                line_disconnect_from_ren(line_ren);
+                line_ren->current = disconnect_line(line_ren->current);
+    
+                if (line_ren->current->next != NULL) {
+                    line_ren->current = line_ren->current->next;
+                    if (line_ren->end->next != NULL) {
+                        line_ren->end = line_ren->end->next;
+                    }
+                }
+                
+                line_ren->count--;
                 return;
             }
             
@@ -49,6 +58,7 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         default: {} break;
     }
 }
+
 
 void editor_identify_binding(vKeyBindingQueue *bindings)
 {

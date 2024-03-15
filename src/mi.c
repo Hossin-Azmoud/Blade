@@ -146,6 +146,19 @@ void editor_backspace(Lines_renderer *line_ren)
     
     // if the cursor is on the first col of a line and we need to shift lines and data  backward
     if (line_ren->current->x == 0 && line_ren->current->prev) {
+        
+        if (line_ren->current->size) {
+            // move all the data locateed in the curr line to the end of the prev line!
+            memmove(
+                line_ren->current->prev->content + line_ren->current->prev->size,
+                line_ren->current->content,
+                line_ren->current->size
+            );
+
+            line_ren->current->prev->x     = line_ren->current->prev->size;
+            line_ren->current->prev->size += line_ren->current->size;
+        }
+
         line_disconnect_from_ren(line_ren);
     }
 
@@ -155,35 +168,11 @@ void editor_backspace(Lines_renderer *line_ren)
 
 void line_disconnect_from_ren(Lines_renderer *line_ren)
 {
-    
-    Line *current = line_ren->current;
-    Line *prev = current->prev;
-    Line *next = current->next;
-
-    if (current->size) {
-        // move all the data locateed in the curr line to the end of the prev line!
-        memmove(
-            prev->content + prev->size,
-            current->content,
-            current->size
-        );
-
-        prev->size += current->size;
-    }
-
-    prev->next = next;
-
-    if (next)
-        next->prev = prev;
-
-    free(current->content);
-    free(current);
+    line_ren->current = disconnect_line(line_ren->current); // go back one line.
     line_ren->count--;
-    line_ren->current = prev; // go back one line.
     if (line_ren->end->next != NULL) {
         line_ren->end = (line_ren->end->next);
     }
-    lines_shift(next, -1); 
 }
 
 static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {
@@ -256,8 +245,8 @@ static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {
 static void add_syntax_(Line *current, Lines_renderer *line_ren)
 {
     // retokenize the line..    
-    ScriptType file_type = line_ren->script_type;
-    if (script_type == UNSUP) return; // Make sure that the script is supported..
+    FileType file_type = line_ren->file_type;
+    if (file_type == UNSUP) return; // Make sure that the script is supported..
     retokenize_line(current, file_type);
     for (int it = 0; it < (current->token_list).size; ++it) {
         token_highlight(&(current->token_list._list[it]), 
@@ -281,10 +270,11 @@ void render_lines(Lines_renderer *line_ren)
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode_, char *notification)
 {
 
-    char details_buffer[LINE_SZ] = { 0 };
+    char details_buffer[LINE_SZ] = {0};
+    memset(details_buffer, 0, LINE_SZ);
     char *mode = modes[mode_];
 
-    sprintf(details_buffer, "row: %d col: %d line_count: %d ", line_ren->current->x + 1, line_ren->current->y + 1, line_ren->count);
+    sprintf(details_buffer, "(%d, %d)[%d]", line_ren->current->y + 1, line_ren->current->x + 1, line_ren->count);
     mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
     mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR, NULL);
     mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s %s", file_path, notification);
@@ -696,27 +686,28 @@ static void get_string_chunk(Chunk *c, char *s, int start, int end, int size)
             chunk_append_char(c, s[it]);
     }
 }
+
 static int cut_data(char *buffer, int cstart, int cend, int size) {
     memmove(buffer + cstart, buffer + cend, size - cend);
     return (cend - cstart);
 }
-void clipboard_save_chunk(Vec2 start, Vec2 end, bool cut)
-{
-    Vec2 temp = { .x = start.x, .y = start.y, ._line = start._line };
-    Line *starting_line, *ending_line;
-    Line *curr = NULL;
-    Chunk *chunk = chunk_new();
 
+
+void clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end) {
+    Vec2  temp = { .x = start.x, .y = start.y, ._line = start._line };
+    Line  *curr   = NULL;
+    Chunk *chunk = chunk_new();
+    int   ncut = 0;
+    
     if (start.y == end.y) { // We need to copy one line!
         curr = start._line;
         int start_idx = (start.x > end.x) ? end.x : start.x;
         int end_idx   = (start.x > end.x) ? start.x : end.x;
         get_string_chunk(chunk, curr->content, start_idx, end_idx, curr->size);
-        if (cut) {
-            int ncut = cut_data(curr->content, start_idx, end_idx, curr->size);
-            curr->size -= ncut;
-            curr->x    -= ncut;
-        }
+        ncut = cut_data(curr->content, start_idx, end_idx, curr->size);
+        curr->size -= ncut;
+        curr->x    = start_idx;        
+        
         goto SET_AND_EX;
     }
 
@@ -725,10 +716,7 @@ void clipboard_save_chunk(Vec2 start, Vec2 end, bool cut)
         end = temp;
     }
 
-    starting_line = start._line;
-    ending_line   = end._line;
-    curr = starting_line;
-
+    curr = start._line;
     get_string_chunk(chunk, 
         curr->content, 
         start.x, 
@@ -738,16 +726,25 @@ void clipboard_save_chunk(Vec2 start, Vec2 end, bool cut)
 
     chunk_append_char(chunk, '\n');
     
-    if (cut) {
-        int ncut = cut_data(curr->content, start.x, curr->size, curr->size);
+    {
+        ncut  = cut_data(curr->content, start.x, curr->size, curr->size);
         curr->size -= ncut;
-        curr->x    -= ncut;
+        curr->x    = start.x;
+        if (!curr->size) {
+            curr = disconnect_line(curr);
+            line_ren->current = curr;
+            if (line_ren->current->next != NULL) {
+                line_ren->current = line_ren->current->next;
+                if (line_ren->end->next != NULL) {
+                    line_ren->end = line_ren->end->next;
+                }
+            }
+        }
     }
 
-    // editor_new_line(line_ren, true);
     curr = curr->next;
     
-    while (curr != ending_line) {
+    while (curr != end._line) {
         
         get_string_chunk(chunk, 
             curr->content, 
@@ -756,11 +753,93 @@ void clipboard_save_chunk(Vec2 start, Vec2 end, bool cut)
             curr->size
         );
     
-        if (cut) {
-            int ncut = cut_data(curr->content, 0, curr->size, curr->size);
-            curr->size -= ncut;
-            curr->x    -= ncut;
+        ncut = cut_data(curr->content, 0, curr->size, curr->size);
+        curr->size -= ncut;
+        curr->x     = 0;
+        if (!curr->size) {
+            curr = disconnect_line(curr);
+            line_ren->current = curr;
+            if (line_ren->current->next != NULL) {
+                line_ren->current = line_ren->current->next;
+                if (line_ren->end->next != NULL) {
+                    line_ren->end = line_ren->end->next;
+                }
+            }
         }
+
+        curr = curr->next;
+        chunk_append_char(chunk, '\n');
+    }
+    
+    if (curr) {
+        get_string_chunk(chunk, 
+            curr->content, 
+            0,
+            end.x, 
+            curr->size
+        );
+
+        ncut = cut_data(curr->content, 0, end.x, curr->size);
+        curr->size -= ncut;
+        curr->x     = 0;
+        if (!curr->size) {
+            curr = disconnect_line(curr);
+            line_ren->current = curr;
+            if (line_ren->current->next != NULL) {
+                line_ren->current = line_ren->current->next;
+                if (line_ren->end->next != NULL) {
+                    line_ren->end = line_ren->end->next;
+                }
+            }
+        
+        }
+        chunk_append_char(chunk, '\n');
+    }
+SET_AND_EX:
+    CLIPBOARD_SET(chunk->data);
+    free(chunk);
+}
+
+void clipboard_save_chunk(Vec2 start, Vec2 end)
+{
+    Vec2 temp = { .x = start.x, .y = start.y, ._line = start._line };
+    Line *curr   = NULL;
+    Chunk *chunk = chunk_new();
+    // Use this to cut the current line. Line *disconnect_line(Line *head)
+
+    if (start.y == end.y) { // We need to copy one line!
+        curr = start._line;
+        int start_idx = (start.x > end.x) ? end.x : start.x;
+        int end_idx   = (start.x > end.x) ? start.x : end.x;
+        get_string_chunk(chunk, curr->content, start_idx, end_idx, curr->size); 
+        goto SET_AND_EX;
+    }
+
+    if (start.y > end.y) {
+        start = end;
+        end = temp;
+    }
+
+    curr = start._line;
+
+    get_string_chunk(chunk, 
+        curr->content, 
+        start.x, 
+        curr->size, 
+        curr->size
+    );
+
+    chunk_append_char(chunk, '\n');
+    curr = curr->next;
+    
+    while (curr != end._line) {
+        
+        get_string_chunk(chunk, 
+            curr->content, 
+            0,
+            curr->size, 
+            curr->size
+        );
         chunk_append_char(chunk, '\n');
         curr = curr->next;
     }
@@ -772,14 +851,9 @@ void clipboard_save_chunk(Vec2 start, Vec2 end, bool cut)
             end.x, 
             curr->size
         );
-
-        if (cut) {
-            int ncut = cut_data(curr->content, 0, end.x, curr->size);
-            curr->size -= ncut;
-            curr->x    -= ncut;
-        }
         chunk_append_char(chunk, '\n');
     }
+
 SET_AND_EX:
     CLIPBOARD_SET(chunk->data);
     free(chunk);

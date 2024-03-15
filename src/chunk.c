@@ -1,15 +1,10 @@
 #include <mi.h>
 
-// typedef struct Chunk {
-//     char *data;
-//     int cap, size;
-// } Chunk;
-//
-
 Chunk *chunk_new()
 {
     Chunk *c = malloc(sizeof(Chunk));
     c->size  = 0;
+    c->lines = 0;
     c->cap   = LINE_SZ;
     c->data  = malloc(LINE_SZ); 
     memset(c->data, 0, LINE_SZ);
@@ -23,8 +18,9 @@ void chunk_append_char(Chunk *c, char chr)
         c->data = realloc(c->data, c->cap);
         memset(c->data + c->size, 0, (c->cap - c->size));
     }
-
+    
     c->data[c->size++] = chr;
+    if (chr == NL) c->lines++;
 }
 
 void chunk_append_s(Chunk *c, char *str)

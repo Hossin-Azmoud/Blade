@@ -1,6 +1,6 @@
 #include <mi.h>
 
-char *script_type_as_str(ScriptType s) 
+char *file_type_as_str(FileType s) 
 {
     switch (s) {
         case PYTHON: return "PYTHON";
@@ -12,7 +12,7 @@ char *script_type_as_str(ScriptType s)
     return "UNSUPPORTED";
 }
 
-KeywordList *get_keywords_list(ScriptType s)
+KeywordList *get_keywords_list(FileType s)
 {
     static KeywordList list[UNSUP] = {
         [PYTHON] = {
@@ -179,7 +179,7 @@ KeywordList *get_keywords_list(ScriptType s)
     return NULL;
 }
 
-ScriptType get_script_type(char *spath)
+FileType get_file_type(char *spath)
 {
     int  it = (strlen(spath) - 1);
     char extension[32] = { 0 };

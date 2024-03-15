@@ -33,7 +33,7 @@ void lines_shift(Line *head, int num) {
 void free_lines(Line *lines) {
     Line *next = NULL;
     Line *current = lines;
-
+    
     for (; (current);) {
         next = current->next;
         free(current->content);
@@ -42,38 +42,25 @@ void free_lines(Line *lines) {
         current = next;
     }
 }
-// Line *line_at(Line *current, int y) {
-//     Line *it =   current;
-//     if (current->y < y + )
-// }
-//
-//
-//                     if (line_ren->current->y < event.y + line_ren->start->y) {
-//                         while (line_ren->current->next) {
-//                             if (line_ren->current->y == event.y + line_ren->start->y) {
-//                                 break;
-//                             }
-//                             line_ren->current = line_ren->current->next;
-//                         }
-//                     } else if (line_ren->current->y > event.y + line_ren->start->y) {
-//                         while (line_ren->current->prev) {
-//                             if (line_ren->current->y == event.y + line_ren->start->y) {
-//                                 break;
-//                             }
-//                             line_ren->current = line_ren->current->prev;
-//                         }
-//                     }
-//
 
+Line *disconnect_line(Line *head)
+{
+    Line *current = head;
+    Line *prev    = current->prev;
+    Line *next    = current->next;
+    
+    if (!prev && !next) {
+        return current;
+    }
 
+    if (prev)
+        prev->next = next;
 
+    if (next)
+        next->prev = prev;
 
-
-
-
-
-
-
-
-
-
+    free(current->content);
+    free(current);
+    lines_shift(next, -1); 
+    return prev;
+}

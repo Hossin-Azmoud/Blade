@@ -60,11 +60,11 @@ static int trim_spaces_left(char *buff, int curr) {
     return i;
 }
 
-void retokenize_line(Line *line, ScriptType script_type)
+void retokenize_line(Line *line, FileType file_type)
 {
     char temp[512] = { 0 };
     int xend = 0, xstart = 0, data_idx = 0, x = 0;
-    KeywordList *keywords_list = get_keywords_list(script_type);     
+    KeywordList *keywords_list = get_keywords_list(file_type);     
 
     if (line->token_list.size > 0) {
         // Reinit the tokens.
@@ -143,7 +143,7 @@ void retokenize_line(Line *line, ScriptType script_type)
                 temp[data_idx++] = line->content[x++];
             }
 
-            if (line->token_list.size > 0 && script_type == C) {
+            if (line->token_list.size > 0 && file_type == C) {
                 if (line->token_list._list[line->token_list.size - 1].kind == HASHTAG) {
                     // TODO: Get the word and see the type of the c_tag is it an #include or a condition #if #endif #ifndef,
                     if (!strcmp(temp, "include")) {
@@ -157,7 +157,7 @@ void retokenize_line(Line *line, ScriptType script_type)
                 }            
             }
 
-            if (script_type == GO) {
+            if (file_type == GO) {
                 if (!strcmp(temp, "nil")) {
                     token_list_append(&(line->token_list), _GENERIC_NULL, xstart, xend);
                     continue;
@@ -165,7 +165,7 @@ void retokenize_line(Line *line, ScriptType script_type)
                 
             }
 
-            if (script_type == C) {
+            if (file_type == C) {
                 if (!strcmp(temp, "NULL")) {
                     token_list_append(&(line->token_list), _GENERIC_NULL, xstart, xend);
                     continue;
@@ -193,7 +193,7 @@ void retokenize_line(Line *line, ScriptType script_type)
                     x++;
                 } break;
                 case '<': {
-                    if (script_type == C) { // gather an include source.
+                    if (file_type == C) { // gather an include source.
                         xstart = x;
 
                         while (x < line->size && line->content[x] != '>') {
@@ -228,7 +228,7 @@ void retokenize_line(Line *line, ScriptType script_type)
                 } break;
                        
                 case '#': {
-                    if (script_type == PYTHON) {
+                    if (file_type == PYTHON) {
                         token_list_append(&(line->token_list), COMMENT, x, line->size);
                         return;
                     }
@@ -318,7 +318,7 @@ void retokenize_line(Line *line, ScriptType script_type)
 
                 case '/': {
                     if ((x + 1 < line->size)) {
-                        if ((script_type == C || script_type == GO || script_type == JS) && line->content[x + 1] == '/') {
+                        if ((file_type == C || file_type == GO || file_type == JS) && line->content[x + 1] == '/') {
                             // WE Collect a comment.
                             token_list_append(&(line->token_list), COMMENT, x, line->size);
                             return;

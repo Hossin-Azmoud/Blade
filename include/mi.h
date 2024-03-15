@@ -70,13 +70,13 @@ typedef enum ErrorType {
     EMPTY_BUFF
 } ErrorType;
 
-typedef enum ScriptType {
+typedef enum FileType {
     PYTHON = 0,
     C,
     JS,
     GO, 
     UNSUP
-} ScriptType;
+} FileType;
 
 typedef enum editorMode {
     NORMAL = 0,
@@ -164,7 +164,7 @@ typedef struct TokenList {
 
 typedef struct Chunk {
     char *data;
-    int cap, size;
+    int cap, size, lines;
 } Chunk;
 
 typedef struct Line Line;
@@ -189,7 +189,7 @@ typedef struct Lines_renderer {
     Line       *current;
     int        win_h, win_w;
     int        max_padding;
-    ScriptType script_type;
+    FileType   file_type;
     int        count;
 } Lines_renderer;
 
@@ -217,6 +217,7 @@ int load_file(char *file_path, Lines_renderer *line_ren);
 int save_file(char *file_path, Line *lines, bool release);
 void render_lines(Lines_renderer *line_ren);
 void editor_tabs(Line *line);
+Line *disconnect_line(Line *head);
 void editor_backspace(Lines_renderer *line_ren);
 void editor_push_data_from_clip(Lines_renderer *line_ren);
 char *editor_render_startup(int x, int y);
@@ -237,8 +238,8 @@ Line *Alloc_line_node(int row);
 Result *make_prompt_buffer(int x, int y);
 int    highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
 void   editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren);
-void clipboard_save_chunk(Vec2 start, Vec2 end, bool cut);
-
+void   clipboard_save_chunk(Vec2 start, Vec2 end);
+void   clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end);
 // Editor movement stuff..
 void editor_up(Lines_renderer *line_ren);
 void editor_left(Lines_renderer *line_ren);
@@ -258,13 +259,13 @@ void  chunk_distroy(Chunk *c);
 
 // Token List ops
 void token_list_append(TokenList *list, MITokenType kind, int xstart, int xend);
-void retokenize_line(Line *line, ScriptType script_type);
-KeywordList *get_keywords_list(ScriptType s);
+void retokenize_line(Line *line, FileType file_type);
+KeywordList *get_keywords_list(FileType s);
 bool is_keywrd(char *keywords[], char *word, int keywords_sz);
 char *get_token_kind_s(MITokenType t);
 
-ScriptType get_script_type(char *spath);
-char *script_type_as_str(ScriptType s);
+FileType get_file_type(char *spath);
+char *file_type_as_str(FileType s);
 MiEditor *init_editor(const char *path);
 void editor_load_layout(MiEditor *E);
 void release_editor(MiEditor *E);
@@ -272,6 +273,7 @@ void editor_refresh(MiEditor *E);
 void editor_render(MiEditor *E);
 void editor_update(int c, MiEditor *E);
 void render_file_browser(MiEditor *E);
+void fb_update(int c, MiEditor *E);
 
 #endif // MI_H
 

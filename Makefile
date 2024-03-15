@@ -7,7 +7,6 @@ CFLAGS=-Wall -pedantic -Werror -g -ggdb -Wextra -std=c11
 SRC=./src/*.c
 LIBS=-lncurses
 all: main
-
 main:
 	mkdir $(OUT_DIR) ; $(CC) $(CFLAGS) $(INCLUDE) -o $(OUT_FILE) $(SRC) $(LIBS)
 
@@ -20,3 +19,6 @@ debug:
 
 clean:
 	rm $(OUT_FILE) $(TEST_FILE)
+
+
+

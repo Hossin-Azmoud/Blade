@@ -53,9 +53,9 @@ static FileBrowser *new_fb(const char *path) {
     fb->entries = malloc(sizeof(BrowseEntry) * fb->cap);
     memset(fb->entries, 0, sizeof(BrowseEntry) * fb->cap);
     fb->size    = 0;
-    fb->pwd     = malloc(sizeof (path));
-    fb->pwd     = strcpy(fb->pwd, path);
-    fb->type    = get_entry_type(fb->pwd);
+    fb->open_entry_path     = malloc(sizeof (path));
+    fb->open_entry_path     = strcpy(fb->open_entry_path, path);
+    fb->type    = get_entry_type(fb->open_entry_path);
     return fb;
 }
 
@@ -67,7 +67,7 @@ void release_fb(FileBrowser *fb)
         free(fb->entries[x].value);
     }
 
-    free(fb->pwd);
+    free(fb->open_entry_path);
     free(fb->entries);
     free(fb);
 }
@@ -77,7 +77,7 @@ FileBrowser *new_file_browser(const char *dir_path)
     FileBrowser *fb = new_fb(dir_path);
 
     if (fb->type == DIR__) {
-        char **files = read_entire_dir(fb->pwd);
+        char **files = read_entire_dir(fb->open_entry_path);
 
         while (files[fb->size] != NULL) {
             fb->entries[fb->size].type  = get_entry_type(files[fb->size]);
@@ -94,7 +94,7 @@ FileBrowser *new_file_browser(const char *dir_path)
 
 FileBrowser *realloc_fb(FileBrowser *fb, char *next)
 {
-    char *new_path  =  resolve_path(fb->pwd, next);
+    char *new_path  =  resolve_path(fb->open_entry_path, next);
 
     if (new_path) {
         release_fb(fb);
@@ -102,13 +102,4 @@ FileBrowser *realloc_fb(FileBrowser *fb, char *next)
     }
 
     return fb;
-}
-void fb_update(int c, FileBrowser *fb)
-{
-    switch (c) {
-        case NL: {
-            fb = realloc_fb(fb, fb->entries[fb->cur_row].value);
-
-        } break;
-    }
 }
