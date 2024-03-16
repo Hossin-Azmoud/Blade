@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 
-#define LOGGER_FILE "./Logs.mi.txt"
+#define LOGGER_FILE "./Logs.txt"
 
 void open_logger();
 void close_logger();

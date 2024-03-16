@@ -4,26 +4,23 @@ static Vec2 vec2() {
     return (Vec2) {.x = 0, .y=0, ._line=NULL};
 }
 
-MiEditor *init_editor(const char *path)
+MiEditor *init_editor(char *path)
 {
     MiEditor *E = malloc(sizeof(MiEditor));
-
+    char *pathBuff = NULL;
     E->ewindow = init_ncurses_window();
     E->renderer = malloc(sizeof(Lines_renderer));
     editor_load_layout(E);
 
     // If the caller did not supply a file then we ask him in a seperate screen.
     if (path == NULL) {
-        E->file = editor_render_startup(E->renderer->win_w / 2, E->renderer->win_h / 2);
+        pathBuff = editor_render_startup(E->renderer->win_w / 2, E->renderer->win_h / 2);
     } else {
-        // Load the file that was given to the editor from argv.
-        int sz = strlen(path);
-        E->file = malloc(sz + 1);
-        E->file = memcpy(E->file, path, sz);
+        pathBuff =  string_dup(path);
     }
 
-    E->fb = new_file_browser(E->file);
-
+    E->fb = new_file_browser(pathBuff);
+    free(pathBuff); 
     // Prepare for highlighting text (Copying and pasting..)
     E->highlighted_end         = vec2() ; // x=0, Y=0
     E->highlighted_start       = vec2() ; // x=0, Y=0
@@ -47,8 +44,8 @@ MiEditor *init_editor(const char *path)
 
     // If the path that was passed was a file, or if it does not exist. we assign.
     if (E->fb->type == FILE__ || E->fb->type == NOT_EXIST) {
-        E->renderer->file_type = get_file_type (E->file);
-        load_file(E->file, E->renderer);
+        E->renderer->file_type = get_file_type (E->fb->open_entry_path);
+        load_file(E->fb->open_entry_path, E->renderer);
     }
     // Init binding queue.    
     E->binding_queue = (vKeyBindingQueue){0x0};
@@ -78,7 +75,7 @@ void release_editor(MiEditor *E)
     release_fb(E->fb);
     free_lines(E->renderer->origin);
     free(E->renderer);
-    free(E->file);
+    free(E->fb->open_entry_path);
     free(E->notification_buffer);
     free(E);
 }
@@ -87,7 +84,7 @@ void editor_refresh(MiEditor *E)
 {
     erase();
     render_lines(E->renderer);
-    editor_details(E->renderer, E->file, E->mode, E->notification_buffer);
+    editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     editor_apply_move(E->renderer);
     refresh();
 }
@@ -122,18 +119,22 @@ void editor_render(MiEditor *E)
         case NORMAL: {
             if (E->binding_queue.size == MAX_KEY_BINDIND) {
                 // TODO: Process Key E->binding_queue.
-                editor_handle_binding(E->renderer, &E->binding_queue);
+                editor_handle_binding(E->renderer, &E->binding_queue, E->fb);
                 memset(E->binding_queue.keys, 0, E->binding_queue.size);
                 E->binding_queue.size = 0;
             }
-            render_lines(E->renderer);
+            if (E->fb->type != DIR__) {
+                render_lines(E->renderer);   
+            } else {
+                render_file_browser(E);
+            }
         } break;
         default: {
             render_lines(E->renderer);
         } break;
     }
     
-    editor_details(E->renderer, E->file, E->mode, E->notification_buffer);
+    editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
     editor_apply_move(E->renderer);
     refresh();
@@ -215,7 +216,7 @@ void editor_update(int c, MiEditor *E)
                     E->highlighted_start._line = E->renderer->current;
                 } break;
                 case KEY_SAVE_: {
-                    int saved_bytes = save_file(E->file, E->renderer->origin, false);
+                    int saved_bytes = save_file(E->fb->open_entry_path, E->renderer->origin, false);
                     sprintf(E->notification_buffer, "(*) %dL %d bytes were written\n", 
                         E->renderer->count, 
                         saved_bytes);
@@ -265,11 +266,9 @@ void fb_update(int c, MiEditor *E)
         case NL: {
             BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
             E->fb   = realloc_fb(E->fb, entry.value);
-
-            if (entry.type == FILE__) {
-                E->file = string_dup(E->fb->open_entry_path);
-                E->renderer->file_type = get_file_type (E->file);
-                load_file(E->file, E->renderer);
+            if (E->fb->type == FILE__) {
+                E->renderer->file_type = get_file_type (E->fb->open_entry_path);
+                load_file(E->fb->open_entry_path, E->renderer);
             }
         } break;
     }

@@ -1,20 +1,29 @@
 #ifndef MI_H
 #define MI_H
 
+#if __STDC_VERSION__ >= 199901L
+#define _XOPEN_SOURCE 600
+#else
+#define _XOPEN_SOURCE 500
+#endif /* __STDC_VERSION__ */
+
+#include <dirent.h>
+#include <errno.h>
+#include <unistd.h>
+#include <ncurses.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <logger.h>
 #include <file_browser.h>
-#include <ncurses.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include <clipboard.h>
 #include <assert.h>
 #include <colors.h>
 #include <common.h>
+
 #define ESC         0x1b
 
 #define KEY_COPY_   'y'
@@ -91,6 +100,7 @@ typedef enum bindingKind {
     DEL_LINE,  // dd || cc
     INDENT_LINE,
     UNINDENT_LINE,
+    DIR_MODE,
     NOT_VALID
 } bindingKind;
 
@@ -200,7 +210,7 @@ typedef struct Result {
 } Result;
 
 typedef struct MiEditor {
-    char *file;
+    // char *file;
     Lines_renderer *renderer;
     Vec2  highlighted_start, highlighted_end;  // The chordinated of highlighted text.
     int   highlighted_data_length;
@@ -248,7 +258,7 @@ void editor_right(Lines_renderer *line_ren);
 void handle_move(int c, MiEditor *E);
 bool is_move(int key);
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
-void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
+void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings, FileBrowser *fb);
 void editor_identify_binding(vKeyBindingQueue *bindings);
 
 // CHUNK
@@ -266,7 +276,7 @@ char *get_token_kind_s(MITokenType t);
 
 FileType get_file_type(char *spath);
 char *file_type_as_str(FileType s);
-MiEditor *init_editor(const char *path);
+MiEditor *init_editor(char *path);
 void editor_load_layout(MiEditor *E);
 void release_editor(MiEditor *E);
 void editor_refresh(MiEditor *E);

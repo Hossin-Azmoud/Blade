@@ -1,8 +1,8 @@
 #ifndef FILE_B_H
 #define FILE_B_H
 
-#include <dirent.h>
-#include <errno.h>
+#include <limits.h>
+
 #define FB_MAX_ENT 50
 
 typedef enum BrowseEntryT {  
@@ -13,6 +13,7 @@ typedef enum BrowseEntryT {
 
 typedef struct BrowseEntry {
     BrowseEntryT type;
+    char *full_path;
     char *value;
 } BrowseEntry;
 

@@ -30,3 +30,4 @@ review:
 2 -> `c` copy key should kill a certain cut region, not just delete the content that the region holds. (...)
     1 -> cutting content from a line and pasting it works. however, it does not work if I want to cut a whole chunk of data (Multline).
 4 -> there is a bug in the cutting functionality that makes the x -> -4 for some reason.
+

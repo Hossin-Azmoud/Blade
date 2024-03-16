@@ -38,3 +38,6 @@ void chunk_distroy(Chunk *c)
         free(c);
     }
 }
+
+
+

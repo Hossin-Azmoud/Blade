@@ -30,14 +30,37 @@ void print_token_list(TokenList *list)
 int test(char **argv) {
     (void) argv;
     
-    char *p = resolve_path(".", "main.c");
-    printf("%s\n", p);
+    // DO NOTHING.
+    char *p = resolve_path("/src/x/y", ".");
+    
+    if (p) {
+        printf("%s\n", p);
+        free(p);
+    }
+    // STRIP ONE DIR BACK
+    p = resolve_path("/src/x/y", "..");
+    
+    if (p) {
+        printf("%s\n", p);
+        free(p);
+    }
+
+    // JOIN DIR 1, with 2
+    // resolve_path(1, 2);
+    p = resolve_path("/src/x/y", "z");
+    
+    if (p) {
+        printf("%s\n", p);
+        free(p);
+    }
     
     return 0;
 }
 
 int editor(char **argv)
 {
+    
+    open_logger();
     MiEditor *E = init_editor(argv[1]);
     int c = 0;
     if (E == NULL) {
@@ -56,6 +79,7 @@ int editor(char **argv)
         {
             case DIR__: {
                 fb_update(c, E);
+                
             } break;
             case FILE__:
             case NOT_EXIST: {
@@ -71,7 +95,7 @@ int editor(char **argv)
     if (!E->exit_pressed) {
         if (E->fb->type != DIR__) {
             save_file(
-                E->file, 
+                E->fb->open_entry_path, 
                 E->renderer->origin, 
                 false);
         }
@@ -80,6 +104,7 @@ int editor(char **argv)
 EXIT_AND_RELEASE_RESOURCES:
     endwin();
     release_editor(E);
+    open_logger();
     return 0;
 }
 

@@ -1,6 +1,6 @@
 #include <mi.h>
 
-void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
+void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings, FileBrowser *fb)
 {
     editor_identify_binding(bindings);
 
@@ -53,6 +53,16 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
             memset(line_ren->current->content, 0, line_ren->current->size);
             line_ren->current->size = 0; // Set the size to zero so the line can be disconnected and freed!
         } break;
+        case DIR_MODE: {
+            // TODO: save the file then change to [..] dir 
+            save_file(fb->open_entry_path, line_ren->origin, false);
+            fb   = realloc_fb(fb, "..");
+
+            // if (entry.type == FILE__) {
+            //     E->renderer->file_type = get_file_type (E->fb->open_entry_path);
+            //     load_file(E->fb->open_entry_path, E->renderer);
+            // }
+        } break; 
         case NOT_VALID: {
         } break;
         default: {} break;
@@ -87,7 +97,12 @@ void editor_identify_binding(vKeyBindingQueue *bindings)
         bindings->kind = UNINDENT_LINE;
         return;
     }
-
+    
+    if (bindings->keys[0] == '.' && bindings->keys[1] == '.') { // delete the current line into clipboard.
+        bindings->kind = DIR_MODE;
+        return;
+    }
+    
     bindings->kind = NOT_VALID;
     return;
 }
