@@ -202,3 +202,4 @@ FileType get_file_type(char *spath)
 
     return UNSUP;
 }
+

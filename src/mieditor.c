@@ -78,7 +78,6 @@ void release_editor(MiEditor *E)
     release_fb(E->fb);
     free_lines(E->renderer->origin);
     free(E->renderer);
-    free(E->fb->open_entry_path);
     free(E->notification_buffer);
     free(E);
 }
@@ -106,7 +105,7 @@ void editor_render(MiEditor *E)
     }
  
     erase();
-    curs_set(1);
+            curs_set(1);
     
     switch (E->mode) {
         case FILEBROWSER: {
@@ -141,26 +140,6 @@ void editor_render(MiEditor *E)
     if (E->mode == FILEBROWSER) return;
     editor_apply_move(E->renderer);
     refresh();
-}
-
-void render_file_browser(MiEditor *E)
-{    
-    erase();
-    curs_set(0);
-    size_t padding = 5;
-    size_t row = E->fb->cur_row;
-    
-    if (E->fb->type == DIR__) {
-        for (size_t y = 0; y < E->fb->size; y++) {
-            BrowseEntry entry = E->fb->entries[y];
-            mvprintw(y + padding, padding, entry.value);
-            if (row == y) {
-                colorize(row + padding, padding, 
-                    strlen(entry.value), 
-                    HIGHLIGHT_WHITE);
-            }
-        }
-    }
 }
 
 void editor_update(int c, MiEditor *E)
@@ -270,22 +249,5 @@ void editor_update(int c, MiEditor *E)
             }
         } break;
         default: {} break;
-    }
-}
-
-void fb_update(int c, MiEditor *E)
-{
-    switch (c) {
-        case NL: {
-            BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
-            E->fb   = realloc_fb(E->fb, entry.value);
-            if (E->fb->type == FILE__) {
-                load_file(E->fb->open_entry_path, E->renderer);
-                E->mode = NORMAL;
-                return;
-            }
-            
-            E->mode = FILEBROWSER;
-        } break;
     }
 }

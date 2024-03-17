@@ -33,7 +33,7 @@
 #define KEY_VISUAL_ 'v'
 #define KEY_SAVE_   'w'
 #define KEY_DEL     0x014a
-#define MENU_HEIGHT_ 1
+#define MENU_HEIGHT_ 2
 #define L_SHIFT 0x189
 #define R_SHIFT 0x192
 
@@ -287,5 +287,6 @@ void render_file_browser(MiEditor *E);
 void fb_update(int c, MiEditor *E);
 
 #endif // MI_H
+
 
 

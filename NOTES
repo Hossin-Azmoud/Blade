@@ -9,11 +9,7 @@ I Need:
     [*] remove the old way of copy paste and introdude a struct.. ClipBoard to be used as a storage for any coppied or deled lines.
     PROTO:
 
-    {
-        int size, cap,
-        char data[]
-    } [*] add some keybindings
-    [*]  add text highlighting for python as a test..
+    [*] add some keybindings[*]  add text highlighting for python as a test..
     [*]  Make the editor know which script it is edeting then apply this to the lexer so the syntax highlighting becomes better.
     []  add the cut capability. <- Working here.
     [...]  refactor -> Working Here.
@@ -23,7 +19,24 @@ I Need:
     [] add types for c and python so u can add new types and colorize them differantly. 
     
     []  Commads (Change file name, atleast).
-    
+   
+
+     .
+     ..
+     .git
+     .gitignore
+     LICENSE
+     Logs.txt
+     Makefile
+     NOTES
+     README.md
+     bin
+     img
+     include
+     main.py
+     rsa.c
+     src
+     FILE ( #NEW )
 
 review@1: [FIXED, most of it.]
 0 -> When I past coppied contant it makes a new line before inserting the coppied content. which is not good. [FIXED]
@@ -35,5 +48,4 @@ review@1: [FIXED, most of it.]
 review@2: [FIXED, most of it.]
 0 - The File browser does not display any informations about the current viewd dir. I need to implement some 
 to display info.
-
-
+1 - The Text Editor has no proper name lol.

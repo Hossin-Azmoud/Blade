@@ -8,7 +8,7 @@ SRC=./src/*.c
 LIBS=-lncurses
 all: main
 main:
-	mkdir $(OUT_DIR) ; $(CC) $(CFLAGS) $(INCLUDE) -o $(OUT_FILE) $(SRC) $(LIBS)
+	mkdir -p $(OUT_DIR) ; $(CC) $(CFLAGS) $(INCLUDE) -o $(OUT_FILE) $(SRC) $(LIBS)
 
 run:
 	$(OUT_FILE) $(TEST_FILE)
@@ -19,6 +19,7 @@ debug:
 
 clean:
 	rm $(OUT_FILE) $(TEST_FILE)
+
 
 
 

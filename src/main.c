@@ -103,7 +103,7 @@ int editor(char **argv)
 EXIT_AND_RELEASE_RESOURCES:
     endwin();
     release_editor(E);
-    open_logger();
+    close_logger();
     return 0;
 }
 

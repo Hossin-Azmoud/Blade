@@ -2,15 +2,15 @@
 #define COLORS_H
 
 // COLOR INDECES
-#define COLOR_GREY_   8
-#define COLOR_YELLOW_ 9
-#define COLOR_APPLE 10
-#define COLOR_COMMENT 11
-#define COLOR_SILVER_ 12
-#define COLOR_TAG 13
-#define COLOR_BRIGHT_GREEN 14
-#define COLOR_BRIGHT_YELLOW 15
-#define COLOR_GREY_LIGHT 16
+#define COLOR_GREY_           8
+#define COLOR_YELLOW_         9
+#define COLOR_APPLE          10
+#define COLOR_COMMENT        11
+#define COLOR_SILVER_        12
+#define COLOR_TAG            13
+#define COLOR_BRIGHT_GREEN   14
+#define COLOR_BRIGHT_YELLOW  15
+#define COLOR_GREY_LIGHT     16
 
 // PAIRS INDECES
 #define SECONDARY_THEME_PAIR 1

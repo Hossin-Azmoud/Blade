@@ -37,3 +37,4 @@ Tui text editor made in ncurses
 - `Rust`: Not Yet
 - `Go`: Not Yett
 
+

@@ -117,7 +117,7 @@ void retokenize_line(Line *line, FileType file_type)
             continue;
         }
         
-        // isalnum,  isalpha, isascii, isblank, iscntrl, isdigit, isgraph, islower, isprint, ispunct, isspace, isupper, isxdigit, isalnum_l, isalpha_l, isas‐cii_l, isblank_l, iscntrl_l, isdigit_l, isgraph_l, islower_l, isprint_l, ispunct_l, isspace_l, isupper_l, isxdigit_l  -  character  classification
+        // isalnum,  isalpha, isascii, isblank, iscntrl, isdigit, isgraph, islower, isprint, ispunct, isspace, isupper, isxdigit, isalnum_l, isalpha_l, isascii_l, isblank_l, iscntrl_l, isdigit_l, isgraph_l, islower_l, isprint_l, ispunct_l, isspace_l, isupper_l, isxdigit_l  -  character  classification
         // Digit collector
         if (isdigit(line->content[x])) {
             x++;
@@ -146,10 +146,10 @@ void retokenize_line(Line *line, FileType file_type)
             if (line->token_list.size > 0 && file_type == C) {
                 if (line->token_list._list[line->token_list.size - 1].kind == HASHTAG) {
                     // TODO: Get the word and see the type of the c_tag is it an #include or a condition #if #endif #ifndef,
-                    if (!strcmp(temp, "include")) {
+                    if (!strcmp(temp, "include")) { // #Include 
                         line->token_list._list[line->token_list.size - 1].kind = C_INCLUDE;
                     } else {
-                        line->token_list._list[line->token_list.size - 1].kind = C_TAG;
+                        line->token_list._list[line->token_list.size - 1].kind = C_TAG; // #ifdef #define #...
                     }
     
                     line->token_list._list[line->token_list.size - 1].xend = xend;
@@ -350,3 +350,4 @@ bool is_keywrd(char *keywords[], char *word, int keywords_sz) {
     }
     return false;
 }
+
