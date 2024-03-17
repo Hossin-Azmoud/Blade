@@ -47,12 +47,15 @@ MiEditor *init_editor(char *path)
         E->renderer->file_type = get_file_type (E->fb->open_entry_path);
         load_file(E->fb->open_entry_path, E->renderer);
     }
+
     // Init binding queue.    
     E->binding_queue = (vKeyBindingQueue){0x0};
     if (E->fb->type == FILE__ || E->fb->type == NOT_EXIST) {
-        editor_refresh(E);
+        editor_refresh(E); 
     } else {
+        E->mode = FILEBROWSER;
         render_file_browser(E);
+        editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     }
     
     return (E);
@@ -103,14 +106,12 @@ void editor_render(MiEditor *E)
     }
  
     erase();
-    if (E->fb->type == DIR__) {
-        render_file_browser(E);
-        return;
-    }
-    
     curs_set(1);
     
     switch (E->mode) {
+        case FILEBROWSER: {
+            render_file_browser(E);
+        } break;
         case VISUAL: {
             render_lines(E->renderer);
             E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
@@ -119,12 +120,12 @@ void editor_render(MiEditor *E)
         case NORMAL: {
             if (E->binding_queue.size == MAX_KEY_BINDIND) {
                 // TODO: Process Key E->binding_queue.
-                editor_handle_binding(E->renderer, &E->binding_queue, E->fb);
+                editor_handle_binding(E->renderer, &E->binding_queue);
                 memset(E->binding_queue.keys, 0, E->binding_queue.size);
                 E->binding_queue.size = 0;
             }
             if (E->fb->type != DIR__) {
-                render_lines(E->renderer);   
+                render_lines(E->renderer);
             } else {
                 render_file_browser(E);
             }
@@ -136,6 +137,8 @@ void editor_render(MiEditor *E)
     
     editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
+
+    if (E->mode == FILEBROWSER) return;
     editor_apply_move(E->renderer);
     refresh();
 }
@@ -201,6 +204,16 @@ void editor_update(int c, MiEditor *E)
         
         case NORMAL:  {
             switch (c) {
+                case KEY_DOT: {
+                    save_file(E->fb->open_entry_path, E->renderer->origin, false);
+                    E->fb = realloc_fb(E->fb, "..");
+                    if (E->fb->type == FILE__ || E->fb->type == NOT_EXIST) {
+                        load_file(E->fb->open_entry_path, E->renderer);
+                        E->mode = NORMAL;
+                    } else {
+                        E->mode = FILEBROWSER;
+                    }
+                } break;
                 case KEY_PASTE_: {
                     // TODO: Make clipboard be synced with the VISUAL mode clipboard_
                     editor_push_data_from_clip(E->renderer);
@@ -267,9 +280,12 @@ void fb_update(int c, MiEditor *E)
             BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
             E->fb   = realloc_fb(E->fb, entry.value);
             if (E->fb->type == FILE__) {
-                E->renderer->file_type = get_file_type (E->fb->open_entry_path);
                 load_file(E->fb->open_entry_path, E->renderer);
+                E->mode = NORMAL;
+                return;
             }
+            
+            E->mode = FILEBROWSER;
         } break;
     }
 }

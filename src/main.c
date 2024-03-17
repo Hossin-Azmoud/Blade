@@ -67,7 +67,7 @@ int editor(char **argv)
         goto EXIT_AND_RELEASE_RESOURCES;
     }
     
-    while ((c = getch()) != KEY_F(1)) {
+    while ((c = getch()) != KEY_F(1) && E->exit_pressed != true) {
         editor_load_layout(E);
 
         if (is_move(c)) {
@@ -78,8 +78,7 @@ int editor(char **argv)
         switch (E->fb->type) 
         {
             case DIR__: {
-                fb_update(c, E);
-                
+                fb_update(c, E);    
             } break;
             case FILE__:
             case NOT_EXIST: {

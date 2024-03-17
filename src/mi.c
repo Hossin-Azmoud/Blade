@@ -5,7 +5,8 @@
 static char *modes[] = { 
     "NORMAL",
     "VISUAL",
-    "INSERT"
+    "INSERT",
+    "FILEBROWSER"
 };
 
 WINDOW *init_ncurses_window()
@@ -28,6 +29,21 @@ WINDOW *init_ncurses_window()
 
     return win;
 }
+void reinit_renderer(char *file_path, Lines_renderer *line_ren)
+{
+    // TODO: Free the lines that r currently stored.
+    free_lines(line_ren->origin);
+    
+    line_ren->origin      = Alloc_line_node(0);
+    line_ren->count       = 0;
+    line_ren->start       = line_ren->origin;
+    line_ren->end         = line_ren->origin; 
+    line_ren->current     = line_ren->origin; 
+    line_ren->max_padding = 2;
+
+    // If the path that was passed was a file, or if it does not exist. we assign.
+    line_ren->file_type = get_file_type (file_path);
+}
 
 int load_file(char *file_path, Lines_renderer *line_ren)
 {
@@ -35,6 +51,7 @@ int load_file(char *file_path, Lines_renderer *line_ren)
     FILE *Stream = fopen(file_path, "r");
     char line_number[LINE_NUM_MAX] = { 0 };
 
+    if (line_ren->count > 0) reinit_renderer(file_path, line_ren);
     if (!Stream) { 
         line_ren->count++;
         goto SET_PROPS;
@@ -259,6 +276,14 @@ static void add_syntax_(Line *current, Lines_renderer *line_ren)
 void render_lines(Lines_renderer *line_ren)
 {
     Line *current = line_ren->start;
+    // Update end.
+    while (line_ren->end->y - line_ren->start->y < line_ren->win_h - MENU_HEIGHT_) {
+        if (line_ren->end->next) {
+            line_ren->end = line_ren->end->next;
+        }
+        break;
+    }
+
     while (current) {
         render_line(current, line_ren->start->y, line_ren->max_padding);
         add_syntax_(current, line_ren);
@@ -267,20 +292,39 @@ void render_lines(Lines_renderer *line_ren)
     }
 }
 
-void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode_, char *notification)
+void editor_details(Lines_renderer *line_ren, char *_path, editorMode mode_, char *notification)
 {
 
     char details_buffer[LINE_SZ] = {0};
     memset(details_buffer, 0, LINE_SZ);
     char *mode = modes[mode_];
 
-    sprintf(details_buffer, "(%d, %d)[%d]", line_ren->current->y + 1, line_ren->current->x + 1, line_ren->count);
-    mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
-    mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR, NULL);
-    mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s %s", file_path, notification);
-    mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1, details_buffer);
-    mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
-    move(line_ren->current->y, line_ren->current->x);
+    switch (mode_)
+    {
+        case FILEBROWSER: {
+            char *User = getenv("USER");
+            sprintf(details_buffer, "#%s %s", User, _path);
+            // Display the mode.
+            mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
+            mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR, NULL);
+    
+            // Display notification.
+            mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s", notification);
+            
+            // Display details.
+            mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1, details_buffer);
+            mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
+        } break;
+        default: {
+            sprintf(details_buffer, "(%d, %d)[%d]", line_ren->current->y + 1, line_ren->current->x + 1, line_ren->count);
+            mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
+            mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR, NULL);
+            mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s %s", _path, notification);
+            mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1, details_buffer);
+            mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
+            move(line_ren->current->y, line_ren->current->x);
+        };
+    }
 }
 
  // isalnum,  isalpha, isascii, isblank, iscntrl, isdigit, isgraph, islower, isprint, ispunct, isspace, isupper, isxdigit, isalnum_l, isalpha_l, 

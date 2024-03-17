@@ -25,7 +25,7 @@
 #include <common.h>
 
 #define ESC         0x1b
-
+#define KEY_DOT     '.'
 #define KEY_COPY_   'y'
 #define KEY_CUT_   'c'
 #define KEY_PASTE_  'p'
@@ -90,7 +90,8 @@ typedef enum FileType {
 typedef enum editorMode {
     NORMAL = 0,
     VISUAL,
-    INSERT
+    INSERT,
+    FILEBROWSER
 } editorMode;
 
 #define MAX_KEY_BINDIND 2
@@ -100,7 +101,6 @@ typedef enum bindingKind {
     DEL_LINE,  // dd || cc
     INDENT_LINE,
     UNINDENT_LINE,
-    DIR_MODE,
     NOT_VALID
 } bindingKind;
 
@@ -225,6 +225,7 @@ typedef struct MiEditor {
 WINDOW *init_ncurses_window();
 int load_file(char *file_path, Lines_renderer *line_ren);
 int save_file(char *file_path, Line *lines, bool release);
+void reinit_renderer(char *file_path, Lines_renderer *line_ren);
 void render_lines(Lines_renderer *line_ren);
 void editor_tabs(Line *line);
 Line *disconnect_line(Line *head);
@@ -258,7 +259,7 @@ void editor_right(Lines_renderer *line_ren);
 void handle_move(int c, MiEditor *E);
 bool is_move(int key);
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
-void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings, FileBrowser *fb);
+void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
 
 // CHUNK

@@ -33,3 +33,4 @@ void release_fb(FileBrowser *fb);
 FileBrowser *realloc_fb(FileBrowser *fb, char *next);
 
 #endif //FILE_B_H
+
