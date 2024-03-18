@@ -6,12 +6,10 @@
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <stdio.h>
-
 int hello() {
     printf("Hello, world!");
     return 0;
 }
-
 
 int padding = RSA_PKCS1_PADDING;
 
@@ -162,6 +160,7 @@ printf("Decrypted Length =%d\n",decrypted_length);
 
 
 }
+
 
 
 

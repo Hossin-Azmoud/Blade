@@ -1,4 +1,5 @@
 #include <mi.h>
+#include <locale.h>
 
 #define T 0
 
@@ -14,6 +15,15 @@ int main(int argc, char **argv) {
     return ret;
 }
 
+int test(char **argv) 
+{
+    (void) argv;
+    setlocale(LC_CTYPE,""); 
+    char buff[10] = {0};
+    decode_utf8(FOLDER_UNICODE, buff);
+    printf("char: %s\n", buff);
+    return 0;
+}
 void print_token_list(TokenList *list)
 {
     
@@ -27,39 +37,10 @@ void print_token_list(TokenList *list)
 }
 
 
-int test(char **argv) {
-    (void) argv;
-    
-    // DO NOTHING.
-    char *p = resolve_path("/src/x/y", ".");
-    
-    if (p) {
-        printf("%s\n", p);
-        free(p);
-    }
-    // STRIP ONE DIR BACK
-    p = resolve_path("/src/x/y", "..");
-    
-    if (p) {
-        printf("%s\n", p);
-        free(p);
-    }
-
-    // JOIN DIR 1, with 2
-    // resolve_path(1, 2);
-    p = resolve_path("/src/x/y", "z");
-    
-    if (p) {
-        printf("%s\n", p);
-        free(p);
-    }
-    
-    return 0;
-}
-
 int editor(char **argv)
 {
     
+    setlocale(LC_CTYPE,""); 
     open_logger();
     MiEditor *E = init_editor(argv[1]);
     int c = 0;

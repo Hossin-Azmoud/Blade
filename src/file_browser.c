@@ -67,8 +67,15 @@ void fb_append(FileBrowser *self, char *name)
         self->entries = realloc(self->entries, sizeof(sizeof(BrowseEntry) * self->cap));
     } 
 
-    self->entries[self->size].type  = get_entry_type(name);
     self->entries[self->size].value   = string_dup(name);
+    self->entries[self->size].value   = string_dup(name);
+
+    {
+        char *p = resolve_path(self->open_entry_path, name);
+        self->entries[self->size].full_path = p;
+    }
+
+    self->entries[self->size].type    = get_entry_type(self->entries[self->size].full_path);
     self->size++;
 }
 
@@ -144,10 +151,10 @@ void fb_update(int c, MiEditor *E)
             
             E->mode = FILEBROWSER;
         } break;
+        case 'd': {} break;
         case 'a': {
             // TODO: add a new file in the current dir tree.
             // Make nameBuff and pass it to fb_append.  
-            
             curs_set(1);
             char *label = "> Create file ";
             int y = E->renderer->win_h - MENU_HEIGHT_;
@@ -181,19 +188,49 @@ void fb_update(int c, MiEditor *E)
     }
 }
 
+// void render_entry(BrowseEntry entry, int y, int x, bool colorize_) {
+//     size_t padding = 5;
+//      
+// }
+
 void render_file_browser(MiEditor *E)
 {    
     erase();
     curs_set(0);
     size_t padding = 5;
-    size_t row = E->fb->cur_row;
-    
+    size_t row  = E->fb->cur_row;
+    char *label = NULL;
+    size_t sz = 0;
+
+    // static char folder_emoji_decoded[10] = {0};
+    // printf("%s\n", folder_emoji_decoded);
+
     if (E->fb->type == DIR__) {
         for (size_t y = 0; y < E->fb->size; y++) {
-            BrowseEntry entry = E->fb->entries[y];
-            mvprintw(y + padding, padding, entry.value);
+            padding = 5;
+            BrowseEntry entry = E->fb->entries[y];  
+            // TODO: render a file emoji if it is a file, otherwise render a folder emoji.
+            switch (entry.type) {
+                case FILE__: {
+                    // sz    = decode_utf8(FOLDER_UNICODE, folder_emoji_decoded);
+                    // label = folder_emoji_decoded;
+                    label = "[F] ";
+                    sz    = 4;
+                } break;
+                case DIR__: {
+                    label = "[D] ";
+                    sz    = 4;
+                } break;
+                default: {
+                    label = "[NEW] ";
+                    sz    = 6;
+                };
+            }
+            
+            mvprintw(y + padding, padding, "%s", label);
+            mvprintw(y + padding, padding + sz, entry.value);
             if (row == y) {
-                colorize(row + padding, padding, 
+                colorize(row + padding, padding + sz, 
                     strlen(entry.value), 
                     HIGHLIGHT_WHITE);
             }
