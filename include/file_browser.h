@@ -11,8 +11,17 @@ typedef enum BrowseEntryT {
     NOT_EXIST
 } BrowseEntryT;
 
+typedef enum FileType {
+    PYTHON = 0,
+    C,
+    JS,
+    GO, 
+    UNSUP
+} FileType;
+
 typedef struct BrowseEntry {
-    BrowseEntryT type;
+    BrowseEntryT etype;
+    FileType     ftype;
     char *full_path;
     char *value;
 } BrowseEntry;

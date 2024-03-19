@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <colors.h>
 #include <common.h>
+#include <emojis.h>
 
 #define ESC         0x1b
 #define KEY_DOT     '.'
@@ -78,14 +79,6 @@ typedef enum ErrorType {
     EXIT_SIG,
     EMPTY_BUFF
 } ErrorType;
-
-typedef enum FileType {
-    PYTHON = 0,
-    C,
-    JS,
-    GO, 
-    UNSUP
-} FileType;
 
 typedef enum editorMode {
     NORMAL = 0,

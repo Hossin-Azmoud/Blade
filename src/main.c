@@ -42,6 +42,7 @@ int editor(char **argv)
     
     setlocale(LC_CTYPE,""); 
     open_logger();
+    emoji_init(); // Init the emojis cache.
     MiEditor *E = init_editor(argv[1]);
     int c = 0;
     if (E == NULL) {

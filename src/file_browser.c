@@ -67,15 +67,15 @@ void fb_append(FileBrowser *self, char *name)
         self->entries = realloc(self->entries, sizeof(sizeof(BrowseEntry) * self->cap));
     } 
 
-    self->entries[self->size].value   = string_dup(name);
-    self->entries[self->size].value   = string_dup(name);
+    self->entries[self->size].value = string_dup(name);
+    self->entries[self->size].ftype = get_file_type(name);
 
     {
         char *p = resolve_path(self->open_entry_path, name);
         self->entries[self->size].full_path = p;
     }
 
-    self->entries[self->size].type    = get_entry_type(self->entries[self->size].full_path);
+    self->entries[self->size].etype = get_entry_type(self->entries[self->size].full_path);
     self->size++;
 }
 
@@ -84,6 +84,7 @@ void release_fb(FileBrowser *fb)
     // Relaase Entries.
     for (size_t x = 0; x < fb->size; x++) {
         free(fb->entries[x].value);
+        free(fb->entries[x].full_path);
     }
 
     free(fb->open_entry_path);
@@ -202,24 +203,24 @@ void render_file_browser(MiEditor *E)
     char *label = NULL;
     size_t sz = 0;
 
-    // static char folder_emoji_decoded[10] = {0};
-    // printf("%s\n", folder_emoji_decoded);
-
     if (E->fb->type == DIR__) {
         for (size_t y = 0; y < E->fb->size; y++) {
             padding = 5;
             BrowseEntry entry = E->fb->entries[y];  
             // TODO: render a file emoji if it is a file, otherwise render a folder emoji.
-            switch (entry.type) {
+            switch (entry.etype) {
                 case FILE__: {
-                    // sz    = decode_utf8(FOLDER_UNICODE, folder_emoji_decoded);
-                    // label = folder_emoji_decoded;
-                    label = "[F] ";
-                    sz    = 4;
+                    if (entry.ftype == C) {
+                        label = emoji_get(E_C_FILE);  
+                        sz  = 3; 
+                    } else {
+                        label = emoji_get(E_FILE);  
+                        sz  = 3; 
+                    }
                 } break;
                 case DIR__: {
-                    label = "[D] ";
-                    sz    = 4;
+                    label = emoji_get(E_FOLDER);
+                    sz    = 3;    
                 } break;
                 default: {
                     label = "[NEW] ";
@@ -228,6 +229,8 @@ void render_file_browser(MiEditor *E)
             }
             
             mvprintw(y + padding, padding, "%s", label);
+            colorize(y + padding, padding, sz, KEYWORD_SYNTAX_PAIR);
+
             mvprintw(y + padding, padding + sz, entry.value);
             if (row == y) {
                 colorize(row + padding, padding + sz, 

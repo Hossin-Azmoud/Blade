@@ -1,0 +1,71 @@
+## NOTEKEYS:
+    [...] => Still under dev
+    [*]   => Done
+    [-]   => delayed
+
+## defs
+    review: is an idea or a note  about a feature that was implemented but it is kind of wrong and should be fixed.
+    feature: something that was not yet implemented and should be
+
+### Colors: Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
+    [*] Pick better coloring for the editor.
+    [*] Modes (Normal, Visual, Insert).
+    [*] Add copy/paste functionality
+    [*] Organize features!
+    [*]  Handle Shift + key
+    [*]  Handle mouse pressing.
+    [*] remove the old way of copy paste and introdude a struct.. ClipBoard to be used as a storage for any coppied or deled lines.
+
+## PROTO:
+
+    [*] add some keybindings
+    [*]  add text highlighting for python as a test..
+    [*]  Make the editor know which script it is edeting then apply this to the lexer so the syntax highlighting becomes better.
+    []  add the cut capability. <- Working here.
+    [*] Fix the cut, copy, paste and refactor this feature.
+    
+
+## POSSIBLE NAMES:
+    > Fox
+
+## POSSIBLE FEATURES:
+    
+    [...]  refactor -> Working Here.
+    [...]  Work on colors and UI. -> Working Here.
+    [...]  add the file browser.
+    [] command Mode so we can add vim bindings.
+    [] add types for c and python so u can add new types and colorize them differantly.    
+    [] ability to delete files    
+    [] ability to create/delete directories.
+    ```
+        // PROMPT EXAMPLE:
+            COMMAND > CMD_BUFFER
+        then the buffer will be passed to a function to parse the command.
+    ```
+    [] Timer (Might be usefull if u need to stay less time implementing something.)
+    [] add possibility to rename a file.
+
+## POSSIBLE SYNTAX SUPPORT:
+    [*] C.
+    [*] js.
+    [*] python.
+    [] markdown
+    [] Rust
+    [] C++
+
+### Personal reviews
+    - review@1: [FIXED, most of it.]
+        0 -> When I past coppied contant it makes a new line before inserting the coppied content. which is not good. [FIXED]
+        1 -> I need to click f2 twice in order for the editor to quit, it should be only once. [FIXED]
+        2 -> `c` copy key should kill a certain cut region, not just delete the content that the region holds. (...)
+            1 -> cutting content from a line and pasting it works. however, it does not work if I want to cut a whole chunk of data (Multline).
+        4 -> there is a bug in the cutting functionality that makes the x -> -4 for some reason.
+
+    - review@2: [FIXED, most of it.]
+        0 - The File browser does not display any informations about the current viewd dir. I need to implement some 
+        to display info.
+        1 - Fix buff constructor backspace.
+        1 - The Text Editor has no proper name lol..
+    - review@3:
+        0 - Fix the up/down that goes all the way to the end. instead it should go to somewhere more expected like the same col if (col <= size)
+        1 - indent/unindemt a region.
