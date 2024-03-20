@@ -5,37 +5,58 @@
 
 // #define DEBUG
 int editor(char **argv);
-int test(char **argv);
+int test(char *ent);
 
 int main(int argc, char **argv) {
     (void) argc; 
-    if (T) return test(argv);
+    if (T) {
+        if (argc > 1) {
+            return test(argv[1]);
+        }
+        return 0;
+    }
     int ret = editor(argv);
     CLIPBOARD_FREE();
     return ret;
 }
 
-int test(char **argv) 
+int test(char *ent) 
 {
-    (void) argv;
-    setlocale(LC_CTYPE,""); 
-    char buff[10] = {0};
-    decode_utf8(FOLDER_UNICODE, buff);
-    printf("char: %s\n", buff);
+    /***
+        struct stat {
+           dev_t      st_dev;      ID of device containing file
+           ino_t      st_ino;      Inode number
+           mode_t     st_mode;     File type and mode 
+           nlink_t    st_nlink;    Number of hard links
+           uid_t      st_uid;      User ID of owner
+           gid_t      st_gid;      Group ID of owner
+           dev_t      st_rdev;     Device ID (if special file)
+           off_t      st_size;     Total size, in bytes
+           blksize_t  st_blksize;  Block size for filesystem I/O
+           blkcnt_t   st_blocks;   Number of 512 B blocks allocated
+           struct timespec  st_atim;
+           struct timespec  st_mtim;
+           struct timespec  st_ctim;
+
+       #define st_atime  st_atim.tv_sec
+       #define st_mtime  st_mtim.tv_sec
+       #define st_ctime  st_ctim.tv_sec
+       };
+    ***/ 
+	struct stat info;
+	int status = stat(ent, &info);
+    if (!status) {
+        printf("INFO ABOUT %s\n", ent);
+        printf("size %zu\n", info.st_size);
+        printf("blocksz %zu\n", info.st_blksize);
+        printf("blocks %zu\n", info.st_blocks);
+        printf("Inode %zu\n", info.st_ino);
+        printf("Links %zu\n", info.st_nlink);
+    } else {
+        printf("Failed to load dir info.\n");
+    }    
     return 0;
 }
-void print_token_list(TokenList *list)
-{
-    
-    for (int i = 0; i < list->size; ++i) {
-        printf("(s: %d e: %d) - %s\n", 
-           list->_list[i].xstart, 
-           list->_list[i].xend,
-           get_token_kind_s(list->_list[i].kind)
-        );
-    }
-}
-
 
 int editor(char **argv)
 {
@@ -49,7 +70,7 @@ int editor(char **argv)
         goto EXIT_AND_RELEASE_RESOURCES;
     }
     
-    while ((c = getch()) != KEY_F(1) && E->exit_pressed != true) {
+    while ((c = getch()) != EOF && !E->exit_pressed) {
         editor_load_layout(E);
 
         if (is_move(c)) {
@@ -71,15 +92,6 @@ int editor(char **argv)
     UPDATE_EDITOR:
         editor_render(E);
         if (E->exit_pressed) break;
-    }
-
-    if (!E->exit_pressed) {
-        if (E->fb->type != DIR__) {
-            save_file(
-                E->fb->open_entry_path, 
-                E->renderer->origin, 
-                false);
-        }
     }
 
 EXIT_AND_RELEASE_RESOURCES:

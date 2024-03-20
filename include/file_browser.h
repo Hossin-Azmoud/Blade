@@ -22,8 +22,9 @@ typedef enum FileType {
 typedef struct BrowseEntry {
     BrowseEntryT etype;
     FileType     ftype;
-    char *full_path;
-    char *value;
+    size_t       size;
+    char         *full_path;
+    char         *value;
 } BrowseEntry;
 
 // typedef struct FileBrowser FileBrowser;
@@ -36,8 +37,9 @@ typedef struct FileBrowser {
     char *rel_path;
 } FileBrowser;
 
-char **read_entire_dir(const char *dir_path);
 BrowseEntryT get_entry_type(char *path);
+char **read_entire_dir(const char *dir_path);
+void get_entry_info(BrowseEntry *e);
 FileBrowser *new_file_browser(const char *dir_path);
 char *entry_type_as_cstr(BrowseEntryT T);
 void release_fb(FileBrowser *fb);

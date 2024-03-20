@@ -7,19 +7,19 @@ static uint32_t emojis_[] = {
     [E_C_FILE] = (uint32_t)(L'')
 };
 
-char *emoji_pool(EmojiPoolAction a, EmojiKind kind)
+Emoji *emoji_pool(EmojiPoolAction a, EmojiKind kind)
 {
-    static char emojis[EMOJI_CAP][5] = {0}; 
+    static Emoji emojis[EMOJI_CAP] = {0}; 
 
     switch (a) {        
         case INIT: {
-            decode_utf8(emojis_[E_FOLDER], emojis[E_FOLDER]);
-            decode_utf8(emojis_[E_FILE], emojis[E_FILE]);
-            decode_utf8(emojis_[E_C_FILE], emojis[E_C_FILE]);
+           (emojis + E_FOLDER)->size = decode_utf8(emojis_[E_FOLDER], (emojis + E_FOLDER)->decoded);
+           (emojis + E_FILE)->size = decode_utf8(emojis_[E_FILE],   (emojis + E_FILE)->decoded);
+           (emojis + E_C_FILE)->size = decode_utf8(emojis_[E_C_FILE], (emojis + E_C_FILE)->decoded);
         } break;
         case GET:  {
             if (kind < E_COUNT) {
-                return emojis[kind];   
+                return emojis + kind;
             } else {
                 return NULL;
             }

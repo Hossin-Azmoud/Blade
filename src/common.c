@@ -115,11 +115,12 @@ char *resolve_path(char *src, char *dest)
     return (buffer);
 }
 
-Result *make_prompt_buffer(int x, int y)
+Result *make_prompt_buffer(int x, int y, size_t w)
 {
     Result *result = malloc(sizeof(Result));
     bool deleted = false;
-    
+   
+
     result->data  = malloc(LINE_SZ);
     memset(result->data, 0, LINE_SZ);
 
@@ -128,7 +129,7 @@ Result *make_prompt_buffer(int x, int y)
 
     int buffer_idx = 0;
     int size = 0, byte = 0;
-    
+    move(y, x + buffer_idx);
     if (result == NULL || result->data == NULL)
         return NULL;
     
@@ -163,8 +164,6 @@ Result *make_prompt_buffer(int x, int y)
                     deleted = true;
                 }
                 result->data[size] = 0;
-                deleted = true;
-
             } break;
             case KEY_RIGHT: {
                 if (buffer_idx < size) buffer_idx++; 
@@ -191,13 +190,17 @@ Result *make_prompt_buffer(int x, int y)
 
         for (int i = 0; i < size; ++i)
             mvaddch (y, x + i, result->data[i]);
+
         
+        // 
         if (deleted) {
             delch();
             deleted = false;
         }
 
+        mvchgat (y, 0, w, A_NORMAL, BLUE_PAIR, NULL);
         move(y, x + buffer_idx);
     }
+    
     return result;
 }

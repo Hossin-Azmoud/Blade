@@ -1,7 +1,7 @@
 #ifndef EMOJIS_H
 #define EMOJIS_H
 #define EMOJI_CAP 25
-
+#define EMOJI_BYTE_CAP 5
 typedef enum EmojiKind {
     E_FOLDER = 0,
     E_FILE,
@@ -14,7 +14,13 @@ typedef enum EmojiPoolAction {
     GET
 } EmojiPoolAction;
 
-char *emoji_pool(EmojiPoolAction a, EmojiKind kind);
+typedef struct Emoji {
+    uint32_t raw;
+    char decoded[EMOJI_BYTE_CAP];
+    size_t size;
+} Emoji;
+
+Emoji *emoji_pool(EmojiPoolAction a, EmojiKind kind);
 
 #define emoji_init() emoji_pool(INIT, 0) 
 #define emoji_get(e) emoji_pool(GET, e)

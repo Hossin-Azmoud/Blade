@@ -6,7 +6,8 @@ static char *modes[] = {
     "NORMAL",
     "VISUAL",
     "INSERT",
-    "FILEBROWSER"
+    "FILEBROWSER",
+    "COMMAND"
 };
 
 WINDOW *init_ncurses_window()
@@ -299,10 +300,13 @@ void editor_details(Lines_renderer *line_ren, char *_path, editorMode mode_, cha
     memset(details_buffer, 0, LINE_SZ);
     char *mode = modes[mode_];
 
+    // THE COMMAND BAR
+    mvchgat(line_ren->win_h - 2, 0, line_ren->win_w, A_NORMAL, BLUE_PAIR, NULL);
     switch (mode_)
     {
         case FILEBROWSER: {
             char *User = getenv("USER");
+
             sprintf(details_buffer, "#%s %s", User, _path);
             // Display the mode.
             mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
@@ -443,7 +447,7 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
 
         if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_  - 1)
             line_ren->end = line_ren->end->prev;
-
+        
         lines_shift(new->next, 1);
     } else {
         line_ren->current->next = new;
@@ -496,14 +500,14 @@ static int editor_render_help(int x, int y, char *error)
     return (strlen(prompt));
 }
 
-char *editor_render_startup(int x, int y)
+char *editor_render_startup(int x, int y, size_t width)
 {
     int prompt_offset = editor_render_help(x, y, NULL);
     Result *res = NULL;
     char *file_path = (calloc(1, LINE_SZ));
     
     while (true) {
-        res = make_prompt_buffer(prompt_offset, y * 2);
+        res = make_prompt_buffer(prompt_offset, y * 2, width);
         switch(res->type) {
             case SUCCESS: {
                 strcpy(file_path, res->data);
@@ -794,6 +798,7 @@ void clipboard_save_chunk(Vec2 start, Vec2 end)
         curr = curr->next;
     }
     
+
     if (curr) {
         get_string_chunk(chunk, 
             curr->content, 

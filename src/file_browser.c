@@ -25,6 +25,25 @@ BrowseEntryT get_entry_type(char *path)
     return NOT_EXIST;
 }
 
+void get_entry_info(BrowseEntry *e)
+{
+    struct stat info;
+
+    if (stat(e->full_path, &info)) {
+        e->etype = NOT_EXIST;
+        return;
+    }
+
+    if (S_ISDIR(info.st_mode)) {
+        e->etype = DIR__;
+    }
+    if (S_ISREG(info.st_mode)) {
+        e->etype = FILE__; 
+    }
+
+    e->size = info.st_size;
+}
+
 static char *All[] = {
     [FILE__] = "FILE__",
     [DIR__]  = "DIR__",
@@ -75,7 +94,7 @@ void fb_append(FileBrowser *self, char *name)
         self->entries[self->size].full_path = p;
     }
 
-    self->entries[self->size].etype = get_entry_type(self->entries[self->size].full_path);
+    get_entry_info(self->entries + self->size);
     self->size++;
 }
 
@@ -154,17 +173,20 @@ void fb_update(int c, MiEditor *E)
         } break;
         case 'd': {} break;
         case 'a': {
+
             // TODO: add a new file in the current dir tree.
             // Make nameBuff and pass it to fb_append.  
             curs_set(1);
             char *label = "> Create file ";
-            int y = E->renderer->win_h - MENU_HEIGHT_;
+            int y = E->renderer->win_h - 2;
             mvprintw(y, 0, label);
-            Result *res = make_prompt_buffer(strlen(label), y);
+            Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
+
             switch(res->type) {
                 case SUCCESS: {
                     fb_append(E->fb, res->data);
-                    save_file(res->data, E->renderer->origin, false);
+                    reinit_renderer(res->data, E->renderer);
+                    save_file(res->data, E->renderer->origin, false);                    
                     free(res->data);
                     free(res);
                 } break;
@@ -190,53 +212,78 @@ void fb_update(int c, MiEditor *E)
 }
 
 // void render_entry(BrowseEntry entry, int y, int x, bool colorize_) {
-//     size_t padding = 5;
+//     size_t padding = 5
 //      
 // }
+
+
 
 void render_file_browser(MiEditor *E)
 {    
     erase();
     curs_set(0);
-    size_t padding = 5;
+
+    size_t xpadding = 5;
+    size_t ypadding = 5;
     size_t row  = E->fb->cur_row;
-    char *label = NULL;
-    size_t sz = 0;
+    Emoji  *emoji = NULL; 
+    // char   file_size[LINE_SZ] = {0};
+    // char  *size_unit = NULL;
 
     if (E->fb->type == DIR__) {
         for (size_t y = 0; y < E->fb->size; y++) {
-            padding = 5;
+            xpadding = 5;
             BrowseEntry entry = E->fb->entries[y];  
+
             // TODO: render a file emoji if it is a file, otherwise render a folder emoji.
             switch (entry.etype) {
                 case FILE__: {
-                    if (entry.ftype == C) {
-                        label = emoji_get(E_C_FILE);  
-                        sz  = 3; 
-                    } else {
-                        label = emoji_get(E_FILE);  
-                        sz  = 3; 
-                    }
                 } break;
                 case DIR__: {
-                    label = emoji_get(E_FOLDER);
-                    sz    = 3;    
+                    emoji = emoji_get(E_FOLDER);
                 } break;
                 default: {
-                    label = "[NEW] ";
-                    sz    = 6;
+                    if (entry.ftype == C) {
+                        emoji = emoji_get(E_C_FILE);  
+                    } else {
+                        emoji = emoji_get(E_FILE);  
+                    }
                 };
             }
+    
+            // Render the size of each entry.            
+            mvprintw(y + ypadding, xpadding, "%s ", emoji->decoded);
+            colorize(y + ypadding, xpadding, emoji->size, KEYWORD_SYNTAX_PAIR);
+            xpadding += emoji->size + 1;
             
-            mvprintw(y + padding, padding, "%s", label);
-            colorize(y + padding, padding, sz, KEYWORD_SYNTAX_PAIR);
 
-            mvprintw(y + padding, padding + sz, entry.value);
+            mvprintw(y + ypadding, xpadding, entry.value);
+            
             if (row == y) {
-                colorize(row + padding, padding + sz, 
+                colorize(row + ypadding, xpadding, 
                     strlen(entry.value), 
                     HIGHLIGHT_WHITE);
             }
+            
+            // {
+            //     // Render the size of the thing.
+            //     rsize = entry.size;
+            //
+            //     if (rsize >= 1024 && rsize < (1024 * 1024)) {
+            //         size_unit = "kb";
+            //         rsize /= 1024; // To get how much kb is contains.
+            //     } else if (rsize >= (1024 * 1024) && rsize < (1024 * 1024) * 1024) {
+            //         size_unit = "mb";
+            //         rsize /= (1024 * 1024); // To get how much kb is contains.
+            //     } else {
+            //         size_unit = "byte";
+            //     }
+            //
+            //     len = sprintf(file_size, "%zu %s ", rsize, size_unit);
+            //     mvprintw(y + ypadding, xpadding, "%s", file_size);
+            //     xpadding += len;
+            // }
+            // memset(file_size, 0, LINE_SZ);
         }
     }
 }

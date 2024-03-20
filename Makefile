@@ -19,3 +19,4 @@ debug:
 
 clean:
 	rm $(OUT_FILE) $(TEST_FILE)
+
