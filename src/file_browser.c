@@ -237,8 +237,6 @@ void render_file_browser(MiEditor *E)
 
             // TODO: render a file emoji if it is a file, otherwise render a folder emoji.
             switch (entry.etype) {
-                case FILE__: {
-                } break;
                 case DIR__: {
                     emoji = emoji_get(E_FOLDER);
                 } break;
@@ -252,11 +250,9 @@ void render_file_browser(MiEditor *E)
             }
     
             // Render the size of each entry.            
-            mvprintw(y + ypadding, xpadding, "%s ", emoji->decoded);
-            colorize(y + ypadding, xpadding, emoji->size, KEYWORD_SYNTAX_PAIR);
-            xpadding += emoji->size + 1;
-            
-
+            mvprintw(y + ypadding, xpadding, "%3s ", emoji->decoded);
+            colorize(y + ypadding, xpadding, emoji->size, CALL_SYNTAX_PAIR);
+            xpadding += emoji->size;
             mvprintw(y + ypadding, xpadding, entry.value);
             
             if (row == y) {

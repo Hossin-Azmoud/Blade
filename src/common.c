@@ -1,5 +1,13 @@
 #include <mi.h>
 
+int min(int a, int b) {
+    return (a > b) ? b : a;
+}
+
+int max(int a, int b) {
+    return (a < b) ? b : a;
+}
+
 char *string_dup(char *str) {
     char *s = calloc(1, strlen(str) + 1); 
     size_t i = 0;

@@ -43,18 +43,9 @@ int test(char *ent)
        #define st_ctime  st_ctim.tv_sec
        };
     ***/ 
-	struct stat info;
-	int status = stat(ent, &info);
-    if (!status) {
-        printf("INFO ABOUT %s\n", ent);
-        printf("size %zu\n", info.st_size);
-        printf("blocksz %zu\n", info.st_blksize);
-        printf("blocks %zu\n", info.st_blocks);
-        printf("Inode %zu\n", info.st_ino);
-        printf("Links %zu\n", info.st_nlink);
-    } else {
-        printf("Failed to load dir info.\n");
-    }    
+	
+    (void) ent;
+    emoji_pool(INIT, 0);
     return 0;
 }
 

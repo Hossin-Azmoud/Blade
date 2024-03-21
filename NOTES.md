@@ -69,11 +69,6 @@
     - review@3:
         0 - Fix the up/down that goes all the way to the end. instead it should go to somewhere more expected like the same col if (col <= size)
         1 - indent/unindemt a region.
-
-
-
-
-
-
-
-
+## CRUCIAL BUGS:
+    [FIXED] There is a bug that shows up when I try to cut from the start of the file. I need to fix he updating of lineren->start/lineren->origin apparently
+    this problem accurs only when I try cutting a file.

@@ -1,0 +1,10 @@
+resolve: /home/moody/Desktop/Software/Mi/rsa.c 0x55e9a6aa2d40
+resolve: /home/moody/Desktop/Software/Mi/Logs.txt 0x564c97480d40
+resolve: /home/moody/Desktop/Software/Mi/LICENSE 0x560829b57d40
+resolve: /home/moody/Desktop/Software/Mi/LICENSE 0x56116ffd3d40
+resolve: /home/moody/Desktop/Software/Mi/LICENCE2 0x5648d8ae9100
+resolve: /home/moody/Desktop/Software/Mi 0x5648d8aedfd0
+resolve: /home/moody/Desktop/Software/Mi/LICENSE 0x5648d8af64c0
+resolve: /home/moody/Desktop/Software/Mi/README.md 0x4b91c40
+resolve: /home/moody/Desktop/Software/Mi/rsa.c 0x4b91c40
+resolve: /home/moody/Desktop/Software/Mi/rsa.c 0x4b91c40

@@ -18,14 +18,15 @@ void make_new_color_u32(int index, uint32_t color)
 {
     make_new_color(index, 
         (color >> 16) & 0xFF, 
-        (color >> 8) & 0xFF, 
-        (color >> 0) & 0xFF
+        (color >> 8 ) & 0xFF, 
+        (color >> 0 ) & 0xFF
     );
 }
 
 void init_colors() 
 {
     start_color();
+
     make_new_color_u32(COLOR_SILVER_,  0x4bcffa);
     make_new_color_u32(COLOR_GREY_,    0x04081a);
     make_new_color_u32(COLOR_GREY_LIGHT, 0xFFEDD8);

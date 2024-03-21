@@ -646,22 +646,60 @@ static int cut_data(char *buffer, int cstart, int cend, int size) {
     return (cend - cstart);
 }
 
+static Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t end)
+{
+    
+    int n  = cut_data(line->content, start, end, line->size);
+    Line *local_line = line;
+    Line *next = (line->next);
+    bool is_origin = (line_ren->origin == line);
+    bool is_start  = (line_ren->start == line);
+    bool is_end  = (line_ren->end == line);
+
+    local_line->size  = local_line->size - n;
+    local_line->x     = start;
+
+    if (is_origin && is_start) {
+        if (local_line->size == 0) {
+            memset(local_line->content, 0x0, LINE_SZ);
+            memset(local_line->token_list._list, 0x0, sizeof (MIToken) * MAX_TOKENS);
+        }
+        return local_line;
+    }
+
+    if (local_line->size == 0) {
+        local_line = disconnect_line(line);
+
+        if (is_start) {
+            line_ren->start    = next;
+            line_ren->current  = next;
+        } else if (is_origin) {
+            line_ren->start    = next;
+            line_ren->origin   = next;
+            line_ren->current  = next;
+        }  else if (is_end) {
+            line_ren->end      = local_line;
+            line_ren->current  = local_line;
+        } else {
+            line_ren->current = local_line;
+        }
+    }
+
+    local_line->x = start;
+    return local_line;
+}
 
 void clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end) {
     Vec2  temp = { .x = start.x, .y = start.y, ._line = start._line };
     Line  *curr   = NULL;
     Chunk *chunk = chunk_new();
-    int   ncut = 0;
     
     if (start.y == end.y) { // We need to copy one line!
         curr = start._line;
         int start_idx = (start.x > end.x) ? end.x : start.x;
         int end_idx   = (start.x > end.x) ? start.x : end.x;
         get_string_chunk(chunk, curr->content, start_idx, end_idx, curr->size);
-        ncut = cut_data(curr->content, start_idx, end_idx, curr->size);
-        curr->size -= ncut;
-        curr->x    = start_idx;        
-        
+        cut_line(line_ren, curr, start.x, end.x);
         goto SET_AND_EX;
     }
 
@@ -680,22 +718,7 @@ void clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end) {
 
     chunk_append_char(chunk, '\n');
     
-    {
-        ncut  = cut_data(curr->content, start.x, curr->size, curr->size);
-        curr->size -= ncut;
-        curr->x    = start.x;
-        if (!curr->size) {
-            curr = disconnect_line(curr);
-            line_ren->current = curr;
-            if (line_ren->current->next != NULL) {
-                line_ren->current = line_ren->current->next;
-                if (line_ren->end->next != NULL) {
-                    line_ren->end = line_ren->end->next;
-                }
-            }
-        }
-    }
-
+    curr = cut_line(line_ren, curr, start.x, curr->size);
     curr = curr->next;
     
     while (curr != end._line) {
@@ -707,20 +730,7 @@ void clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end) {
             curr->size
         );
     
-        ncut = cut_data(curr->content, 0, curr->size, curr->size);
-        curr->size -= ncut;
-        curr->x     = 0;
-        if (!curr->size) {
-            curr = disconnect_line(curr);
-            line_ren->current = curr;
-            if (line_ren->current->next != NULL) {
-                line_ren->current = line_ren->current->next;
-                if (line_ren->end->next != NULL) {
-                    line_ren->end = line_ren->end->next;
-                }
-            }
-        }
-
+        curr = cut_line(line_ren, curr, 0, curr->size);
         curr = curr->next;
         chunk_append_char(chunk, '\n');
     }
@@ -733,22 +743,12 @@ void clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end) {
             curr->size
         );
 
-        ncut = cut_data(curr->content, 0, end.x, curr->size);
-        curr->size -= ncut;
-        curr->x     = 0;
-        if (!curr->size) {
-            curr = disconnect_line(curr);
-            line_ren->current = curr;
-            if (line_ren->current->next != NULL) {
-                line_ren->current = line_ren->current->next;
-                if (line_ren->end->next != NULL) {
-                    line_ren->end = line_ren->end->next;
-                }
-            }
-        
-        }
+        curr = cut_line(line_ren, curr, 0, end.x);
         chunk_append_char(chunk, '\n');
     }
+    
+    // Return to the position in which we started copying.
+    // line_ren->current->x = start.x;
 SET_AND_EX:
     CLIPBOARD_SET(chunk->data);
     free(chunk);

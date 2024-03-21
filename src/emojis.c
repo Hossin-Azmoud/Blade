@@ -13,9 +13,9 @@ Emoji *emoji_pool(EmojiPoolAction a, EmojiKind kind)
 
     switch (a) {        
         case INIT: {
-           (emojis + E_FOLDER)->size = decode_utf8(emojis_[E_FOLDER], (emojis + E_FOLDER)->decoded);
-           (emojis + E_FILE)->size = decode_utf8(emojis_[E_FILE],   (emojis + E_FILE)->decoded);
-           (emojis + E_C_FILE)->size = decode_utf8(emojis_[E_C_FILE], (emojis + E_C_FILE)->decoded);
+            (emojis + E_FOLDER)->size  = decode_utf8(emojis_[E_FOLDER], (emojis + E_FOLDER)->decoded);
+            (emojis + E_FILE)->size    = decode_utf8(emojis_[E_FILE],   (emojis + E_FILE)->decoded);
+            (emojis + E_C_FILE)->size  = decode_utf8(emojis_[E_C_FILE], (emojis + E_C_FILE)->decoded);
         } break;
         case GET:  {
             if (kind < E_COUNT) {

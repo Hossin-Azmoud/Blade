@@ -64,6 +64,7 @@ MiEditor *init_editor(char *path)
 void editor_command_execute(MiEditor *E, char *command) {
     if (strlen(command) == 1) {
         switch (*command) {
+
             case KEY_SAVE_: {
                 // TODO: Save The whole file.
                 int saved_bytes = save_file(E->fb->open_entry_path, E->renderer->origin, false);
@@ -71,10 +72,12 @@ void editor_command_execute(MiEditor *E, char *command) {
                     E->renderer->count, 
                     saved_bytes);
             } break;
+            
             case KEY_QUIT: {
                 // TODO: EXIT
                 E->exit_pressed = true; 
             } break;
+            
             case KEY_QUIT_SAVE: {
                 // TODO: Save, Exit.
                 int saved_bytes = save_file(E->fb->open_entry_path, E->renderer->origin, false);
