@@ -72,3 +72,5 @@
 ## CRUCIAL BUGS:
     [FIXED] There is a bug that shows up when I try to cut from the start of the file. I need to fix he updating of lineren->start/lineren->origin apparently
     this problem accurs only when I try cutting a file.
+    [] The Emoji's have differant size, I have no idea why..
+    this problem accurs only when I try cutting a file.
