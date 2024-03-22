@@ -61,10 +61,10 @@ MiEditor *init_editor(char *path)
     return (E);
 }
 
-void editor_command_execute(MiEditor *E, char *command) {
+static void editor_command_execute_normal(MiEditor *E, char *command) 
+{
     if (strlen(command) == 1) {
         switch (*command) {
-
             case KEY_SAVE_: {
                 // TODO: Save The whole file.
                 int saved_bytes = save_file(E->fb->open_entry_path, E->renderer->origin, false);
@@ -88,6 +88,36 @@ void editor_command_execute(MiEditor *E, char *command) {
             } break;
             default: {};
         }
+    }
+}
+
+static void editor_command_execute_fb(MiEditor *E, char *command) 
+{
+    if (strlen(command) == 1) {
+        switch (*command) {
+            case KEY_SAVE_: {
+                // TODO: Save The whole file.
+                sprintf(E->notification_buffer, "(*) The editor can not save in the FILE BROWSER mode.");
+            } break;
+            case KEY_QUIT:
+            case KEY_QUIT_SAVE: {
+                // TODO: Save, Exit.
+                E->exit_pressed = true;
+            } break;
+            default: {};
+        }
+    }
+}
+
+void editor_command_execute(MiEditor *E, char *command, editorMode mode) {
+    switch (mode) {
+        case FILEBROWSER: {
+            editor_command_execute_fb(E, command);
+        } break;
+        case NORMAL: {
+            editor_command_execute_normal(E, command);
+        } break;
+        default: {} break;
     }
 }
 
@@ -143,7 +173,7 @@ void editor_render(MiEditor *E)
         case VISUAL: {
             render_lines(E->renderer);
             E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
-            sprintf(E->notification_buffer, "(*) %d bytes were selected\n", E->highlighted_data_length);
+            // sprintf(E->notification_buffer, "(*) %d bytes were selected\n", E->highlighted_data_length);
         } break;
         case NORMAL: {
             if (E->binding_queue.size == MAX_KEY_BINDIND) {
@@ -204,6 +234,40 @@ void editor_update(int c, MiEditor *E)
                 
                 clipboard_cut_chunk(E->renderer, E->highlighted_start, E->highlighted_end);
             }
+    
+            if (c == '>') {
+                
+                Line *start = E->highlighted_start._line;
+                Line *end   = E->renderer->current;
+
+                if (start->y > end->y) {
+                    start = E->renderer->current;
+                    end   = E->highlighted_start._line;
+                }
+
+                while (true) {
+                    indent_line(start);
+                    if (start == end) break;
+                    start = start->next;
+                }
+            }
+            
+            if (c == '<') {
+                
+                Line *start = E->highlighted_start._line;
+                Line *end   = E->renderer->current;
+
+                if (start->y > end->y) {
+                    start = E->renderer->current;
+                    end   = E->highlighted_start._line;
+                }
+
+                while (true) {
+                    unindent_line(start);
+                    if (start == end) break;
+                    start = start->next;
+                }
+            }
         } break;
         
         case NORMAL:  {
@@ -217,25 +281,6 @@ void editor_update(int c, MiEditor *E)
                     } else {
                         E->mode = FILEBROWSER;
                     }
-                } break;
-                case ':' : {
-                    // TODO: COMMAD MODE > <
-                    char *label = " cmd > ";
-                    int y   = E->renderer->win_h - 2;
-                    E->mode = COMMAND;
-                    sprintf(E->notification_buffer, "OPENED COMMAD MODE >~<");
-                    editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
-                    mvprintw(y, 0, label);
-                    mvchgat (y, 0, E->renderer->win_w, A_NORMAL, BLUE_PAIR, NULL);
-    
-                    Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
-                    if (res->type == SUCCESS)
-                        editor_command_execute(E, res->data); 
-
-                    free(res->data);
-                    free(res);
-                    E->mode = NORMAL;
-                    editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
                 } break;
                 case KEY_PASTE_: {
                     // TODO: Make clipboard be synced with the VISUAL mode clipboard_

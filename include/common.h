@@ -9,5 +9,6 @@ int min(int a, int b);
 char *string_dup(char *str);
 char *resolve_path(char *src, char *dest);
 int  decode_utf8(uint32_t utf8_bytes, char *str);
+bool isprintable(char c);
 
 #endif // COMMON_H

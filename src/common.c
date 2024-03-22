@@ -8,6 +8,10 @@ int max(int a, int b) {
     return (a < b) ? b : a;
 }
 
+bool isprintable(char c) 
+{
+    return isalnum(c) || ispunct(c) || isspace(c);
+}
 char *string_dup(char *str) {
     char *s = calloc(1, strlen(str) + 1); 
     size_t i = 0;
@@ -23,7 +27,7 @@ char *string_dup(char *str) {
 
 int decode_utf8(uint32_t utf8_bytes, char *str)
 {
-
+    printf("> DECODE 0x%x\n", utf8_bytes);
 	if(utf8_bytes > 1114112 || ( utf8_bytes >= 0xd800 && utf8_bytes <= 0xdfff ) ){
 		//encodes U+fffd; replacement character
 		str[0] = (char)0xef;
@@ -46,7 +50,7 @@ int decode_utf8(uint32_t utf8_bytes, char *str)
 	}else{
 		if(utf8_bytes  < 65636){
 			len = 3;
-		}else{
+		} else {
 			len = 4;
 		}
 	}
@@ -85,9 +89,9 @@ int decode_utf8(uint32_t utf8_bytes, char *str)
 		j -= 1;
 	}
 
-	return len;
-
+	return (3);
 }
+
 char *resolve_path(char *src, char *dest)
 {
     char *delim = "/";
@@ -137,6 +141,8 @@ Result *make_prompt_buffer(int x, int y, size_t w)
 
     int buffer_idx = 0;
     int size = 0, byte = 0;
+    
+    mvchgat (y, 0, w, A_NORMAL, BLUE_PAIR, NULL);
     move(y, x + buffer_idx);
     if (result == NULL || result->data == NULL)
         return NULL;
@@ -186,13 +192,15 @@ Result *make_prompt_buffer(int x, int y, size_t w)
                 buffer_idx = size;
 			} break;
             default: {
-                memmove(result->data + buffer_idx + 1,
-                    result->data + buffer_idx,
-                    size - buffer_idx
-                );
+                if (isprintable(byte)) {
+                    memmove(result->data + buffer_idx + 1,
+                        result->data + buffer_idx,
+                        size - buffer_idx
+                    );
 
-                result->data[buffer_idx++] = byte;
-                size++;
+                    result->data[buffer_idx++] = byte;
+                    size++;
+                }
             } break;
         }
 

@@ -1,5 +1,6 @@
 #include <mi.h>
 
+
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
 {
     editor_identify_binding(bindings);
@@ -11,26 +12,11 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         } break;
         
         case INDENT_LINE: {
-            int x = line_ren->current->x;
-            line_ren->current->x = 0;
-            editor_tabs(line_ren->current);
-            line_ren->current->x += x;
+            indent_line(line_ren->current); 
         } break;
         
         case UNINDENT_LINE: {
-            int x = line_ren->current->x;
-            
-            line_ren->current->x = 0;
-            while (line_ren->current->content[line_ren->current->x] == ' ' && line_ren->current->x < 4) {
-                line_ren->current->x++;
-            }
-
-            memmove(line_ren->current->content, 
-                    line_ren->current->content + line_ren->current->x, 
-                    line_ren->current->size - line_ren->current->x);
-
-            line_ren->current->size -= line_ren->current->x;
-            line_ren->current->x = (x - line_ren->current->x);
+            unindent_line(line_ren->current);
         } break;
 
         case DEL_LINE: {

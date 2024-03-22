@@ -26,9 +26,10 @@
 #include <emojis.h>
 
 #define ESC         0x1b
+#define KEY_COMMAND_ ':'
 #define KEY_DOT     '.'
 #define KEY_COPY_   'y'
-#define KEY_CUT_   'c'
+#define KEY_CUT_    'c'
 #define KEY_PASTE_  'p'
 #define KEY_INSERT_ 'i'
 #define KEY_VISUAL_ 'v'
@@ -230,7 +231,8 @@ void editor_backspace(Lines_renderer *line_ren);
 void editor_push_data_from_clip(Lines_renderer *line_ren);
 char *editor_render_startup(int x, int y, size_t w);
 void lines_shift(Line *head, int num);
-
+void unindent_line(Line *line);
+void indent_line(Line *line);
 
 void editor_dl(Line *line);
 
@@ -258,7 +260,7 @@ bool is_move(int key);
 void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
-void editor_command_execute(MiEditor *E, char *command);
+void editor_command_execute(MiEditor *E, char *command, editorMode mode);
 // CHUNK
 void  chunk_append_s(Chunk *c, char *str);
 void  chunk_append_char(Chunk *c, char chr);

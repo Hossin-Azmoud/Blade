@@ -1,5 +1,31 @@
 #include <mi.h>
 
+void indent_line(Line *line) 
+{
+    
+    int x = line->x;
+    line->x = 0;
+    editor_tabs(line);
+    line->x += x;
+}
+
+void unindent_line(Line *line) 
+{
+    int x = line->x;
+    line->x = 0;
+
+    while (line->content[line->x] == ' ' && line->x < 4) {
+        line->x++;
+    }
+
+    memmove(line->content, 
+            line->content + line->x, 
+            line->size - line->x);
+
+    line->size -= line->x;
+    line->x = (x - line->x);
+}
+
 Line *Alloc_line_node(int row)
 {
     Line *line = (Line *)malloc(sizeof(Line));

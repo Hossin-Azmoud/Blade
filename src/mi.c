@@ -3,11 +3,11 @@
 #include <logger.h>
 // Possible modes in the editor!
 static char *modes[] = { 
-    "NORMAL",
-    "VISUAL",
-    "INSERT",
+    "NORMAL     ",
+    "VISUAL     ",
+    "INSERT     ",
     "FILEBROWSER",
-    "COMMAND"
+    "COMMAND    "
 };
 
 WINDOW *init_ncurses_window()
@@ -94,7 +94,9 @@ int save_file(char *file_path, Line *lines, bool release)
     Line *current = lines;
 
     for (; current;) {
-        bytes_saved += fprintf(Stream, "%s\n", current->content);
+        bytes_saved += fwrite(current->content, 1, current->size, Stream);
+        bytes_saved += fwrite("\n", 1, 1, Stream);
+        
         next = current->next;
 
         if (release)
@@ -319,6 +321,23 @@ void editor_details(Lines_renderer *line_ren, char *_path, editorMode mode_, cha
             mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1, details_buffer);
             mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
         } break;
+        
+        case COMMAND: {
+            char *User = getenv("USER");
+
+            sprintf(details_buffer, "#%s %s", User, _path);
+            // Display the mode.
+            mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
+            mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR, NULL);
+    
+            // Display notification.
+            if (*notification)
+                mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s", notification);
+            
+            // Display details.
+            mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1, details_buffer);
+            mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL, SECONDARY_THEME_PAIR, NULL);
+        } break;
         default: {
             sprintf(details_buffer, "(%d, %d)[%d]", line_ren->current->y + 1, line_ren->current->x + 1, line_ren->count);
             mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
@@ -335,7 +354,7 @@ void editor_details(Lines_renderer *line_ren, char *_path, editorMode mode_, cha
 // isas‐cii_l, isblank_l, iscntrl_l, isdigit_l, isgraph_l, islower_l, isprint_l, ispunct_l, isspace_l, isupper_l, isxdigit_l  -  character  classification functions.
 void char_inject(Line *line, char c)
 {
-    if (isalnum(c) || ispunct(c) || isspace(c)) {
+    if (isprintable (c)) {
         
         memmove((line->content + line->x + 1),
             (line->content + line->x),

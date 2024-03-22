@@ -45,7 +45,11 @@ int test(char *ent)
     ***/ 
 	
     (void) ent;
-    emoji_pool(INIT, 0);
+    // emoji_pool(INIT, 0);
+    unsigned char *l = (unsigned char *) L"";
+    
+    printf("%li\n", strlen((char *)l));
+    printf("%s\n", (char *)l);
     return 0;
 }
 
@@ -68,11 +72,34 @@ int editor(char **argv)
             handle_move(c, E);
             goto UPDATE_EDITOR;
         }
-        
+
+        if (c == KEY_COMMAND_) {
+            editorMode mode = E->mode; 
+            if (mode == FILEBROWSER || mode == NORMAL) {
+                // TODO: COMMAD MODE > <
+
+                curs_set(1);
+                char *label = " cmd > ";
+                int y   = E->renderer->win_h - 2;
+                E->mode = COMMAND;
+                editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+                mvprintw(y, 0, label);
+
+                Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
+                if (res->type == SUCCESS)
+                    editor_command_execute(E, res->data, mode); 
+                free(res->data);
+                free(res);
+                E->mode = mode;
+                editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+                goto UPDATE_EDITOR;
+            }
+        } 
+
         switch (E->fb->type) 
         {
             case DIR__: {
-                fb_update(c, E);    
+                fb_update(c, E);
             } break;
             case FILE__:
             case NOT_EXIST: {
@@ -80,6 +107,7 @@ int editor(char **argv)
             } break;
             default: {} break;
         }
+
     UPDATE_EDITOR:
         editor_render(E);
         if (E->exit_pressed) break;

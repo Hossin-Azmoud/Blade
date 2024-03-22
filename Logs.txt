@@ -1,0 +1,1 @@
+resolve: /home/moody/Desktop/Software/Mi/file.py 0x5562ab6fb5e0
