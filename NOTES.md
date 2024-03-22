@@ -76,3 +76,9 @@
     [FIXED (Partially.)] The Emoji's have differant size, I have no idea why..
     this problem accurs only when I try cutting a file.
 
+## How To Lex Types in C:
+    1 - anything that comes after a struct keyword and is an identifier.
+    e: typedef struct T {...} T_t;
+    2 - anythin that comes after the enum keyword and is an identifier.
+    e: typedef enum T {...} T_e;
+

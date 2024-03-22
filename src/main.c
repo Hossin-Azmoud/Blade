@@ -82,7 +82,7 @@ int editor(char **argv)
                 char *label = " cmd > ";
                 int y   = E->renderer->win_h - 2;
                 E->mode = COMMAND;
-                editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+                editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
                 mvprintw(y, 0, label);
 
                 Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
@@ -91,7 +91,7 @@ int editor(char **argv)
                 free(res->data);
                 free(res);
                 E->mode = mode;
-                editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+                editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
                 goto UPDATE_EDITOR;
             }
         } 

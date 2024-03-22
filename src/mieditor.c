@@ -7,6 +7,8 @@ static Vec2 vec2() {
 MiEditor *init_editor(char *path)
 {
     MiEditor *E = malloc(sizeof(MiEditor));
+    init_signals();
+
     memset(E, 0, sizeof(*E));
     char *pathBuff = NULL;
     E->ewindow = init_ncurses_window();
@@ -60,72 +62,11 @@ MiEditor *init_editor(char *path)
     } else {
         E->mode = FILEBROWSER;
         render_file_browser(E);
-        editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+        editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     }
     
     return (E);
 }
-
-static void editor_command_execute_normal(MiEditor *E, char *command) 
-{
-    if (strlen(command) == 1) {
-        switch (*command) {
-            case KEY_SAVE_: {
-                // TODO: Save The whole file.
-                int saved_bytes = save_file(E->fb->open_entry_path, E->renderer->origin, false);
-                sprintf(E->notification_buffer, "(*) %dL %d bytes were written\n", 
-                    E->renderer->count, 
-                    saved_bytes);
-            } break;
-            
-            case KEY_QUIT: {
-                // TODO: EXIT
-                E->exit_pressed = true; 
-            } break;
-            
-            case KEY_QUIT_SAVE: {
-                // TODO: Save, Exit.
-                int saved_bytes = save_file(E->fb->open_entry_path, E->renderer->origin, false);
-                sprintf(E->notification_buffer, "(*) %dL %d bytes were written\n", 
-                    E->renderer->count, 
-                    saved_bytes);
-                E->exit_pressed = true;
-            } break;
-            default: {};
-        }
-    }
-}
-
-static void editor_command_execute_fb(MiEditor *E, char *command) 
-{
-    if (strlen(command) == 1) {
-        switch (*command) {
-            case KEY_SAVE_: {
-                // TODO: Save The whole file.
-                sprintf(E->notification_buffer, "(*) The editor can not save in the FILE BROWSER mode.");
-            } break;
-            case KEY_QUIT:
-            case KEY_QUIT_SAVE: {
-                // TODO: Save, Exit.
-                E->exit_pressed = true;
-            } break;
-            default: {};
-        }
-    }
-}
-
-void editor_command_execute(MiEditor *E, char *command, editorMode mode) {
-    switch (mode) {
-        case FILEBROWSER: {
-            editor_command_execute_fb(E, command);
-        } break;
-        case NORMAL: {
-            editor_command_execute_normal(E, command);
-        } break;
-        default: {} break;
-    }
-}
-
 
 void editor_load_layout(MiEditor *E)
 {
@@ -153,61 +94,12 @@ void editor_refresh(MiEditor *E)
 {
     erase();
     render_lines(E->renderer);
-    editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+    editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     editor_apply_move(E->renderer);
     refresh();
 }
 
-void editor_render(MiEditor *E)
-{
-    // Check exit signal 
-    if (E->exit_pressed) {
-        return;
-    }
-    
-    // Check if a key was delted.
-    if (E->char_deleted) {
-        delch();
-        E->char_deleted = false;
-    }
- 
-    erase();
-            curs_set(1);
-    
-    switch (E->mode) {
-        case FILEBROWSER: {
-            render_file_browser(E);
-        } break;
-        case VISUAL: {
-            render_lines(E->renderer);
-            E->highlighted_data_length = highlight_until_current_col(E->highlighted_start, E->renderer);
-            // sprintf(E->notification_buffer, "(*) %d bytes were selected\n", E->highlighted_data_length);
-        } break;
-        case NORMAL: {
-            if (E->binding_queue.size == MAX_KEY_BINDIND) {
-                // TODO: Process Key E->binding_queue.
-                editor_handle_binding(E->renderer, &E->binding_queue);
-                memset(E->binding_queue.keys, 0, E->binding_queue.size);
-                E->binding_queue.size = 0;
-            }
-            if (E->fb->type != DIR__) {
-                render_lines(E->renderer);
-            } else {
-                render_file_browser(E);
-            }
-        } break;
-        default: {
-            render_lines(E->renderer);
-        } break;
-    }
-    
-    editor_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
-    if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
 
-    if (E->mode == FILEBROWSER) return;
-    editor_apply_move(E->renderer);
-    refresh();
-}
 
 void editor_update(int c, MiEditor *E)
 {
@@ -218,6 +110,9 @@ void editor_update(int c, MiEditor *E)
             return;
         } break;
     }
+    
+    // KEY_CTRLZ:
+    // Ctrl-C pressed
 
     // Actions that depend on the mode.
     switch (E->mode) {
@@ -276,10 +171,26 @@ void editor_update(int c, MiEditor *E)
                     start = start->next;
                 }
             }
+
         } break;
         
         case NORMAL:  {
             switch (c) {
+                case SHIFT('c'): {
+                    E->highlighted_start = (Vec2){
+                        .x = E->renderer->current->x,
+                        .y = E->renderer->current->y,
+                        ._line = E->renderer->current
+                    };
+
+                    E->highlighted_end   = (Vec2){
+                        .x = E->renderer->current->size,
+                        .y = E->renderer->current->y,
+                        ._line = E->renderer->current
+                    };
+
+                    clipboard_cut_chunk(E->renderer, E->highlighted_start, E->highlighted_end);
+                } break;
                 case KEY_DOT: {
                     save_file(E->fb->open_entry_path, E->renderer->origin, false);
                     E->fb = realloc_fb(E->fb, "..");

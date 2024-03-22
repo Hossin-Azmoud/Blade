@@ -2,21 +2,20 @@
 #define MI_H
 
 #if __STDC_VERSION__ >= 199901L
-#define _XOPEN_SOURCE 600
+    #define _XOPEN_SOURCE 600
 #else
-#define _XOPEN_SOURCE 500
+    #define _XOPEN_SOURCE 500
 #endif /* __STDC_VERSION__ */
 
 #include <dirent.h>
 #include <errno.h>
-#include <unistd.h>
+// #include <ncursesw/ncurses.h>
 #include <ncurses.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <logger.h>
 #include <file_browser.h>
 #include <clipboard.h>
@@ -24,6 +23,7 @@
 #include <colors.h>
 #include <common.h>
 #include <emojis.h>
+#include <signals_.h>
 
 #define ESC         0x1b
 #define KEY_COMMAND_ ':'
@@ -35,33 +35,39 @@
 #define KEY_VISUAL_ 'v'
 #define KEY_SAVE_   'w'
 
-#define KEY_QUIT 'q'
+#define KEY_QUIT      'q'
 #define KEY_QUIT_SAVE 'x'
-#define KEY_DEL     0x014a
-#define MENU_HEIGHT_ 3
-#define L_SHIFT 0x189
-#define R_SHIFT 0x192
+#define KEY_DEL       0x014a
+#define MENU_HEIGHT_  3
+#define L_SHIFT       0x189
+#define R_SHIFT       0x192
 
 
 // color editor pairs
 #define CTRL(x) ((x) & 037)
-#define LINE_SZ 512
+#define SHIFT(x) ((x) - 32)
+
+#define CTRL_Z  CTRL('z')
+#define CTRL_C  CTRL('c')
+#define CTRL_V  CTRL('c')
+
+#define LINE_SZ      512
 #define LINE_NUM_MAX 8
-#define MAX_TOKENS 64
-#define TAB '\t'
-#define NL  '\n'
+#define MAX_TOKENS   64
+#define TAB         '\t'
+#define NL          '\n'
 
-#define OPAR '('
-#define CPAR ')'
-#define OCERLY '{'
-#define CCERLY '}'
+#define OPAR        '('
+#define CPAR        ')'
+#define OCERLY      '{'
+#define CCERLY      '}'
 
-#define OBRAC '['
-#define CBRAC ']'
+#define OBRAC       '['
+#define CBRAC       ']'
 
-#define DQUOTE '\"'
-#define SQUOTE '\''
-#define WLCM_BUFF "(WELLCOME TO MI EDITOR V0.1!)"
+#define DQUOTE      '\"'
+#define SQUOTE      '\''
+#define WLCM_BUFF   "(WELLCOME TO MI EDITOR V0.1!)"
 
 typedef enum charType {
     NUMBER,
@@ -257,7 +263,7 @@ void editor_down(Lines_renderer *line_ren);
 void editor_right(Lines_renderer *line_ren);
 void handle_move(int c, MiEditor *E);
 bool is_move(int key);
-void editor_details(Lines_renderer *line_ren, char *file_path, editorMode mode, char *notification);
+void editor_render_details(Lines_renderer *line_ren, char *_path, editorMode mode_, char *notification);
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
 void editor_command_execute(MiEditor *E, char *command, editorMode mode);
@@ -284,8 +290,4 @@ void editor_render(MiEditor *E);
 void editor_update(int c, MiEditor *E);
 void render_file_browser(MiEditor *E);
 void fb_update(int c, MiEditor *E);
-
 #endif // MI_H
-
-
-

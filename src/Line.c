@@ -91,3 +91,57 @@ Line *disconnect_line(Line *head)
     return prev;
 }
 
+
+void char_inject(Line *line, char c)
+{
+    if (isprintable (c)) {
+        memmove((line->content + line->x + 1),
+            (line->content + line->x),
+            line->size - line->x);
+        line->content[line->x++] = c;
+        line->size++;
+    }
+}
+
+void line_push_char(Line *line, char c, bool pasted)
+{
+    if (line->size + 1 == line->cap) {
+        line->cap *= 2;
+        line->content = realloc(line->content, line->cap);
+    }
+
+    char_inject(line, c);
+    if (pasted)
+        return;
+
+    switch (c) {
+        case OPAR: {
+            char_inject(line, CPAR);
+            line->x--;
+        } break;
+        case OCERLY: {
+            char_inject(line, CCERLY);
+            line->x--;
+        } break;
+        case OBRAC: {
+            char_inject(line, CBRAC);
+            line->x--;
+        } break;
+        case DQUOTE: {
+            char_inject(line, DQUOTE);
+            line->x--;
+        } break;
+        case SQUOTE: {
+            char_inject(line, SQUOTE);
+            line->x--;
+        } break;
+        default: { } break;
+    }
+}
+
+void editor_tabs(Line *line)
+{
+    for (int i = 0; i < 4; ++i)
+        line_push_char(line, ' ', true);
+}
+
