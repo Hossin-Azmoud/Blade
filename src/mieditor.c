@@ -7,6 +7,7 @@ static Vec2 vec2() {
 MiEditor *init_editor(char *path)
 {
     MiEditor *E = malloc(sizeof(MiEditor));
+    memset(E, 0, sizeof(*E));
     char *pathBuff = NULL;
     E->ewindow = init_ncurses_window();
     E->renderer = malloc(sizeof(Lines_renderer));
@@ -15,6 +16,10 @@ MiEditor *init_editor(char *path)
     // If the caller did not supply a file then we ask him in a seperate screen.
     if (path == NULL) {
         pathBuff = editor_render_startup(E->renderer->win_w / 2, E->renderer->win_h / 2, E->renderer->win_w);
+        if (pathBuff == NULL) {
+            release_editor(E);
+            return NULL;
+        }
     } else {
         pathBuff =  string_dup(path);
     }
@@ -135,8 +140,11 @@ void release_editor(MiEditor *E)
 {
     if (!E) return;
     release_fb(E->fb);
-    free_lines(E->renderer->origin);
-    free(E->renderer);
+    if (E->renderer) {
+        free_lines(E->renderer->origin);
+        free(E->renderer);
+    }
+    
     free(E->notification_buffer);
     free(E);
 }

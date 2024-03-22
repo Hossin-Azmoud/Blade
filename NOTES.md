@@ -21,19 +21,20 @@
     [*] add some keybindings
     [*]  add text highlighting for python as a test..
     [*]  Make the editor know which script it is edeting then apply this to the lexer so the syntax highlighting becomes better.
-    []  add the cut capability. <- Working here.
+    [*]  add the cut capability. <- Working here.
     [*] Fix the cut, copy, paste and refactor this feature.
     
 
 ## POSSIBLE NAMES:
     > Fox
+    > Oxy
 
 ## POSSIBLE FEATURES:
     
     [...]  refactor -> Working Here.
     [...]  Work on colors and UI. -> Working Here.
     [...]  add the file browser.
-    [] command Mode so we can add vim bindings.
+    [*] command Mode so we can add vim bindings.
     [] add types for c and python so u can add new types and colorize them differantly.    
     [] ability to delete files    
     [] ability to create/delete directories.
@@ -72,5 +73,6 @@
 ## CRUCIAL BUGS:
     [FIXED] There is a bug that shows up when I try to cut from the start of the file. I need to fix he updating of lineren->start/lineren->origin apparently
     this problem accurs only when I try cutting a file.
-    [] The Emoji's have differant size, I have no idea why..
+    [FIXED (Partially.)] The Emoji's have differant size, I have no idea why..
     this problem accurs only when I try cutting a file.
+

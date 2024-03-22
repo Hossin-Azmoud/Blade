@@ -100,6 +100,7 @@ void fb_append(FileBrowser *self, char *name)
 
 void release_fb(FileBrowser *fb)
 {
+    if (!fb) return;
     // Relaase Entries.
     for (size_t x = 0; x < fb->size; x++) {
         free(fb->entries[x].value);
