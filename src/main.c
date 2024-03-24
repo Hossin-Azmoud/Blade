@@ -69,37 +69,22 @@ int editor(char **argv)
         editor_load_layout(E);
 
         if (is_move(c)) {
-            handle_move(c, E);
+            editor_handle_move(c, E);
             goto UPDATE_EDITOR;
         }
 
-        if (c == KEY_COMMAND_) {
-            editorMode mode = E->mode; 
-            if (mode == FILEBROWSER || mode == NORMAL) {
+        if (c == KEY_COMMAND_ || c == KEY_COMMAND_O) {
+            if (E->mode == FILEBROWSER || E->mode == NORMAL) {
                 // TODO: COMMAD MODE > <
-
-                curs_set(1);
-                char *label = " cmd > ";
-                int y   = E->renderer->win_h - 2;
-                E->mode = COMMAND;
-                editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
-                mvprintw(y, 0, label);
-
-                Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
-                if (res->type == SUCCESS)
-                    editor_command_execute(E, res->data, mode); 
-                free(res->data);
-                free(res);
-                E->mode = mode;
-                editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+                editor_command_(E);
                 goto UPDATE_EDITOR;
             }
-        } 
+        }
 
         switch (E->fb->type) 
         {
-            case DIR__: {
-                fb_update(c, E);
+            case DIR__: { 
+                editor_file_browser(c, E); 
             } break;
             case FILE__:
             case NOT_EXIST: {

@@ -1,4 +1,3 @@
-
 #include <mi.h>
 #include <logger.h>
 
@@ -192,7 +191,6 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         if (reset_borders) line_ren->end = new;
         if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
             line_ren->start = line_ren->start->next;
-            
         }
 
         line_ren->count++;
@@ -412,8 +410,8 @@ void clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end) {
     
     if (start.y == end.y) { // We need to copy one line!
         curr = start._line;
-        int start_idx = (start.x > end.x) ? end.x : start.x;
-        int end_idx   = (start.x > end.x) ? start.x : end.x;
+        int start_idx = MIN(start.x, end.x);
+        int end_idx   = MAX(start.x, end.x);
         get_string_chunk(chunk, curr->content, start_idx, end_idx, curr->size);
         cut_line(line_ren, curr, start.x, end.x);
         goto SET_AND_EX;
@@ -479,8 +477,8 @@ void clipboard_save_chunk(Vec2 start, Vec2 end)
 
     if (start.y == end.y) { // We need to copy one line!
         curr = start._line;
-        int start_idx = (start.x > end.x) ? end.x : start.x;
-        int end_idx   = (start.x > end.x) ? start.x : end.x;
+        int start_idx = MIN(start.x, end.x);
+        int end_idx   = MAX(start.x, end.x);
         get_string_chunk(chunk, curr->content, start_idx, end_idx, curr->size); 
         goto SET_AND_EX;
     }

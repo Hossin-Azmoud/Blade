@@ -11,6 +11,7 @@
 #include <errno.h>
 // #include <ncursesw/ncurses.h>
 #include <ncurses.h>
+#include <sys/param.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,7 +27,9 @@
 #include <signals_.h>
 
 #define ESC         0x1b
+#define KEY_CAP      'u'
 #define KEY_COMMAND_ ':'
+#define KEY_COMMAND_O ';'
 #define KEY_DOT     '.'
 #define KEY_COPY_   'y'
 #define KEY_CUT_    'c'
@@ -246,7 +249,12 @@ void editor_apply_move(Lines_renderer *line_ren);
 
 void editor_new_line(Lines_renderer *line_ren, bool reset_borders);
 void free_lines(Line *lines);
+
+void indent_lines(Line *start, Line *end); 
+void unindent_lines(Line *start, Line *end); 
 void line_push_char(Line *line, char c, bool pasted);
+void uncapitalize_region(Vec2 start, Vec2 end);
+void capitalize_region(Vec2 start, Vec2 end);
 void line_disconnect_from_ren(Lines_renderer *line_ren);
 
 Line *Alloc_line_node(int row);
@@ -256,17 +264,25 @@ int    highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
 void   editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren);
 void   clipboard_save_chunk(Vec2 start, Vec2 end);
 void   clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end);
+
 // Editor movement stuff..
 void editor_up(Lines_renderer *line_ren);
 void editor_left(Lines_renderer *line_ren);
 void editor_down(Lines_renderer *line_ren);
 void editor_right(Lines_renderer *line_ren);
-void handle_move(int c, MiEditor *E);
+
+void editor_insert(int c, MiEditor *E);
+void editor_visual(int c, MiEditor *E);
+void editor_normal(int c, MiEditor *E);
+void editor_handle_move(int c, MiEditor *E);
+void editor_command_(MiEditor *E); 
+
 bool is_move(int key);
 void editor_render_details(Lines_renderer *line_ren, char *_path, editorMode mode_, char *notification);
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
 void editor_command_execute(MiEditor *E, char *command, editorMode mode);
+
 // CHUNK
 void  chunk_append_s(Chunk *c, char *str);
 void  chunk_append_char(Chunk *c, char chr);
@@ -289,5 +305,7 @@ void editor_refresh(MiEditor *E);
 void editor_render(MiEditor *E);
 void editor_update(int c, MiEditor *E);
 void render_file_browser(MiEditor *E);
-void fb_update(int c, MiEditor *E);
+void editor_file_browser(int c, MiEditor *E);
+
+
 #endif // MI_H

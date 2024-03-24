@@ -88,12 +88,41 @@ static void fb_handle_mv(int c, FileBrowser *fb)
     }
 }
 
+static void handle_mouse(Lines_renderer *line_ren) 
+{
+    MEVENT event;
+
+    if(getmouse(&event) == OK) {
+        // Mouse was pressed in a specific pos.
+        if(event.bstate & BUTTON1_PRESSED) {
+            // Goto y.
+            if (line_ren->current->y < event.y + line_ren->start->y) {
+                while (line_ren->current->next) {
+                    if (line_ren->current->y == event.y + line_ren->start->y) {
+                        break;
+                    }
+                    line_ren->current = line_ren->current->next;
+                }
+            } else if (line_ren->current->y > event.y + line_ren->start->y) {
+                while (line_ren->current->prev) {
+                    if (line_ren->current->y == event.y + line_ren->start->y) {
+                        break;
+                    }
+                    line_ren->current = line_ren->current->prev;
+                }
+            }
+            // Goto x.
+            line_ren->current->x = (event.x - line_ren->max_padding < line_ren->current->size) ? event.x - line_ren->max_padding : line_ren->current->size;
+        }
+    }
+}
+
 static void renderer_handle_mv (int c, Lines_renderer *line_ren)
 {
 
-    char *current_char;
+    char *current_char = NULL;
     charType _type;
-    MEVENT event;
+
     switch (c) {
         case KEY_UP: {
             editor_up(line_ren); 
@@ -115,29 +144,7 @@ static void renderer_handle_mv (int c, Lines_renderer *line_ren)
                 line_ren->current->x = line_ren->current->size;
         } break;
         case KEY_MOUSE: {
-            if(getmouse(&event) == OK) {
-                // Mouse was pressed in a specific pos.
-                if(event.bstate & BUTTON1_PRESSED) {
-                    // Goto y.
-                    if (line_ren->current->y < event.y + line_ren->start->y) {
-                        while (line_ren->current->next) {
-                            if (line_ren->current->y == event.y + line_ren->start->y) {
-                                break;
-                            }
-                            line_ren->current = line_ren->current->next;
-                        }
-                    } else if (line_ren->current->y > event.y + line_ren->start->y) {
-                        while (line_ren->current->prev) {
-                            if (line_ren->current->y == event.y + line_ren->start->y) {
-                                break;
-                            }
-                            line_ren->current = line_ren->current->prev;
-                        }
-                    }
-                    // Goto x.
-                    line_ren->current->x = (event.x - line_ren->max_padding < line_ren->current->size) ? event.x - line_ren->max_padding : line_ren->current->size;
-                }
-            }
+            handle_mouse(line_ren);
         } break;
         // Speedy keys..
         case L_SHIFT: {
@@ -166,6 +173,8 @@ static void renderer_handle_mv (int c, Lines_renderer *line_ren)
         } break;
         case R_SHIFT: {
             // TODO: Implement this
+            // TODO: This Solution is kinda bad, but I am leaving it this way until some time when I finishe important refactoring.
+            
             editor_right(line_ren);
             {
                 current_char = (line_ren->current->content + line_ren->current->x);
@@ -192,7 +201,7 @@ static void renderer_handle_mv (int c, Lines_renderer *line_ren)
     }
 }
 
-void handle_move(int c, MiEditor *E)
+void editor_handle_move(int c, MiEditor *E)
 {
     switch (E->fb->type) {
         case FILE__:

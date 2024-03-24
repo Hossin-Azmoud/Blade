@@ -26,6 +26,37 @@ void unindent_line(Line *line)
     line->x = (x - line->x);
 }
 
+void indent_lines(Line *start, Line *end) 
+{
+    Line *tmp = end; 
+    if (start->y > end->y) {
+        end   = start;
+        start = tmp;
+    }
+
+    while (true) {
+        indent_line(start);
+        if (start == end) break;
+        start = start->next;
+    }
+}
+
+void unindent_lines(Line *start, Line *end) 
+{
+    
+    Line *tmp = end; 
+    if (start->y > end->y) {
+        end   = start;
+        start = tmp;
+    }
+
+    while (true) {
+        unindent_line(start);
+        if (start == end) break;
+        start = start->next;
+    }
+}
+
 Line *Alloc_line_node(int row)
 {
     Line *line = (Line *)malloc(sizeof(Line));
@@ -144,4 +175,32 @@ void editor_tabs(Line *line)
     for (int i = 0; i < 4; ++i)
         line_push_char(line, ' ', true);
 }
+void uncapitalize_region(Vec2 start, Vec2 end)
+{
+    // Line *tmp;
 
+    if (start.y == end.y) 
+    {
+        size_t sidx = MIN(start.x, end.x);
+        size_t eidx = MAX(start.x, end.x);
+        Line *line  = start._line;
+        for (; sidx < eidx && sidx < (size_t)line->size; sidx++) {
+            line->content[sidx] = tolower (line->content[sidx]);   
+        }
+    }
+}
+
+
+void capitalize_region(Vec2 start, Vec2 end)
+{
+    if (start.y == end.y) 
+    {
+        size_t sidx = MIN(start.x, end.x);
+        size_t eidx = MAX(start.x, end.x);
+        Line *line  = start._line;
+        for (; sidx < eidx && sidx < (size_t)line->size; sidx++) {
+            line->content[sidx] = toupper (line->content[sidx]);   
+        }
+    }
+    
+}

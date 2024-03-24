@@ -101,6 +101,7 @@ void fb_append(FileBrowser *self, char *name)
 void release_fb(FileBrowser *fb)
 {
     if (!fb) return;
+    
     // Relaase Entries.
     for (size_t x = 0; x < fb->size; x++) {
         free(fb->entries[x].value);
@@ -157,60 +158,6 @@ FileBrowser *realloc_fb(FileBrowser *fb, char *next)
     return fb;
 }
 
-void fb_update(int c, MiEditor *E)
-{
-    switch (c) {
-        case NL: {
-            BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
-            E->fb   = realloc_fb(E->fb, entry.value);
-            if (E->fb->type != DIR__) {
-                E->renderer->file_type = get_file_type (E->fb->open_entry_path);
-                load_file(E->fb->open_entry_path, E->renderer);
-                E->mode = NORMAL;
-                return;
-            }
-            
-            E->mode = FILEBROWSER;
-        } break;
-        case 'd': {} break;
-        case 'a': {
-
-            // TODO: add a new file in the current dir tree.
-            // Make nameBuff and pass it to fb_append.  
-            curs_set(1);
-            char *label = "> Create file ";
-            int y = E->renderer->win_h - 2;
-            mvprintw(y, 0, label);
-            Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
-
-            switch(res->type) {
-                case SUCCESS: {
-                    fb_append(E->fb, res->data);
-                    reinit_renderer(res->data, E->renderer);
-                    save_file(res->data, E->renderer->origin, false);                    
-                    free(res->data);
-                    free(res);
-                } break;
-                case ERROR: {
-                    if (res->etype == EXIT_SIG) {    
-                        free(res->data);
-                        free(res);
-                    } else if (res->etype == EMPTY_BUFF) {
-                        free(res->data);
-                        free(res);
-                    } else {
-                        printf("Unreachable code\n");
-                        exit(1);
-                    }
-                } break;
-                default: {
-                    printf("Unreachable code\n");
-                    exit(1);
-                }
-            }
-        } break;
-    }
-}
 
 // void render_entry(BrowseEntry entry, int y, int x, bool colorize_) {
 //     size_t padding = 5
