@@ -175,32 +175,51 @@ void editor_tabs(Line *line)
     for (int i = 0; i < 4; ++i)
         line_push_char(line, ' ', true);
 }
-void uncapitalize_region(Vec2 start, Vec2 end)
-{
-    // Line *tmp;
 
-    if (start.y == end.y) 
-    {
-        size_t sidx = MIN(start.x, end.x);
-        size_t eidx = MAX(start.x, end.x);
-        Line *line  = start._line;
-        for (; sidx < eidx && sidx < (size_t)line->size; sidx++) {
-            line->content[sidx] = tolower (line->content[sidx]);   
+// TODO: Finish the impl of the next Functions... L178, L194
+static void transform_chars(Vec2 start, Vec2 end, int (*f) (int)) 
+{
+    Line *line = start._line;
+    Vec2 tmp   = start; // Does that copy?
+
+    if (start.y > end.y) {
+        start = end;
+        end   = tmp;
+        line = end._line;
+    }
+
+    while (true) {
+        size_t istart = 0;
+        size_t iend   = line->size;
+
+        if (line == start._line) {
+            istart = start.x;
         }
+
+        if (line == end._line) {
+            iend   = end.x;
+        }
+        
+        if (end.y == start.y) {
+            istart = MIN(start.x, end.x);
+            iend   = MAX(start.x, end.x);
+        }
+        
+        for (; istart < iend && istart < (size_t)line->size; istart++) {
+            line->content[istart] = f(line->content[istart]);   
+        }
+
+        if (line == end._line) break;
+        line = line->next;
     }
 }
 
+void uncapitalize_region(Vec2 start, Vec2 end)
+{
+    transform_chars(start, end, tolower); 
+}
 
 void capitalize_region(Vec2 start, Vec2 end)
 {
-    if (start.y == end.y) 
-    {
-        size_t sidx = MIN(start.x, end.x);
-        size_t eidx = MAX(start.x, end.x);
-        Line *line  = start._line;
-        for (; sidx < eidx && sidx < (size_t)line->size; sidx++) {
-            line->content[sidx] = toupper (line->content[sidx]);   
-        }
-    }
-    
+    transform_chars(start, end, toupper); 
 }
