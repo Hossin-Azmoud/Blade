@@ -45,5 +45,6 @@ char *entry_type_as_cstr(BrowseEntryT T);
 void release_fb(FileBrowser *fb);
 FileBrowser *realloc_fb(FileBrowser *fb, char *next);
 void fb_append(FileBrowser *self, char *name);
+bool fb_exists(FileBrowser *self, char *item);
 #endif //FILE_B_H
 

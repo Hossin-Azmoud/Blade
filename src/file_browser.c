@@ -1,16 +1,10 @@
 #include <mi.h>
 
-bool file_exists(const char *fpath)
-{
-    struct stat sb;
-    return (stat(fpath, &sb) == 0) && (S_ISREG(sb.st_mode));
-}
-
-bool dir_exists(const char *folder)
-{
-	struct stat sb;
-	return (stat(folder, &sb) == 0) && (S_ISDIR(sb.st_mode));
-}
+static char *All[] = {
+    [FILE__] = "FILE__",
+    [DIR__]  = "DIR__",
+    [NOT_EXIST] = "NOT_EXIST"
+};
 
 BrowseEntryT get_entry_type(char *path)
 {
@@ -43,12 +37,6 @@ void get_entry_info(BrowseEntry *e)
 
     e->size = info.st_size;
 }
-
-static char *All[] = {
-    [FILE__] = "FILE__",
-    [DIR__]  = "DIR__",
-    [NOT_EXIST] = "NOT_EXIST"
-};
 
 char *entry_type_as_cstr(BrowseEntryT T)
 {
@@ -113,7 +101,18 @@ void release_fb(FileBrowser *fb)
     free(fb);
 }
 
-void load_dir_fb(FileBrowser *fb) {
+bool fb_exists(FileBrowser *self, char *item) 
+{
+    for (size_t i = 0; i < self->size; ++i) {
+        if (strcmp(self->entries[i].value, item) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void load_dir_fb(FileBrowser *fb) 
+{
     if (fb->type == DIR__) {
         char **files = read_entire_dir(fb->open_entry_path);
 
@@ -125,6 +124,7 @@ void load_dir_fb(FileBrowser *fb) {
         free(files);
     }
 }
+
 FileBrowser *new_file_browser(const char *dir_path)
 {
     FileBrowser *fb = new_fb(dir_path);
@@ -157,9 +157,3 @@ FileBrowser *realloc_fb(FileBrowser *fb, char *next)
     update_fb(fb, next);
     return fb;
 }
-
-
-// void render_entry(BrowseEntry entry, int y, int x, bool colorize_) {
-//     size_t padding = 5
-//      
-// }

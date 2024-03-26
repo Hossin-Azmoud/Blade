@@ -3,7 +3,8 @@
 bin/
 files/
 logs/
-
+/Logs.txt
+./Logs.txt
 # Prerequisites
 *.d
 

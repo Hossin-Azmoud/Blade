@@ -205,9 +205,8 @@ static void transform_chars(Vec2 start, Vec2 end, int (*f) (int))
             iend   = MAX(start.x, end.x);
         }
         
-        for (; istart < iend && istart < (size_t)line->size; istart++) {
+        for (; istart < iend && istart < (size_t)line->size; istart++)
             line->content[istart] = f(line->content[istart]);   
-        }
 
         if (line == end._line) break;
         line = line->next;

@@ -1,5 +1,18 @@
 #include <mi.h>
 
+
+bool file_exists(const char *fpath)
+{
+    struct stat sb;
+    return (stat(fpath, &sb) == 0) && (S_ISREG(sb.st_mode));
+}
+
+bool dir_exists(const char *folder)
+{
+	struct stat sb;
+	return (stat(folder, &sb) == 0) && (S_ISDIR(sb.st_mode));
+}
+
 int min(int a, int b) {
     return (a > b) ? b : a;
 }
@@ -92,6 +105,32 @@ int decode_utf8(uint32_t utf8_bytes, char *str)
 	return (3);
 }
 
+void string_clean(char *s) 
+{
+    size_t i = strlen(s);
+
+    if (s == NULL) return;
+    if (!*s) return;
+
+    printf("START => |%s|\n", s);
+
+    // remove spaces from the end. 
+    while (i > 1 && isspace(s[i - 1])) {
+        s[i - 1] = 0x00;
+        printf("|%s|\n", s);
+        i--;
+    }
+
+    // remove spaces from the start.
+    while (isspace(*s))
+    {
+        printf("|%s|\n", s);
+        s++;
+    }
+    
+    printf("FINAL => |%s|\n", s);
+}
+
 char *resolve_path(char *src, char *dest)
 {
     char *delim = "/";
@@ -127,12 +166,22 @@ char *resolve_path(char *src, char *dest)
     return (buffer);
 }
 
+int make_dir(char *path)
+{
+    int status = 0;
+
+    if (!path) return status;
+    if (strcmp(path, ".") == 0 || strcmp(path, "..") == 0) return status;
+    if (dir_exists(path)) return status;
+
+    status = mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    return status;
+}
+
 Result *make_prompt_buffer(int x, int y, size_t w)
 {
     Result *result = malloc(sizeof(Result));
     bool deleted = false;
-   
-
     result->data  = malloc(LINE_SZ);
     memset(result->data, 0, LINE_SZ);
 
@@ -161,6 +210,7 @@ Result *make_prompt_buffer(int x, int y, size_t w)
                     result->data = strcpy(result->data, "File path/name can not be empty!");
                     return result;
                 }
+                
                 result->type = OK;
                 return result;
             } break;
@@ -217,6 +267,12 @@ Result *make_prompt_buffer(int x, int y, size_t w)
         mvchgat (y, 0, w, A_NORMAL, BLUE_PAIR, NULL);
         move(y, x + buffer_idx);
     }
-    
+
+    if (result->type == OK) {
+        // NOTE: This call cleans up the buffer from any trilling or leading white spaces,
+        string_clean(result->data);
+    }
+
     return result;
 }
+

@@ -134,6 +134,24 @@ void editor_insert(int c, MiEditor *E)
     }
 }
 
+void editor_new_entry(char *path, MiEditor *E) 
+{
+    int tree_head_idx = 0;
+    Path *p = path_alloc(32);
+    parse_path(p, path);
+    // pprint(p);
+    editor_make_apply_path_tree(p);
+
+    if (strcmp(p->items[0], "..") == 0 || strcmp(p->items[0], ".") == 0) { // Handles Only relative paths.
+        tree_head_idx = 1;
+    }
+
+    // TODO: Handle abs paths.
+    if (!fb_exists(E->fb, p->items[tree_head_idx]) && ) {
+        fb_append(E->fb, p->items[tree_head_idx]);
+    }
+    release_path(p);
+}
 
 void editor_file_browser(int c, MiEditor *E)
 {
@@ -141,6 +159,7 @@ void editor_file_browser(int c, MiEditor *E)
         case NL: {
             BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
             E->fb   = realloc_fb(E->fb, entry.value);
+
             if (E->fb->type != DIR__) {
                 E->renderer->file_type = get_file_type (E->fb->open_entry_path);
                 load_file(E->fb->open_entry_path, E->renderer);
@@ -152,24 +171,17 @@ void editor_file_browser(int c, MiEditor *E)
         } break;
         case 'd': {} break;
         case 'a': {
-
-            
             // Make nameBuff and pass it to fb_append.  
             curs_set(1);
-
             char *label = "> Create file ";
             int y = E->renderer->win_h - 2;
             mvprintw(y, 0, label);
             Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
-
             switch(res->type) {
                 case SUCCESS: {
                     // TODO: Check if the directory path is a file or a directory.
                     // if it is a file.
-                    
-                    fb_append(E->fb, res->data);
-                    reinit_renderer(res->data, E->renderer);
-                    save_file(res->data, E->renderer->origin, false);                    
+                    editor_new_entry(res->data, E);
                     free(res->data);
                     free(res);
                 } break;

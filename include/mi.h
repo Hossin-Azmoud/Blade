@@ -7,6 +7,7 @@
     #define _XOPEN_SOURCE 500
 #endif /* __STDC_VERSION__ */
 
+#include <locale.h>
 #include <dirent.h>
 #include <errno.h>
 // #include <ncursesw/ncurses.h>
@@ -110,6 +111,12 @@ typedef enum bindingKind {
     UNINDENT_LINE,
     NOT_VALID
 } bindingKind;
+
+typedef struct Path {
+    int count, capacity;
+    char **items;
+    BrowseEntryT type; 
+} Path;
 
 // It is okay cuz it does not need to be dynamic..
 typedef struct KeywordList {
@@ -229,6 +236,7 @@ typedef struct MiEditor {
     FileBrowser *fb;
 } MiEditor;
 
+int editor(char **argv);
 WINDOW *init_ncurses_window();
 int load_file(char *file_path, Lines_renderer *line_ren);
 int save_file(char *file_path, Line *lines, bool release);
@@ -307,5 +315,13 @@ void editor_update(int c, MiEditor *E);
 void render_file_browser(MiEditor *E);
 void editor_file_browser(int c, MiEditor *E);
 
+
+// PATH PARSING.
+Path *path_alloc(int cap);
+void parse_path_internal(Path *p, char *buffer,  char *delim);
+void pprint(Path *p);
+void parse_path(Path *p, char *path);
+void editor_make_apply_path_tree(Path *p); 
+void release_path(Path *p);
 
 #endif // MI_H

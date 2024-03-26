@@ -110,7 +110,6 @@ void editor_update(int c, MiEditor *E)
             return;
         } break;
     }
-
     // Actions that depend on the mode.
     switch (E->mode) {
         case VISUAL: { editor_visual(c, E);  } break;
