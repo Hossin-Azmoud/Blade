@@ -68,7 +68,7 @@ KeywordList *get_keywords_list(FileType s)
         },
         
         [JS] = {
-            .size=56,
+            .size=57,
             ._list={
                 "abstract",
                 "arguments",
@@ -126,7 +126,8 @@ KeywordList *get_keywords_list(FileType s)
                 "void",
                 "true",
                 "yield",
-                "super"
+                "super",
+                "var"
             },
         },
         [GO] = {

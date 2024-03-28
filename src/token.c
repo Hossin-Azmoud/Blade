@@ -204,6 +204,8 @@ void retokenize_line(Line *line, FileType file_type)
                 xstart,
                 xend
             );
+            
+            // IDENTIFY TYPES FOR C.
             if (file_type == C) {
                 if (line->token_list.size > 1) {
                     if (line->token_list._list[line->token_list.size - 1].kind == ID) {
@@ -256,7 +258,7 @@ void retokenize_line(Line *line, FileType file_type)
                 } break;
                 
                 case '*': {
-                    if (line->token_list.size > 0) {
+                    if (line->token_list.size > 0 && file_type == C) {
                         int type_index = line->token_list.size - 1;
                         if (line->token_list._list[type_index].kind == ID) {
                             line->token_list._list[type_index].kind = TYPE;
@@ -290,9 +292,9 @@ void retokenize_line(Line *line, FileType file_type)
                     if (line->token_list.size > 0) {
                         if (line->token_list._list[line->token_list.size - 1].kind == ID) {
                             line->token_list._list[line->token_list.size - 1].kind = CALL;
-                        }
-
-                        if (line->token_list.size > 1) {
+                        } 
+                        
+                        if (file_type == C && line->token_list.size > 1) {
                             int type_index = line->token_list.size - 2;
                             if (line->token_list._list[type_index].kind == ID) {
                                 line->token_list._list[type_index].kind = TYPE;
