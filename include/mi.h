@@ -138,6 +138,11 @@ typedef enum MITokenType {
     C_INCLUDE,
     C_TAG,
     C_INCLUDE_FILE,
+    C_ENUM,
+    C_TYPEDEF,
+    C_STRUCT,
+    C_UNION,
+    TYPE,
     _GENERIC_NULL,
     COMMENT,
     /* Syms */

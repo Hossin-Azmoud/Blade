@@ -186,11 +186,27 @@ void editor_render(MiEditor *E)
 // LINE RENDERER<>
 static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {
     switch (token->kind) {
+        case C_UNION:
+        case C_STRUCT:
+        case C_ENUM:
+        case C_TYPEDEF: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                SPECIAL_TOKEN);
+        } break;
+        case TYPE: {
+            colorize(y - y_offset, 
+                token->xstart + x_offset, 
+                token->xend + x_offset, 
+                YELLOW_PAIR
+            );
+        } break;
         case KEYWORD: {
             colorize(y - y_offset, 
                 token->xstart + x_offset, 
                 token->xend + x_offset, 
-                KEYWORD_SYNTAX_PAIR);
+                CHI_GONG_RED_PAIR);
         } break; 
         case C_INCLUDE_FILE: {
             colorize(y - y_offset, 

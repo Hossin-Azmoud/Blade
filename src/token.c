@@ -35,6 +35,13 @@ char *get_token_kind_s(MITokenType t)
         case OTHER_PUNCT: return "OTHER_PUNCT";
         case CALL: return "CALL";
         case COMMENT: return "COMMENT";
+        case C_TAG: return "C_TAG";
+        case C_INCLUDE_FILE: return "C_INCLUDE_FILE";
+        case C_ENUM: return "C_ENUM";
+        case C_TYPEDEF: return "C_TYPEDEF";
+        case C_STRUCT: return "C_STRUCT";
+        case C_UNION: return "C_UNION";
+        case TYPE: return "TYPE";
         default: return "UNKNOWN_TOKEN_KIND";
     } 
 }
@@ -143,18 +150,45 @@ void retokenize_line(Line *line, FileType file_type)
                 temp[data_idx++] = line->content[x++];
             }
 
-            if (line->token_list.size > 0 && file_type == C) {
-                if (line->token_list._list[line->token_list.size - 1].kind == HASHTAG) {
-                    // TODO: Get the word and see the type of the c_tag is it an #include or a condition #if #endif #ifndef,
-                    if (!strcmp(temp, "include")) { // #Include 
-                        line->token_list._list[line->token_list.size - 1].kind = C_INCLUDE;
-                    } else {
-                        line->token_list._list[line->token_list.size - 1].kind = C_TAG; // #ifdef #define #...
+            if (file_type == C) {
+                if (line->token_list.size) {
+                    if (line->token_list._list[line->token_list.size - 1].kind == HASHTAG) {
+                        // TODO: Get the word and see the type of the c_tag is it an #include or a condition #if #endif #ifndef,
+                        if (!strcmp(temp, "include")) { // #Include 
+                            line->token_list._list[line->token_list.size - 1].kind = C_INCLUDE;
+                        } else {
+                            line->token_list._list[line->token_list.size - 1].kind = C_TAG; // #ifdef #define #...
+                        }
+        
+                        line->token_list._list[line->token_list.size - 1].xend = xend;
+                        continue;
                     }
-    
-                    line->token_list._list[line->token_list.size - 1].xend = xend;
+                }
+
+                if (!strcmp(temp, "enum")) {
+                    token_list_append(&(line->token_list), C_ENUM, xstart, xend);
                     continue;
-                }            
+                }
+
+                if (!strcmp(temp, "typedef")) {
+                    token_list_append(&(line->token_list), C_TYPEDEF, xstart, xend);
+                    continue;
+                }  
+                
+                if (!strcmp(temp, "struct")) {
+                    token_list_append(&(line->token_list), C_STRUCT, xstart, xend);
+                    continue;
+                }
+                
+                if (!strcmp(temp, "union")) {
+                    token_list_append(&(line->token_list), C_UNION, xstart, xend);
+                    continue;
+                }
+                
+                if (!strcmp(temp, "NULL")) {
+                    token_list_append(&(line->token_list), _GENERIC_NULL, xstart, xend);
+                    continue;
+                }
             }
 
             if (file_type == GO) {
@@ -165,25 +199,34 @@ void retokenize_line(Line *line, FileType file_type)
                 
             }
 
-            if (file_type == C) {
-                if (!strcmp(temp, "NULL")) {
-                    token_list_append(&(line->token_list), _GENERIC_NULL, xstart, xend);
-                    continue;
-                }
-            }
-
             token_list_append(&(line->token_list), 
                 (is_keywrd(keywords_list->_list, temp, keywords_list->size)) ? KEYWORD : ID,
                 xstart,
                 xend
             );
+            if (file_type == C) {
+                if (line->token_list.size > 1) {
+                    if (line->token_list._list[line->token_list.size - 1].kind == ID) {
+                        if (line->token_list._list[line->token_list.size - 2].kind == C_STRUCT 
+                            || line->token_list._list[line->token_list.size - 2].kind == C_ENUM
+                            || line->token_list._list[line->token_list.size - 2].kind == C_UNION
+                            || line->token_list._list[line->token_list.size - 2].kind == CCERLY_) {
+                            line->token_list._list[line->token_list.size - 1].kind = TYPE;
 
+                        } else if (line->token_list._list[line->token_list.size - 2].kind == ID) {
+                            line->token_list._list[line->token_list.size - 2].kind = TYPE;
+                        }
+                    }
+                }
+            }
+             
             continue;
         } 
 
         if (ispunct(line->content[x])) {
             switch (line->content[x]) {
-                case '=': {
+                case '=': { 
+                    // ID ID EQ
                     token_list_append(&(line->token_list), EQ, x, x);
                     x++;
                 } break;
@@ -213,6 +256,13 @@ void retokenize_line(Line *line, FileType file_type)
                 } break;
                 
                 case '*': {
+                    if (line->token_list.size > 0) {
+                        int type_index = line->token_list.size - 1;
+                        if (line->token_list._list[type_index].kind == ID) {
+                            line->token_list._list[type_index].kind = TYPE;
+                        }
+                    }
+
                     token_list_append(&(line->token_list), AST, x, x);
                     x++;
                 } break;
@@ -240,6 +290,13 @@ void retokenize_line(Line *line, FileType file_type)
                     if (line->token_list.size > 0) {
                         if (line->token_list._list[line->token_list.size - 1].kind == ID) {
                             line->token_list._list[line->token_list.size - 1].kind = CALL;
+                        }
+
+                        if (line->token_list.size > 1) {
+                            int type_index = line->token_list.size - 2;
+                            if (line->token_list._list[type_index].kind == ID) {
+                                line->token_list._list[type_index].kind = TYPE;
+                            }
                         }
                     }
 
@@ -350,4 +407,5 @@ bool is_keywrd(char *keywords[], char *word, int keywords_sz) {
     }
     return false;
 }
+
 

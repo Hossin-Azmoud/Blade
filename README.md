@@ -1,5 +1,6 @@
 # Mi
-![EDITOR-UI](./img/V0.png)
+![EDITOR-UI] (./img/V0.png)
+![EDITOR-UI1](./img/V1.png)
 Tui text editor made in ncurses
 
 # Quick start

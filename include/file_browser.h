@@ -48,3 +48,4 @@ void fb_append(FileBrowser *self, char *name);
 bool fb_exists(FileBrowser *self, char *item);
 #endif //FILE_B_H
 
+
