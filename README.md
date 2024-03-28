@@ -37,5 +37,5 @@ Tui text editor made in ncurses
 - `Rust`: Not Yet
 - `Go`: Not Yett
 
-
-
+## WARNINGS!
+- Please don't open very large files for now because there is no way to just effeciently load them, it just loads the whole file.

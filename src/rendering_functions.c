@@ -327,6 +327,8 @@ void render_file_browser(MiEditor *E)
                 default: {
                     if (entry.ftype == C) {
                         emoji = emoji_get(E_C_FILE);  
+                    } else if (entry.ftype == PYTHON) {
+                        emoji = emoji_get(E_PYFILE);
                     } else {
                         emoji = emoji_get(E_FILE);  
                     }

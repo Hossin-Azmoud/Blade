@@ -162,7 +162,6 @@ char *resolve_path(char *src, char *dest)
     buffer = strcpy(buffer, src);
     buffer = strcat(buffer, delim);
     buffer = strcat(buffer, dest);
-
     return (buffer);
 }
 

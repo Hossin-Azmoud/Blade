@@ -12,8 +12,8 @@
     [*] Modes (Normal, Visual, Insert).
     [*] Add copy/paste functionality
     [*] Organize features!
-    [*]  Handle Shift + key
-    [*]  Handle mouse pressing.
+    [*] Handle Shift + key
+    [*] Handle mouse pressing.
     [*] remove the old way of copy paste and introdude a struct.. ClipBoard to be used as a storage for any coppied or deled lines.
 
 ## PROTO:
@@ -28,6 +28,10 @@
 ## POSSIBLE NAMES:
     > Fox
     > Oxy
+    > Linky
+    > Vec
+    > Ar
+    > Curse
 
 ## POSSIBLE FEATURES:
     
@@ -67,14 +71,17 @@
         to display info.
         1 - Fix buff constructor backspace.
         1 - The Text Editor has no proper name lol..
-    - review@3:
+    
+    - review@3 [FIXED]:
         0 - Fix the up/down that goes all the way to the end. instead it should go to somewhere more expected like the same col if (col <= size)
         1 - indent/unindemt a region.
+
 ## CRUCIAL BUGS:
     [FIXED] There is a bug that shows up when I try to cut from the start of the file. I need to fix he updating of lineren->start/lineren->origin apparently
     this problem accurs only when I try cutting a file.
     [FIXED (Partially.)] The Emoji's have differant size, I have no idea why..
     this problem accurs only when I try cutting a file.
+    [...] The editor does not lazally load files, it just loads the entir file.. which is dangerous if u have a massive file (<more than 2GB>) 
 
 ## How To Lex Types in C:
     1 - anything that comes after a struct keyword and is an identifier.

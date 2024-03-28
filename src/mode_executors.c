@@ -147,9 +147,10 @@ void editor_new_entry(char *path, MiEditor *E)
     }
 
     // TODO: Handle abs paths.
-    if (!fb_exists(E->fb, p->items[tree_head_idx]) && ) {
+    if (!fb_exists(E->fb, p->items[tree_head_idx])) {
         fb_append(E->fb, p->items[tree_head_idx]);
     }
+
     release_path(p);
 }
 
@@ -173,14 +174,12 @@ void editor_file_browser(int c, MiEditor *E)
         case 'a': {
             // Make nameBuff and pass it to fb_append.  
             curs_set(1);
-            char *label = "> Create file ";
+            char *label = "> Create File/Directory: ";
             int y = E->renderer->win_h - 2;
             mvprintw(y, 0, label);
             Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
             switch(res->type) {
                 case SUCCESS: {
-                    // TODO: Check if the directory path is a file or a directory.
-                    // if it is a file.
                     editor_new_entry(res->data, E);
                     free(res->data);
                     free(res);
@@ -192,9 +191,6 @@ void editor_file_browser(int c, MiEditor *E)
                     } else if (res->etype == EMPTY_BUFF) {
                         free(res->data);
                         free(res);
-                    } else {
-                        printf("Unreachable code\n");
-                        abort();
                     }
                 } break;
                 default: {

@@ -6,6 +6,7 @@ typedef enum EmojiKind {
     E_FOLDER = 0,
     E_FILE,
     E_C_FILE,
+    E_PYFILE,
     E_COUNT
 } EmojiKind;
 

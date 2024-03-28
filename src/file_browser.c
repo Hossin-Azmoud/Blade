@@ -1,8 +1,8 @@
 #include <mi.h>
 
 static char *All[] = {
-    [FILE__] = "FILE__",
-    [DIR__]  = "DIR__",
+    [FILE__]    = "FILE__",
+    [DIR__]     = "DIR__",
     [NOT_EXIST] = "NOT_EXIST"
 };
 
@@ -79,7 +79,8 @@ void fb_append(FileBrowser *self, char *name)
 
     {
         char *p = resolve_path(self->open_entry_path, name);
-        self->entries[self->size].full_path = p;
+        self->entries[self->size].full_path = string_dup(p);
+        free(p);
     }
 
     get_entry_info(self->entries + self->size);
@@ -114,6 +115,8 @@ bool fb_exists(FileBrowser *self, char *item)
 void load_dir_fb(FileBrowser *fb) 
 {
     if (fb->type == DIR__) {
+        
+        chdir(fb->open_entry_path);
         char **files = read_entire_dir(fb->open_entry_path);
 
         while (files[fb->size] != NULL) {
@@ -133,8 +136,8 @@ FileBrowser *new_file_browser(const char *dir_path)
 }
 
 FileBrowser *update_fb(FileBrowser *fb, char *new_path) {
+
     fb->cur_row = 0;
-    fb->entries = malloc(sizeof(BrowseEntry) * fb->cap);
     memset(fb->entries, 0, sizeof(BrowseEntry) * fb->cap);
     fb->size    = 0;
 
@@ -145,7 +148,7 @@ FileBrowser *update_fb(FileBrowser *fb, char *new_path) {
         fb->open_entry_path = p;
         fprintf(get_logger_file_ptr(), "resolve: %s %p\n", fb->open_entry_path, fb->open_entry_path);
     }
-     
+    
     fb->type    = get_entry_type(fb->open_entry_path);
     load_dir_fb(fb);
     return fb;

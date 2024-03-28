@@ -49,28 +49,37 @@ void parse_path(Path *p, char *path) {
 
 void editor_make_apply_path_tree(Path *p) 
 {
+    // ./x/y/z => . x y w, 4, file 
     char pathBuff[PATH_MAX] = { 0 };
     size_t j = 1;
     
     strcpy(pathBuff, *p->items);
-    if (!(strcmp(*p->items, ".") == 0) && !(strcmp(*p->items, "..") == 0)) make_dir(pathBuff);
-    for (; j < (size_t)p->count - 1; ++j) {
+    
+    if (!(strcmp(pathBuff, "..") == 0) && !(strcmp(pathBuff, ".") == 0)) {
+        if (p->count > 1)
+            make_dir(pathBuff);
+    }
+    
+    for (; j < (size_t) p->count - 1; ++j) {
         strcat(pathBuff, "/");
         strcat(pathBuff, p->items[j]);
         make_dir(pathBuff);
     }
+
     if (p->count > 1) {
         strcat(pathBuff, "/");
         strcat(pathBuff, p->items[j]);
-        if (p->type == DIR__) {
-            make_dir(pathBuff);
-        } else {
-            // TODO: make a file instead of a dir in the path that was reached in the tree. 
-            // TODO: Integrate this api with the editor to be able to make files and dirs respectivly..
-            FILE *fp = fopen(pathBuff, "a"); 
-            fclose(fp);
-        }
     }
+
+    if (p->type == DIR__) {
+        make_dir(pathBuff);
+        return;
+    }
+
+    // TODO: make a file instead of a dir in the path that was reached in the tree. 
+    // TODO: Integrate this api with the editor to be able to make files and dirs respectivly..
+    FILE *fp = fopen(pathBuff, "a"); 
+    fclose(fp);
 }
 
 
@@ -80,7 +89,7 @@ void pprint(Path *p) {
     printf("Capa  -> %i\n", p->capacity);
     printf("Type  -> %s\n", (p->type == FILE__) ? "FILE" : "DIR");
 
-    for (int i = 0; i < p->capacity; ++i) {
+    for (int i = 0; i < p->count; ++i) {
         printf("[%i] %s\n", i, 
             (p->items[i] == NULL) ? "(null)" : p->items[i]);
     }
