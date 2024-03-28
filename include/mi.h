@@ -272,7 +272,7 @@ void line_disconnect_from_ren(Lines_renderer *line_ren);
 
 Line *Alloc_line_node(int row);
 
-Result *make_prompt_buffer(int x, int y, size_t w);
+Result *make_prompt_buffer(int x, int y, size_t w, int pair);
 int    highlight_until_current_col(Vec2 start, Lines_renderer *line_ren);
 void   editor_paste_content(Vec2 start, Vec2 end, Lines_renderer *line_ren);
 void   clipboard_save_chunk(Vec2 start, Vec2 end);

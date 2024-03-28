@@ -26,16 +26,16 @@ void make_new_color_u32(int index, uint32_t color)
 void init_colors() 
 {
     start_color();
-
+    make_new_color_u32(COLOR_DRACULA,      0x001900);
     make_new_color_u32(COLOR_LIGHT_YELLOW, 0xfdcb6e);
-    make_new_color_u32(CHI_GONG_RED, 0xff7675);
-    make_new_color_u32(COLOR_SILVER_,  0x4bcffa);
-    make_new_color_u32(COLOR_GREY_,    0x000000);
-    make_new_color_u32(COLOR_GREY_LIGHT, 0xFFEDD8);
-    make_new_color_u32(COLOR_YELLOW_,  0xf9ca24);
-    make_new_color_u32(COLOR_APPLE,    0x6ab04c);
-    make_new_color_u32(COLOR_COMMENT,  0x3f553c); 
-    make_new_color_u32(COLOR_TAG, 0xe74c3c);
+    make_new_color_u32(CHI_GONG_RED,       0xff7675);
+    make_new_color_u32(COLOR_SILVER_,      0x4bcffa);
+    make_new_color_u32(COLOR_GREY_,        0x000000);
+    make_new_color_u32(COLOR_GREY_LIGHT,   0xFFEDD8);
+    make_new_color_u32(COLOR_YELLOW_,      0xf9ca24);
+    make_new_color_u32(COLOR_APPLE,        0x6ab04c);
+    make_new_color_u32(COLOR_COMMENT,      0x3f553c); 
+    make_new_color_u32(COLOR_TAG,          0xe74c3c);
     make_new_color_u32(COLOR_BRIGHT_GREEN, 0x2ecc71);
     make_new_color_u32(COLOR_SPECIAL_TOKENS_COLOR, 0x01a3a4);
     make_new_color_u32(COLOR_BRIGHT_YELLOW, 0xf39c12);
@@ -44,6 +44,7 @@ void init_colors()
     
 
     // pair_number, foreground, background
+    init_pair(DRACULA_PAIR, COLOR_WHITE, COLOR_DRACULA);
     init_pair(CHI_GONG_RED_PAIR, CHI_GONG_RED, COLOR_GREY_);
     init_pair(LIGHT_YELLOW_PAIR, COLOR_LIGHT_YELLOW, COLOR_GREY_);
     init_pair(HIGHLIGHT_WHITE, COLOR_BLACK, COLOR_WHITE);

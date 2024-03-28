@@ -177,7 +177,7 @@ void editor_file_browser(int c, MiEditor *E)
             char *label = "> Create File/Directory: ";
             int y = E->renderer->win_h - 2;
             mvprintw(y, 0, label);
-            Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
+            Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w, DRACULA_PAIR);
             switch(res->type) {
                 case SUCCESS: {
                     editor_new_entry(res->data, E);
@@ -214,9 +214,10 @@ void editor_command_(MiEditor *E)
     editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     mvprintw(y, 0, label);
 
-    res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
+    res = make_prompt_buffer(strlen(label), y, E->renderer->win_w, DRACULA_PAIR);
     if (res->type == SUCCESS)
         editor_command_execute(E, res->data, mode); 
+
     free(res->data);
     free(res);
 

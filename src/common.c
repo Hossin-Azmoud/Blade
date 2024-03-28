@@ -177,7 +177,7 @@ int make_dir(char *path)
     return status;
 }
 
-Result *make_prompt_buffer(int x, int y, size_t w)
+Result *make_prompt_buffer(int x, int y, size_t w, int pair)
 {
     Result *result = malloc(sizeof(Result));
     bool deleted = false;
@@ -190,7 +190,7 @@ Result *make_prompt_buffer(int x, int y, size_t w)
     int buffer_idx = 0;
     int size = 0, byte = 0;
     
-    mvchgat (y, 0, w, A_NORMAL, BLUE_PAIR, NULL);
+    mvchgat (y, 0, w, A_NORMAL, pair, NULL);
     move(y, x + buffer_idx);
     if (result == NULL || result->data == NULL)
         return NULL;
@@ -263,7 +263,7 @@ Result *make_prompt_buffer(int x, int y, size_t w)
             deleted = false;
         }
 
-        mvchgat (y, 0, w, A_NORMAL, BLUE_PAIR, NULL);
+        mvchgat (y, 0, w, A_NORMAL, pair, NULL);
         move(y, x + buffer_idx);
     }
 

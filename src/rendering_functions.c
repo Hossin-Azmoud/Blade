@@ -21,7 +21,7 @@ void editor_render_details(Lines_renderer *line_ren, char *_path, editorMode mod
     char *mode = modes[mode_];
 
     // THE COMMAND BAR
-    mvchgat(line_ren->win_h - 2, 0, line_ren->win_w, A_NORMAL, BLUE_PAIR, NULL);
+    mvchgat(line_ren->win_h - 2, 0, line_ren->win_w, A_NORMAL, DRACULA_PAIR, NULL);
     switch (mode_)
     {
         case FILEBROWSER: {
@@ -100,7 +100,7 @@ char *editor_render_startup(int x, int y, size_t width)
     char *file_path = (calloc(1, LINE_SZ));
 
     while (true) {
-        res = make_prompt_buffer(prompt_offset, y * 2, width);
+        res = make_prompt_buffer(prompt_offset, y * 2, width, MAIN_THEME_PAIR);
         switch(res->type) {
             case SUCCESS: {
                 strcpy(file_path, res->data);

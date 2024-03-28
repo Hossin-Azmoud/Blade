@@ -14,6 +14,7 @@
 #define COLOR_SPECIAL_TOKENS_COLOR 17
 #define COLOR_LIGHT_YELLOW 18
 #define CHI_GONG_RED 19
+#define COLOR_DRACULA 20
 
 // PAIRS INDECES
 #define SECONDARY_THEME_PAIR 1
@@ -33,6 +34,7 @@
 #define SPECIAL_TOKEN        15
 #define LIGHT_YELLOW_PAIR    16
 #define CHI_GONG_RED_PAIR    17 
+#define DRACULA_PAIR         18
 
 void make_new_color(int index, int r, int g, int b);
 void make_new_color_u32(int index, uint32_t color);
