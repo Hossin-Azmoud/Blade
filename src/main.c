@@ -24,9 +24,11 @@ int main(int argc, char **argv) {
             get_token_kind_s(line->token_list._list[i].kind)
         );
     }    
+
 #else
     ret = editor(argv);
     CLIPBOARD_FREE();
 #endif /* ifdef EXP */
     return ret;
 }
+

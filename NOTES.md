@@ -39,9 +39,10 @@
     [...]  Work on colors and UI. -> Working Here.
     [...]  add the file browser.
     [*] command Mode so we can add vim bindings.
-    [] add types for c and python so u can add new types and colorize them differantly.    
     [] ability to delete files    
     [] ability to create/delete directories.
+    [] add types for c and python so u can add new types and colorize them differantly.    
+    [] CD command to change the current dir..
     ```
         // PROMPT EXAMPLE:
             COMMAND > CMD_BUFFER
@@ -57,7 +58,7 @@
     [] markdown
     [] Rust
     [] C++
-
+ 
 ### Personal reviews
     - review@1: [FIXED, most of it.]
         0 -> When I past coppied contant it makes a new line before inserting the coppied content. which is not good. [FIXED]
@@ -76,6 +77,13 @@
         0 - Fix the up/down that goes all the way to the end. instead it should go to somewhere more expected like the same col if (col <= size)
         1 - indent/unindemt a region.
 
+    - review@4 [FIXED]:
+        0 - Why the fuck does the editor paste on top of a line when I yank a certain line, Nromally it should make a new line then paste there..
+        1 - make_promp_buff function has a certain bug where it does not clean the whole region where it writes to.. when the size of the buffer is 0..
+        2 - The Create functionality is cool, but I need to delete files and directories also.. that is not enough
+        3 - I also need markdown highlighting. 
+        4 - This currrent version apparently can not lex multiline comments...
+        ex: /* COMMENT */
 ## CRUCIAL BUGS:
     [FIXED] There is a bug that shows up when I try to cut from the start of the file. I need to fix he updating of lineren->start/lineren->origin apparently
     this problem accurs only when I try cutting a file.
@@ -88,5 +96,15 @@
     e: typedef struct T {...} T_t;
     2 - anythin that comes after the enum keyword and is an identifier.
     e: typedef enum T {...} T_e;
+    ...
+
+## ARCH PROBLEM THAT NEEDS A FIX:
+    [] I dont like the way the editor tokenizes the tokens.. I need a more intuitive way like this:
+        match file_type {
+            C      => tokenize_as_c(&line);
+            PYTHON => tokenize_as_python(&line);
+            JS     => tokenize_as_js(&line);
+        }
+    This way I would have more strict and straight forward rules to tokenize the lines based of the type of the file I am editing
 
 
