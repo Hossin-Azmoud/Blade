@@ -34,7 +34,7 @@ void editor_down(Lines_renderer *line_ren)
     
     size_t col = line_ren->current->x;
     if (line_ren->current->next){
-        if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ - 1) {
+        if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_) {
             line_ren->start = line_ren->start->next;
             if (line_ren->end->next) {
                 line_ren->end = line_ren->end->next;
@@ -50,6 +50,7 @@ void editor_down(Lines_renderer *line_ren)
         }
     }
 }
+
 void editor_right(Lines_renderer *line_ren)
 {
     if (line_ren->current->x < line_ren->current->size) line_ren->current->x++;

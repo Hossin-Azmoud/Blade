@@ -222,3 +222,14 @@ void capitalize_region(Vec2 start, Vec2 end)
 {
     transform_chars(start, end, toupper); 
 }
+
+void log_line(const char *op, Line *line)
+{
+    fprintf(get_logger_file_ptr(), "%s: (%i, %i) => %s\n", op, 
+        line->x, 
+        line->y, 
+        line->content);
+    
+    close_logger();
+    open_logger();
+}

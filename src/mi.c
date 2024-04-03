@@ -53,8 +53,8 @@ int load_file(char *file_path, Lines_renderer *line_ren)
     while ((c = fgetc(Stream)) != EOF) {
         if (c == '\n') {
             editor_new_line(line_ren, false);
-            if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ ) {
-                line_ren->end = line_ren->current->prev;
+            if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_) {
+                line_ren->end = line_ren->current;
             }
 
             continue;
@@ -140,7 +140,6 @@ void editor_backspace(Lines_renderer *line_ren)
     
     // if the cursor is on the first col of a line and we need to shift lines and data  backward
     if (line_ren->current->x == 0 && line_ren->current->prev) {
-        
         if (line_ren->current->size) {
             // move all the data locateed in the curr line to the end of the prev line!
             memmove(
@@ -177,7 +176,7 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
     Line *new, *next;
     char line_number[LINE_NUM_MAX] = { 0 };
     int  new_max;
-    new = Alloc_line_node(line_ren->current->y + 1);
+    new     = Alloc_line_node(line_ren->current->y + 1);
     new_max = sprintf(line_number, "%u", line_ren->current->y + 1) + 1;
 
     if (new_max > line_ren->max_padding)
@@ -189,7 +188,7 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         new->prev = line_ren->current;
         line_ren->current = new;
         if (reset_borders) line_ren->end = new;
-        if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
+        if (new->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
             line_ren->start = line_ren->start->next;
         }
 
@@ -203,10 +202,17 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         new->next = next; // correct.
         line_ren->current->next = new; // correct
         next->prev = new;
-        lines_shift(new->next, 1);
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) 
-            line_ren->end = line_ren->end->prev;
+        
+        if (line_ren->end->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
+            if (line_ren->end == line_ren->current) {
+                line_ren->end   = new;
+                line_ren->start = line_ren->start->next;
+            } else {
+                line_ren->end   = line_ren->end->prev;
+            }
+        }
 
+        lines_shift(new->next, 1);
         line_ren->current = line_ren->current->next;
         line_ren->count++;
         return;
@@ -222,16 +228,21 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         line_ren->current->next = new;
         new->size = line_ren->current->size - line_ren->current->x;
         line_ren->current->size -= new->size;
-        
+
         // move memory
         memmove(new->content,
             line_ren->current->content + line_ren->current->x,
             new->size
         );
-
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_  - 1)
-            line_ren->end = line_ren->end->prev;
         
+        if (line_ren->end->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ ) {
+            if (line_ren->end == line_ren->current) {
+                line_ren->end   = new;
+                line_ren->start = line_ren->start->next;
+            } else {
+                line_ren->end   = line_ren->end->prev;
+            }
+        }
         lines_shift(new->next, 1);
     } else {
         line_ren->current->next = new;
@@ -244,10 +255,15 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         );
 
         line_ren->end = new;
-        if (new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
+        if (new->y - line_ren->start->y >= line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
             line_ren->start = line_ren->start->next;
         }
     }
+
+    // if (line_ren->end->y - line_ren->start->y >= line_ren->win_h - MENU_HEIGHT_ - 1 && reset_borders) {
+    //     line_ren->start = line_ren->start->next;
+    //     line_ren->end   = line_ren->end->next;
+    // }
 
     memset(line_ren->current->content + line_ren->current->x, 0, new->size);
     line_ren->current = line_ren->current->next;
@@ -360,9 +376,10 @@ static int cut_data(char *buffer, int cstart, int cend, int size) {
     return (cend - cstart);
 }
 
-static Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t end)
+Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t end)
 {
     
+    log_line("CUTTING", line);
     int n  = cut_data(line->content, start, end, line->size);
     Line *local_line = line;
     Line *next = (line->next);
@@ -372,7 +389,7 @@ static Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t
 
     local_line->size  = local_line->size - n;
     local_line->x     = start;
-
+    
     if (is_origin && is_start) {
         if (local_line->size == 0) {
             memset(local_line->content, 0x0, LINE_SZ);
@@ -387,19 +404,26 @@ static Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t
         if (is_start) {
             line_ren->start    = next;
             line_ren->current  = next;
-        } else if (is_origin) {
-            line_ren->start    = next;
-            line_ren->origin   = next;
-            line_ren->current  = next;
-        }  else if (is_end) {
+            if (is_origin) {
+                line_ren->origin   = next;
+            }
+
+            if (line_ren->end->next) {
+                line_ren->end = line_ren->end->next;
+            }
+        } else if (is_end) {
             line_ren->end      = local_line;
             line_ren->current  = local_line;
         } else {
             line_ren->current = local_line;
+            if (line_ren->end->next) {
+                line_ren->end = line_ren->end->next;
+            }
         }
     }
 
-    local_line->x = start;
+    // local_line->x = start;
+    line_ren->count--;
     return local_line;
 }
 
@@ -527,4 +551,5 @@ SET_AND_EX:
     CLIPBOARD_SET(chunk->data);
     free(chunk);
 }
+
 

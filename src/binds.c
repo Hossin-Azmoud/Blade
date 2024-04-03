@@ -1,5 +1,12 @@
 #include <mi.h>
 
+void clipboard_add_line(char *line_content) {
+    Chunk *c = chunk_new();
+    chunk_append_char(c, NL);
+    chunk_append_s(c, line_content);
+    CLIPBOARD_SET(c->data);
+    chunk_distroy(c);
+}
 
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
 {
@@ -8,7 +15,7 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
     switch (bindings->kind)
     {
         case COPY_LINE: {
-            CLIPBOARD_SET(line_ren->current->content);
+            clipboard_add_line(line_ren->current->content); 
         } break;
         
         case INDENT_LINE: {
@@ -20,24 +27,8 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         } break;
 
         case DEL_LINE: {
-            CLIPBOARD_SET(line_ren->current->content);
-            if (line_ren->current->prev != NULL) {
-                line_ren->current = disconnect_line(line_ren->current);
-    
-                if (line_ren->current->next != NULL) {
-                    line_ren->current = line_ren->current->next;
-                    if (line_ren->end->next != NULL) {
-                        line_ren->end = line_ren->end->next;
-                    }
-                }
-                
-                line_ren->count--;
-                return;
-            }
-            
-            line_ren->current->x = 0;
-            memset(line_ren->current->content, 0, line_ren->current->size);
-            line_ren->current->size = 0; // Set the size to zero so the line can be disconnected and freed!
+            clipboard_add_line(line_ren->current->content); 
+            cut_line(line_ren, line_ren->current, 0, line_ren->current->size);
         } break;
         case NOT_VALID: {
         } break;

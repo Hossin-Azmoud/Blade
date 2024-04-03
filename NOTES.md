@@ -32,6 +32,9 @@
     > Vec
     > Ar
     > Curse
+    > Line
+    > astrix
+    > linked
 
 ## POSSIBLE FEATURES:
     

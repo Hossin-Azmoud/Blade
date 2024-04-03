@@ -255,7 +255,8 @@ char *editor_render_startup(int x, int y, size_t w);
 void lines_shift(Line *head, int num);
 void unindent_line(Line *line);
 void indent_line(Line *line);
-
+void log_line(const char *op, Line *line);
+Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t end);
 void editor_dl(Line *line);
 
 void editor_apply_move(Lines_renderer *line_ren);

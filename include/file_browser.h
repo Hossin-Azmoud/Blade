@@ -20,11 +20,11 @@ typedef enum FileType {
 } FileType;
 
 typedef struct BrowseEntry {
-    BrowseEntryT etype;
-    FileType     ftype;
-    size_t       size;
-    char         *full_path;
-    char         *value;
+    BrowseEntryT etype;       // FILE__, DIR__, NOT_EXIST.
+    FileType     ftype;       // C, PYTHON, JS...
+    size_t       size;        // Size of the file or the directory...
+    char         *full_path; // /usr/foo 
+    char         *value;     // foo
 } BrowseEntry;
 
 // typedef struct FileBrowser FileBrowser;

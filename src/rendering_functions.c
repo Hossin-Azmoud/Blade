@@ -303,13 +303,6 @@ static void render_line(Line *line, int offset, int max_padding)
 void render_lines(Lines_renderer *line_ren)
 {
     Line *current = line_ren->start;
-    // Update end.
-    while (line_ren->end->y - line_ren->start->y < line_ren->win_h - MENU_HEIGHT_) {
-        if (line_ren->end->next) {
-            line_ren->end = line_ren->end->next;
-        }
-        break;
-    }
 
     while (current) {
         render_line(current, line_ren->start->y, line_ren->max_padding);

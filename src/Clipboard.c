@@ -31,14 +31,16 @@ void *clipboard(ClipBoardEvent e, char *data)
 void editor_push_data_from_clip(Lines_renderer *line_ren)
 {
     Chunk *chunk = CLIPBOARD_GET();
-    Line  *temp  = line_ren->current;
+    // Line  *temp  = line_ren->current;
     char *data   = chunk->data; 
 
     if (data) {
         // line_ren->current->x = line_ren->current->size; 
         for (; *data; data++) {
-            if ((*data == '\n') && (chunk->lines) > 1) {
+            if ((*data == '\n') && (chunk->lines) >= 1) {
+                
                 if (!(line_ren->current->next) || line_ren->current->size > 0) {
+                    line_ren->current->x = line_ren->current->size;
                     editor_new_line(line_ren, true);
                     continue;
                 }
@@ -48,5 +50,6 @@ void editor_push_data_from_clip(Lines_renderer *line_ren)
         }
     }
 
-    line_ren->current    = temp;
+    // line_ren->current    = temp;
 }
+
