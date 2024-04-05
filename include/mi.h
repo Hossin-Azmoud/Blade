@@ -72,6 +72,7 @@
 #define DQUOTE      '\"'
 #define SQUOTE      '\''
 #define WLCM_BUFF   "(WELLCOME TO MI EDITOR V0.1!)"
+#define MI_V "Mi 0.0.1\n"
 
 typedef enum charType {
     NUMBER,

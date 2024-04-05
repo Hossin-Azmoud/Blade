@@ -69,10 +69,12 @@ static FileBrowser *new_fb(const char *path) {
 
 void fb_append(FileBrowser *self, char *name)
 {
+    if (!name) return;
     if (self->size + 1 >= self->cap) {
         self->cap  += 10;
         self->entries = realloc(self->entries, sizeof(sizeof(BrowseEntry) * self->cap));
     } 
+
 
     self->entries[self->size].value = string_dup(name);
     self->entries[self->size].ftype = get_file_type(name);
@@ -115,13 +117,14 @@ bool fb_exists(FileBrowser *self, char *item)
 void load_dir_fb(FileBrowser *fb) 
 {
     if (fb->type == DIR__) {
-        
         chdir(fb->open_entry_path);
         char **files = read_entire_dir(fb->open_entry_path);
-
+        // BUG: THERE IS A bug in this function lol.
         while (files[fb->size] != NULL) {
             fb_append(fb, files[fb->size]);
-            free(files[fb->size - 1]);
+            if (files[fb->size - 1]) {
+                free(files[fb->size - 1]);
+            }
         }
 
         free(files);

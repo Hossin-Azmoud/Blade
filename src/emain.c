@@ -2,7 +2,6 @@
 
 int editor(char **argv)
 {
-    
     setlocale(LC_CTYPE,""); 
     open_logger();
     emoji_init(); // Init the emojis cache.

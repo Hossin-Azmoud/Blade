@@ -11,8 +11,8 @@ MiEditor *init_editor(char *path)
 
     memset(E, 0, sizeof(*E));
     char *pathBuff = NULL;
-    E->ewindow = init_ncurses_window();
     E->renderer = malloc(sizeof(Lines_renderer));
+E->ewindow = init_ncurses_window();
     editor_load_layout(E);
 
     // If the caller did not supply a file then we ask him in a seperate screen.
