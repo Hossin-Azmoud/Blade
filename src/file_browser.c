@@ -161,7 +161,7 @@ FileBrowser *new_file_browser(const char *dir_path, size_t window_height)
         return (fb);
     }
 
-    fb->end = fb->size;
+    fb->end = fb->size - 1;
     return (fb);
 }
 
