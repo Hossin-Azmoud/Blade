@@ -3,7 +3,7 @@
 
 #include <limits.h>
 
-#define FB_MAX_ENT 50
+#define FB_MAX_ENT 127
 
 typedef enum BrowseEntryT {  
     FILE__ = 0x0,

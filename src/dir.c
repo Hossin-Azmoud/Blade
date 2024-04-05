@@ -9,7 +9,7 @@ static int file_cmp(const void *ap, const void *bp)
 
 char **read_entire_dir(const char *dir_path)
 {
-    char **files = (char **) malloc(sizeof(char *) * 127);
+    char **files = (char **) malloc(sizeof(char *) * FB_MAX_ENT);
     int it = 0;
     DIR *dir = NULL;
     int dir_name_size = 0;

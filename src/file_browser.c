@@ -71,7 +71,7 @@ void fb_append(FileBrowser *self, char *name)
 {
     if (!name) return;
     if (self->size + 1 >= self->cap) {
-        self->cap  += 10;
+        self->cap    += 10;
         self->entries = realloc(self->entries, sizeof(sizeof(BrowseEntry) * self->cap));
     } 
 
@@ -114,21 +114,36 @@ bool fb_exists(FileBrowser *self, char *item)
     return false;
 }
 
+
+
+
+static int entry_cmp(const void *ap, const void *bp)
+{
+    const char *a = (const char *)((BrowseEntry*)ap)->value;
+    const char *b = (const char *)((BrowseEntry*)bp)->value;
+    return strcmp(a, b);
+}
+
 void load_dir_fb(FileBrowser *fb) 
 {
     if (fb->type == DIR__) {
         chdir(fb->open_entry_path);
-        char **files = read_entire_dir(fb->open_entry_path);
-        // BUG: THERE IS A bug in this function lol.
-        // TODO: Fix the bug so the editor can work no matter what.
-        while (files[fb->size] != NULL) {
-            fb_append(fb, files[fb->size]);
-            if (files[fb->size - 1]) {
-                free(files[fb->size - 1]);
-            }
+        DIR *dir = NULL;
+
+        dir = opendir(fb->open_entry_path);
+        if (dir == NULL) {
+            return;
         }
 
-        free(files);
+        errno = 0;
+        struct dirent *ent = readdir(dir);
+        
+        for (;ent != NULL;) {
+            fb_append(fb, ent->d_name);
+            ent = readdir(dir);
+        }
+
+        qsort(fb->entries, fb->size, sizeof(*fb->entries), entry_cmp);
     }
 }
 
@@ -157,7 +172,6 @@ FileBrowser *update_fb(FileBrowser *fb, char *new_path) {
     load_dir_fb(fb);
     return fb;
 }
-
 
 FileBrowser *realloc_fb(FileBrowser *fb, char *next)
 {
