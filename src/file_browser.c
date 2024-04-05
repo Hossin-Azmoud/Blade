@@ -120,6 +120,7 @@ void load_dir_fb(FileBrowser *fb)
         chdir(fb->open_entry_path);
         char **files = read_entire_dir(fb->open_entry_path);
         // BUG: THERE IS A bug in this function lol.
+        // TODO: Fix the bug so the editor can work no matter what.
         while (files[fb->size] != NULL) {
             fb_append(fb, files[fb->size]);
             if (files[fb->size - 1]) {
