@@ -26,7 +26,7 @@ MiEditor *init_editor(char *path)
         pathBuff =  string_dup(path);
     }
 
-    E->fb = new_file_browser(pathBuff);
+    E->fb = new_file_browser(pathBuff, E->renderer->win_h);
     free(pathBuff); 
     // Prepare for highlighting text (Copying and pasting..)
     E->highlighted_end         = vec2() ; // x=0, Y=0

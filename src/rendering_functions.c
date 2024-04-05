@@ -324,12 +324,13 @@ void render_file_browser(MiEditor *E)
     Emoji  *emoji = NULL; 
 
     if (E->fb->type == DIR__) {
-        for (size_t y = 0; y < E->fb->size; y++) {
+        // TODO: Render only what is visible and not out of bound
+        for (size_t y = E->fb->start; y <= E->fb->end; y++) {
             xpadding = 5;
             BrowseEntry entry = E->fb->entries[y];  
-
-            // TODO: render a file emoji if it is a file, otherwise render a folder emoji.
+    
             switch (entry.etype) {
+                // TODO: render a file emoji if it is a file, otherwise render a folder emoji.
                 case DIR__: {
                     emoji = emoji_get(E_FOLDER);
                 } break;
@@ -343,15 +344,16 @@ void render_file_browser(MiEditor *E)
                     }
                 };
             }
-    
+
+            // NOTE: latest possible col = y + ypadding + ``
             // Render the size of each entry.            
-            mvprintw(y + ypadding, xpadding, "%3s ", emoji->decoded);
-            colorize(y + ypadding, xpadding, emoji->size, CALL_SYNTAX_PAIR);
+            mvprintw(y + ypadding - E->fb->start, xpadding, "%3s ", emoji->decoded);
+            colorize(y + ypadding - E->fb->start, xpadding, emoji->size, CALL_SYNTAX_PAIR);
             xpadding += emoji->size;
-            mvprintw(y + ypadding, xpadding, entry.value);
+            mvprintw(y + ypadding - E->fb->start, xpadding, entry.value);
             
             if (row == y) {
-                colorize(row + ypadding, xpadding, 
+                colorize(row + ypadding - E->fb->start, xpadding, 
                     strlen(entry.value), 
                     HIGHLIGHT_WHITE);
             }

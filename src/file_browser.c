@@ -15,7 +15,7 @@ BrowseEntryT get_entry_type(char *path)
     if (dir_exists(path)) {
         return DIR__;
     }
-
+    
     return NOT_EXIST;
 }
 
@@ -129,10 +129,13 @@ void load_dir_fb(FileBrowser *fb)
     if (fb->type == DIR__) {
         chdir(fb->open_entry_path);
         DIR *dir = NULL;
-
+        errno = 0;
         dir = opendir(fb->open_entry_path);
-        if (dir == NULL) {
-            return;
+
+        // If the dir does not exist, we make it lol. 
+        if (dir == NULL && errno == ENOENT) {
+            make_dir(fb->open_entry_path);
+            dir = opendir(fb->open_entry_path);
         }
 
         errno = 0;
@@ -147,10 +150,18 @@ void load_dir_fb(FileBrowser *fb)
     }
 }
 
-FileBrowser *new_file_browser(const char *dir_path)
+FileBrowser *new_file_browser(const char *dir_path, size_t window_height)
 {
     FileBrowser *fb = new_fb(dir_path);
     load_dir_fb(fb);
+    fb->start = 0;
+
+    if (fb->size >= (window_height - MENU_HEIGHT_)) {
+        fb->end = (window_height - MENU_HEIGHT_) - 8;
+        return (fb);
+    }
+
+    fb->end = fb->size;
     return (fb);
 }
 

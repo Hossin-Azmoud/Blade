@@ -79,12 +79,30 @@ static void fb_handle_mv(int c, FileBrowser *fb)
 {
     switch (c) {
         case KEY_UP: {
-            if (fb->cur_row) 
+            if (fb->cur_row) {
+                if (fb->cur_row - fb->start == 0) {
+                    //TODO: ADJUST THE START AND END TO POINT TO VALID ENTRIES.
+                    if (fb->cur_row) {
+                        fb->start--;
+                        if (fb->end > fb->start) 
+                            fb->end--;
+                    }
+                }
+
                 fb->cur_row--;
+            }
         } break;
         case KEY_DOWN: {
-            if (fb->cur_row < fb->size - 1)
+            if (fb->cur_row < fb->size - 1) {
                 fb->cur_row++;
+            }
+
+            if (fb->cur_row - 1== fb->end) {
+                if (fb->end < fb->size - 1) {
+                    fb->start++;
+                    fb->end++;
+                }
+            }
         } break;
     }
 }
