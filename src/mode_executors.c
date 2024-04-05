@@ -29,6 +29,7 @@ void editor_visual(int c, MiEditor *E)
             E->mode = NORMAL;
             clipboard_save_chunk(E->highlighted_start, E->highlighted_end);
         } break;
+        case 'd':
         case KEY_CUT_: {
             // Store into about end of the highlighting in some struct.
             E->highlighted_end.x = E->renderer->current->x; // x=0, Y=0
@@ -181,6 +182,12 @@ void editor_file_browser(int c, MiEditor *E)
             switch(res->type) {
                 case SUCCESS: {
                     editor_new_entry(res->data, E);
+                     
+                    if (E->fb->size >= (size_t)(E->renderer->win_h - MENU_HEIGHT_)) {
+                        E->fb->end = (E->renderer->win_h  - MENU_HEIGHT_) - 8;
+                    } else {
+                        E->fb->end = E->fb->size - 1;
+                    }
                     free(res->data);
                     free(res);
                 } break;
