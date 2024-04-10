@@ -6,8 +6,8 @@ WINDOW *init_ncurses_window()
     WINDOW *win = initscr();
 
     raw();
-	keypad(stdscr, TRUE);
-	noecho();
+    keypad(stdscr, TRUE);
+    noecho();
     // cbreak();
     init_colors();
 
@@ -187,8 +187,10 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         line_ren->current->next = new;
         new->prev = line_ren->current;
         line_ren->current = new;
-        if (reset_borders) line_ren->end = new;
-        if (new->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
+        if (reset_borders) 
+            line_ren->end = new;
+
+        if (line_ren->current->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
             line_ren->start = line_ren->start->next;
         }
 
@@ -202,8 +204,10 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         new->next = next; // correct.
         line_ren->current->next = new; // correct
         next->prev = new;
-        
-        if (line_ren->end->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
+
+        lines_shift(new->next, 1);
+        // BUG: in this case the end changes incorrectly.
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
             if (line_ren->end == line_ren->current) {
                 line_ren->end   = new;
                 line_ren->start = line_ren->start->next;
@@ -212,7 +216,6 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
             }
         }
 
-        lines_shift(new->next, 1);
         line_ren->current = line_ren->current->next;
         line_ren->count++;
         return;
@@ -234,8 +237,8 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
             line_ren->current->content + line_ren->current->x,
             new->size
         );
-        
-        if (line_ren->end->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ ) {
+        lines_shift(new->next, 1);
+        if (line_ren->current->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ ) {
             if (line_ren->end == line_ren->current) {
                 line_ren->end   = new;
                 line_ren->start = line_ren->start->next;
@@ -243,19 +246,20 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
                 line_ren->end   = line_ren->end->prev;
             }
         }
-        lines_shift(new->next, 1);
     } else {
         line_ren->current->next = new;
         new->prev = line_ren->current;
         new->size = line_ren->current->size - line_ren->current->x;
         line_ren->current->size -= new->size;
+        
         memmove(new->content,
                 line_ren->current->content + line_ren->current->x,
                 new->size
         );
 
         line_ren->end = new;
-        if (new->y - line_ren->start->y >= line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
+        lines_shift(new->next, 1);
+        if (line_ren->end->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
             line_ren->start = line_ren->start->next;
         }
     }
@@ -309,7 +313,7 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
         // Highligh current.
         highlight__(y - line_ren->start->y,
             x + line_ren->max_padding,
-            (start._line)->size
+            (start._line)->size + 1
         );
 
         highlight_count += (start._line)->size;
@@ -318,7 +322,7 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
         while (line != current) {
             highlight__(line->y - line_ren->start->y,
                 line_ren->max_padding,
-                (line)->size
+                (line)->size + 1
             );
             line = line->next;
             highlight_count += (line)->size;
@@ -345,7 +349,7 @@ int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren)
         while (line != current) {
             highlight__(line->y - line_ren->start->y,
                 0 + line_ren->max_padding,
-                (line)->size
+                (line)->size + 1
             );
             line = line->prev;
             highlight_count += (line)->size;
@@ -551,5 +555,6 @@ SET_AND_EX:
     CLIPBOARD_SET(chunk->data);
     free(chunk);
 }
+
 
 

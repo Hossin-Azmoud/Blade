@@ -31,8 +31,10 @@ void *clipboard(ClipBoardEvent e, char *data)
 void editor_push_data_from_clip(Lines_renderer *line_ren)
 {
     Chunk *chunk = CLIPBOARD_GET();
-    // Line  *temp  = line_ren->current;
-    char *data   = chunk->data; 
+    
+    char *data   = NULL; 
+    if (chunk == NULL) return;
+    data = chunk->data;
 
     if (data) {
         // line_ren->current->x = line_ren->current->size; 

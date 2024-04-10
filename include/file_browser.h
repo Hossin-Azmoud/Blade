@@ -43,7 +43,7 @@ void get_entry_info(BrowseEntry *e);
 FileBrowser *new_file_browser(const char *dir_path, size_t window_height);
 char *entry_type_as_cstr(BrowseEntryT T);
 void release_fb(FileBrowser *fb);
-FileBrowser *realloc_fb(FileBrowser *fb, char *next);
+FileBrowser *realloc_fb(FileBrowser *fb, char *next, size_t window_height);
 void fb_append(FileBrowser *self, char *name);
 bool fb_exists(FileBrowser *self, char *item);
 

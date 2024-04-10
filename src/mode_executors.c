@@ -74,7 +74,7 @@ void editor_normal(int c, MiEditor *E)
         } break;
         case KEY_DOT: {
             save_file(E->fb->open_entry_path, E->renderer->origin, false);
-            E->fb = realloc_fb(E->fb, "..");
+            E->fb = realloc_fb(E->fb, "..", E->renderer->win_h);
             if (E->fb->type == FILE__ || E->fb->type == NOT_EXIST) {
                 load_file(E->fb->open_entry_path, E->renderer);
                 E->mode = NORMAL;
@@ -150,6 +150,11 @@ void editor_new_entry(char *path, MiEditor *E)
     // TODO: Handle abs paths.
     if (!fb_exists(E->fb, p->items[tree_head_idx])) {
         fb_append(E->fb, p->items[tree_head_idx]);
+        if (E->fb->size >= (size_t)(E->renderer->win_h - MENU_HEIGHT_)) {
+            E->fb->end = (E->renderer->win_h  - MENU_HEIGHT_) - 8;
+        } else {
+            E->fb->end = E->fb->size - 1;
+        }
     }
 
     release_path(p);
@@ -160,7 +165,7 @@ void editor_file_browser(int c, MiEditor *E)
     switch (c) {
         case NL: {
             BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
-            E->fb   = realloc_fb(E->fb, entry.value);
+            E->fb   = realloc_fb(E->fb, entry.value, E->renderer->win_h);
 
             if (E->fb->type != DIR__) {
                 E->renderer->file_type = get_file_type (E->fb->open_entry_path);
@@ -182,12 +187,6 @@ void editor_file_browser(int c, MiEditor *E)
             switch(res->type) {
                 case SUCCESS: {
                     editor_new_entry(res->data, E);
-                     
-                    if (E->fb->size >= (size_t)(E->renderer->win_h - MENU_HEIGHT_)) {
-                        E->fb->end = (E->renderer->win_h  - MENU_HEIGHT_) - 8;
-                    } else {
-                        E->fb->end = E->fb->size - 1;
-                    }
                     free(res->data);
                     free(res);
                 } break;

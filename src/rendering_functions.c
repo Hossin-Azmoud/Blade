@@ -146,7 +146,7 @@ void editor_render(MiEditor *E)
     }
  
     erase();
-            curs_set(1);
+    curs_set(1);
     
     switch (E->mode) {
         case FILEBROWSER: {
@@ -199,14 +199,14 @@ static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {
             colorize(y - y_offset, 
                 token->xstart + x_offset, 
                 token->xend + x_offset, 
-                YELLOW_PAIR
+                CHI_GONG_RED_PAIR
             );
         } break;
         case KEYWORD: {
             colorize(y - y_offset, 
                 token->xstart + x_offset, 
                 token->xend + x_offset, 
-                CHI_GONG_RED_PAIR);
+                YELLOW_PAIR);
         } break; 
         case C_INCLUDE_FILE: {
             colorize(y - y_offset, 

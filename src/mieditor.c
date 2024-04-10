@@ -118,3 +118,4 @@ void editor_update(int c, MiEditor *E)
         default: {} break;
     }
 }
+

@@ -1,5 +1,12 @@
 #include <mi.h>
 
+size_t fsize(FILE *stream) {
+    long size = 0;
+    fseek(stream, 0, SEEK_END);
+    size = ftell(stream);
+    rewind(stream);
+    return (size_t) size;
+}
 
 bool file_exists(const char *fpath)
 {
@@ -273,5 +280,24 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair)
     }
 
     return result;
+}
+
+char *slurp_file_content(const char *path) 
+{
+    FILE *stream = NULL;
+    if (!path) return NULL;
+    stream = fopen(path , "r");
+
+    if (!stream) {
+        return NULL;
+    }
+
+    size_t size   = fsize(stream);
+    char  *buffer = calloc(1, size);
+    size_t n      = fread(buffer, 1, size, stream);
+    assert(size == n && "The read size is not equal to the expected size.");
+
+    fclose(stream);
+    return (buffer);
 }
 

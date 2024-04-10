@@ -9,6 +9,7 @@ void indent_line(Line *line)
     line->x += x;
 }
 
+
 void unindent_line(Line *line) 
 {
     int x = line->x;
@@ -233,3 +234,4 @@ void log_line(const char *op, Line *line)
     close_logger();
     open_logger();
 }
+

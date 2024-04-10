@@ -6,6 +6,7 @@ INCLUDE=-I./include
 CFLAGS=-Wall -pedantic -Werror -g -ggdb -Wextra -std=c11
 SRC=./src/*.c
 LIBS=-lncursesw
+
 all: main
 main:
 	mkdir -p $(OUT_DIR) ; $(CC) $(CFLAGS) $(INCLUDE) -o $(OUT_FILE) $(SRC) $(LIBS)
@@ -19,6 +20,3 @@ debug:
 
 clean:
 	rm $(OUT_FILE) $(TEST_FILE)
-
-
-
