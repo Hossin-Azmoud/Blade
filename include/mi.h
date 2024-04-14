@@ -230,7 +230,6 @@ typedef struct Result {
 } Result;
 
 typedef struct MiEditor {
-    // char *file;
     Lines_renderer *renderer;
     Vec2  highlighted_start, highlighted_end;  // The chordinated of highlighted text.
     int   highlighted_data_length;
@@ -240,6 +239,7 @@ typedef struct MiEditor {
     WINDOW *ewindow;
     vKeyBindingQueue binding_queue;
     FileBrowser *fb;
+    volatile sig_atomic_t resized;
 } MiEditor;
 
 int editor(char **argv);
@@ -297,6 +297,10 @@ void editor_render_details(Lines_renderer *line_ren, char *_path, editorMode mod
 void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
 void editor_command_execute(MiEditor *E, char *command, editorMode mode);
+
+// EDITOR REGISTRY.
+MiEditor *editor_get();
+MiEditor *editor_register_(MiEditor *E);
 
 // CHUNK
 void  chunk_append_s(Chunk *c, char *str);

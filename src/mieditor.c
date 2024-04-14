@@ -65,7 +65,25 @@ MiEditor *init_editor(char *path)
         editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     }
     
+    editor_register_(E);
     return (E);
+}
+
+
+MiEditor *editor_register_(MiEditor *E) 
+{
+    static MiEditor *E_ = NULL;
+
+    if (E != NULL && E_ == NULL) {
+        E_ = E;
+    }
+
+    return E_;
+}
+
+MiEditor *editor_get() 
+{
+    return editor_register_(NULL); 
 }
 
 void editor_load_layout(MiEditor *E)
@@ -86,6 +104,7 @@ void release_editor(MiEditor *E)
         free(E->renderer);
     }
     
+    endwin();   
     free(E->notification_buffer);
     free(E);
 }

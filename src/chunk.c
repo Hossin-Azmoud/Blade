@@ -18,7 +18,7 @@ void chunk_append_char(Chunk *c, char chr)
         c->data = realloc(c->data, c->cap);
         memset(c->data + c->size, 0, (c->cap - c->size));
     }
-    
+
     c->data[c->size++] = chr;
     if (chr == NL) c->lines++;
 }

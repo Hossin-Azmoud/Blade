@@ -114,9 +114,6 @@ bool fb_exists(FileBrowser *self, char *item)
     return false;
 }
 
-
-
-
 static int entry_cmp(const void *ap, const void *bp)
 {
     const char *a = (const char *)((BrowseEntry*)ap)->value;
@@ -147,6 +144,7 @@ void load_dir_fb(FileBrowser *fb)
         }
 
         qsort(fb->entries, fb->size, sizeof(*fb->entries), entry_cmp);
+        if (errno == 0) closedir(dir);
     }
 }
 
@@ -163,7 +161,7 @@ FileBrowser *new_file_browser(const char *dir_path, size_t window_height)
     return (fb);
 }
 
-static void reinit_fb_bounds(FileBrowser *fb, size_t window_height) {
+void reinit_fb_bounds(FileBrowser *fb, size_t window_height) {
     fb->start = 0;
     if (fb->size >= (window_height - MENU_HEIGHT_)) {
         fb->end = (window_height - MENU_HEIGHT_) - 8;

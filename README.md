@@ -35,8 +35,13 @@ Tui text editor made in ncurses
 - `CUPY`: ESC + v + SELECT TEXT + yy
 - `PASTE`: ESC + n + p
 
+
 ## Implemented Syntax Highlighting
 - `Python`: was implemented. 
+
+
+
+
 - `Js`: was implemented
 - `C`: is still under developement.
 - `Rust`: Not Yet
@@ -44,3 +49,4 @@ Tui text editor made in ncurses
 
 ## WARNINGS!
 - Please don't open very large files for now because there is no way to just effeciently load them, it just loads the whole file.
+

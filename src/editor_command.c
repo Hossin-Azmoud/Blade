@@ -30,6 +30,45 @@ static void editor_command_execute_normal(MiEditor *E, char *command)
     }
 }
 
+#define INIT_COMMAND_CAP 25
+typedef struct ecommand_t {
+    char *name;
+    char **argv;
+    size_t cap;
+    size_t size;
+} ecommand_t;
+
+ecommand_t *command_alloc(size_t cap) {
+    ecommand_t *c = malloc(sizeof(*c));
+    memset(c, 0, sizeof(*c));
+    c->argv = malloc(sizeof(char *) * cap);
+    c->cap  = cap;
+    c->size = 0;
+    return (c);
+}
+
+void command_distroy(ecommand_t *c) {
+    
+    if (c == NULL) return;
+    
+    for (size_t i = 0; i < c->size; ++i) {
+        free(c->argv + i);
+    }
+     
+    free(c->argv);
+    free(c->name);
+    free(c);
+}
+
+
+ecommand_t *command_parse(const char *command) {
+    assert(command != NULL);
+    ecommand_t *c = command_alloc(INIT_COMMAND_CAP);
+    // TODO: Implement this one! to parse commands, take a buff = "name argv1 argv2 argv3"
+    // then return this struct { name -> "name", argv -> {"argv1", "argv2", "argv3"}, .size -> 3, .cap -> 25 }
+    return c;
+}
+
 static void editor_command_execute_fb(MiEditor *E, char *command) 
 {
     if (strlen(command) == 1) {
@@ -46,6 +85,11 @@ static void editor_command_execute_fb(MiEditor *E, char *command)
             default: {};
         }
     }
+    
+    // parse_cmd() 
+    // if (strcmp(command) {
+    //
+    // }
 }
 
 void editor_command_execute(MiEditor *E, char *command, editorMode mode) {

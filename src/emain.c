@@ -1,10 +1,10 @@
 #include <mi.h>
-
 int editor(char **argv)
 {
     setlocale(LC_CTYPE,""); 
     open_logger();
     emoji_init(); // Init the emojis cache.
+    // system("reset");
     MiEditor *E = init_editor(argv[1]);
     int c = 0;
     if (E == NULL) {
@@ -12,8 +12,15 @@ int editor(char **argv)
     }
     
     while ((c = getch()) != EOF && !E->exit_pressed) {
-        editor_load_layout(E);
+        if (E->resized) {
+            reinit_fb_bounds(E->fb, 
+                E->renderer->win_h);
+            editor_load_layout(E);
+            E->resized = 0;
+            goto UPDATE_EDITOR;
+        }
 
+        editor_load_layout(E);
         if (is_move(c)) {
             editor_handle_move(c, E);
             goto UPDATE_EDITOR;
@@ -45,7 +52,6 @@ int editor(char **argv)
     }
 
 EXIT_AND_RELEASE_RESOURCES:
-    endwin();
     release_editor(E);
     close_logger();
     return 0;
