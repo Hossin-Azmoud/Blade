@@ -227,7 +227,7 @@ void editor_command_(MiEditor *E)
     free(res->data);
     free(res);
 
-    E->mode = mode;
+    E->mode = (E->mode == COMMAND) ? mode : E->mode;
     editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
 
 }

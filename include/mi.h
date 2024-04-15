@@ -112,6 +112,7 @@ typedef enum editorMode {
     FILEBROWSER,
     COMMAND
 } editorMode;
+char *get_modeascstr(editorMode mode);
 
 #define MAX_KEY_BINDIND 2
 

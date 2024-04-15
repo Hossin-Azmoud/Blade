@@ -244,11 +244,7 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
             && reset_borders) {
             line_ren->end   = new;
             line_ren->start = line_ren->start->next;
-        } else {
-            // MAKES SENSE..
-            line_ren->end   = line_ren->end->prev;
-        }
-        
+        } 
     } else {
         line_ren->current->next = new;
         new->prev = line_ren->current;

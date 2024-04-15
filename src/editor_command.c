@@ -54,6 +54,28 @@ static void editor_cd_internal(eCommand *cmd, MiEditor *E) {
     } 
 }
 
+static void editor_edit(eCommand *cmd, MiEditor *E) {
+    // Performs the cd command.
+    if (cmd->size) {
+        BrowseEntryT type = get_entry_type(cmd->argv[0]);
+        switch (type) {
+            case NOT_EXIST:
+            case FILE__: {
+                E->fb = realloc_fb(E->fb, cmd->argv[0], E->renderer->win_h);    
+                E->renderer->file_type = get_file_type (E->fb->open_entry_path);
+                load_file(E->fb->open_entry_path, E->renderer);
+                E->mode = NORMAL;
+                return;
+            } break;
+            case DIR__: {
+                sprintf(E->notification_buffer, 
+                    "Can not edit a directory\n");
+            } break;
+            default: {};
+        }
+    } 
+}
+
 static void editor_command_execute_fb(MiEditor *E, char *command) 
 {
     if (!*command || !command) return; // This might be dead code that never gets executed in the editor but for some security we better check.
@@ -86,7 +108,7 @@ static void editor_command_execute_fb(MiEditor *E, char *command)
 
     if (strcmp(cmd->name, "e") == 0) {
         // TODO: make
-        sprintf(E->notification_buffer, "(*) Edit command was trigerred");
+        editor_edit(cmd, E);
         return;
     }
     

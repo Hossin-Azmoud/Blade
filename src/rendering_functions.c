@@ -6,8 +6,15 @@ static char *modes[] = {
     "VISUAL     ",
     "INSERT     ",
     "FILEBROWSER",
-    "COMMAND    "
+    "COMMAND    ",
 };
+
+char *get_modeascstr(editorMode mode) {
+    if (mode <= COMMAND) {
+        return modes[mode];
+    }
+    return "NONE";
+}
 
 static int evenize(const char *s) {
     int length = strlen(s);
@@ -18,7 +25,7 @@ void editor_render_details(Lines_renderer *line_ren, char *_path, editorMode mod
 {
     char details_buffer[LINE_SZ] = {0};
     memset(details_buffer, 0, LINE_SZ);
-    char *mode = modes[mode_];
+    char *mode = get_modeascstr(mode_);
 
     // THE COMMAND BAR
     mvchgat(line_ren->win_h - 2, 0, line_ren->win_w, A_NORMAL, DRACULA_PAIR, NULL);
