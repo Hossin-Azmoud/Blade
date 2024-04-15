@@ -27,6 +27,8 @@
 #include <emojis.h>
 #include <signals_.h>
 
+#define INIT_COMMAND_CAP 25
+
 #define ESC         0x1b
 #define KEY_CAP      'u'
 #define KEY_COMMAND_ ':'
@@ -73,6 +75,14 @@
 #define SQUOTE      '\''
 #define WLCM_BUFF   "(WELLCOME TO MI EDITOR V0.1!)"
 #define MI_V "Mi 0.0.1\n"
+// command
+
+typedef struct eCommand {
+    char *name;
+    char **argv;
+    size_t cap;
+    size_t size;
+} eCommand;
 
 typedef enum charType {
     NUMBER,
@@ -334,5 +344,10 @@ void pprint(Path *p);
 void parse_path(Path *p, char *path);
 void editor_make_apply_path_tree(Path *p); 
 void release_path(Path *p);
+// eCommand
+
+void command_distroy(eCommand *c);
+eCommand *command_parse(char *command);
+eCommand *command_alloc(size_t cap);
 
 #endif // MI_H

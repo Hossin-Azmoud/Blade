@@ -30,47 +30,10 @@ static void editor_command_execute_normal(MiEditor *E, char *command)
     }
 }
 
-#define INIT_COMMAND_CAP 25
-typedef struct ecommand_t {
-    char *name;
-    char **argv;
-    size_t cap;
-    size_t size;
-} ecommand_t;
-
-ecommand_t *command_alloc(size_t cap) {
-    ecommand_t *c = malloc(sizeof(*c));
-    memset(c, 0, sizeof(*c));
-    c->argv = malloc(sizeof(char *) * cap);
-    c->cap  = cap;
-    c->size = 0;
-    return (c);
-}
-
-void command_distroy(ecommand_t *c) {
-    
-    if (c == NULL) return;
-    
-    for (size_t i = 0; i < c->size; ++i) {
-        free(c->argv + i);
-    }
-     
-    free(c->argv);
-    free(c->name);
-    free(c);
-}
-
-
-ecommand_t *command_parse(const char *command) {
-    assert(command != NULL);
-    ecommand_t *c = command_alloc(INIT_COMMAND_CAP);
-    // TODO: Implement this one! to parse commands, take a buff = "name argv1 argv2 argv3"
-    // then return this struct { name -> "name", argv -> {"argv1", "argv2", "argv3"}, .size -> 3, .cap -> 25 }
-    return c;
-}
 
 static void editor_command_execute_fb(MiEditor *E, char *command) 
 {
+    if (!*command || !command) return; // This might be dead code that never gets executed in the editor but for some security we better check.
     if (strlen(command) == 1) {
         switch (*command) {
             case KEY_SAVE_: {
@@ -86,10 +49,35 @@ static void editor_command_execute_fb(MiEditor *E, char *command)
         }
     }
     
-    // parse_cmd() 
-    // if (strcmp(command) {
-    //
-    // }
+    eCommand *cmd = command_parse(command);
+    // Now we parse and look if the command is recognized.
+    if (strcmp(cmd->name, "cd") == 0) {
+        // TODO: make an prexesting command to execute inside the editor.
+        // NOTE: since we have the editor, maybe I should call the editor_changedir(E, dir)
+        // NOTE: Before doing anything I need to check if the operand is a directory.
+        if (cmd->size) {
+            BrowseEntryT type = get_entry_type(cmd->argv[0]);
+            switch (type) {
+            case DIR__: {
+                // Here we change the directory.
+                E->fb   = realloc_fb(E->fb, cmd->argv[0], E->renderer->win_h);
+            } break;
+            case NOT_EXIST: {
+                // We say that it does not exist.
+                sprintf(E->notification_buffer, "the arg distenation does not exist.");
+            } break;
+            case FILE__: {
+                // We just say that it is an illegal dir type.
+                sprintf(E->notification_buffer, "Expected directory not a file as arg.");
+            } break;
+            default: {
+                sprintf(E->notification_buffer, "Illegal case at (editor_command_execute_fb)");
+            } break;
+            }
+        }
+    }
+
+    command_distroy(cmd);
 }
 
 void editor_command_execute(MiEditor *E, char *command, editorMode mode) {

@@ -36,11 +36,16 @@ int main(int argc, char **argv) {
 
 
 #ifdef EXP
-
     (void) argv;
-    char *content = slurp_file_content(INIT_SCRIPT_PATH);
-    // TODO: Process the script.
-    free(content);
+    eCommand *command = command_parse("cd dir");
+    if (command) {
+        printf("NAME: %s\n", command->name);
+        for (size_t j = 0; j < command->size; j++) {
+            printf("v%zu: %s\n", j, command->argv[j]);
+        }
+        printf("\n");
+    }
+    command_distroy(command);
 #else
     if (!check_args(argc, argv)) {
         ret = editor(argv);
