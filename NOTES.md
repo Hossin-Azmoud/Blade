@@ -2,7 +2,6 @@
     [...] => Still under dev
     [*]   => Done
     [-]   => delayed
-
 ## defs
     review: is an idea or a note  about a feature that was implemented but it is kind of wrong and should be fixed.
     feature: something that was not yet implemented and should be
@@ -109,5 +108,6 @@
             JS     => tokenize_as_js(&line);
         }
     This way I would have more strict and straight forward rules to tokenize the lines based of the type of the file I am editing
+
 
 

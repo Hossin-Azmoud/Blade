@@ -72,6 +72,22 @@ void editor_normal(int c, MiEditor *E)
 
             clipboard_cut_chunk(E->renderer, E->highlighted_start, E->highlighted_end);
         } break;
+        case SHIFT(KEY_COPY_): {
+            E->highlighted_start = (Vec2){
+                .x = E->renderer->current->x,
+                .y = E->renderer->current->y,
+                ._line = E->renderer->current
+            };
+
+            E->highlighted_end   = (Vec2){
+                .x = E->renderer->current->size,
+                .y = E->renderer->current->y,
+                ._line = E->renderer->current
+            };
+            // TODO: Copy instead of cut the lines.
+            clipboard_save_chunk(E->highlighted_start, E->highlighted_end);
+            sprintf(E->notification_buffer, "%i bytes coppied to clip", E->renderer->current->size - E->renderer->current->x);
+        } break;
         case KEY_DOT: {
             save_file(E->fb->open_entry_path, E->renderer->origin, false);
             E->fb = realloc_fb(E->fb, "..", E->renderer->win_h);

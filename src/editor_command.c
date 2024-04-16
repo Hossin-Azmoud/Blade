@@ -37,7 +37,7 @@ static void editor_cd_internal(eCommand *cmd, MiEditor *E) {
         switch (type) {
         case DIR__: {
             // Here we change the directory.
-            E->fb   = realloc_fb(E->fb, cmd->argv[0], E->renderer->win_h);
+            E->fb = realloc_fb(E->fb, cmd->argv[0], E->renderer->win_h);
         } break;
         case NOT_EXIST: {
             // We say that it does not exist.

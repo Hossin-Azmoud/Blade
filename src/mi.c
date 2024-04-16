@@ -206,21 +206,24 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
         next->prev = new;
 
         lines_shift(new->next, 1);
+        
         // BUG: in this case the end changes incorrectly.
-        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
-            if (line_ren->end == line_ren->current) {
-                line_ren->end   = new;
-                line_ren->start = line_ren->start->next;
-            } else {
-                line_ren->end   = line_ren->end->prev;
-            }
+        if (line_ren->current == line_ren->end 
+            && line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
+            line_ren->end = new;
+            line_ren->start = line_ren->start->next;
         }
 
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
+            line_ren->end = line_ren->end->prev;
+        }
+        
         line_ren->current = line_ren->current->next;
         line_ren->count++;
         return;
     }
     
+
     // Allocate new line
     if (line_ren->current->next) {
         // prev = line_ren->current->prev;
@@ -238,13 +241,17 @@ void editor_new_line(Lines_renderer *line_ren, bool reset_borders)
             new->size
         );
         lines_shift(new->next, 1);
-        
-        if (line_ren->end == line_ren->current 
-            && new->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ 
-            && reset_borders) {
-            line_ren->end   = new;
+    
+        // BUG: in this case the end changes incorrectly.
+        if (line_ren->current == line_ren->end 
+            && line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
+            line_ren->end = new;
             line_ren->start = line_ren->start->next;
-        } 
+        }
+
+        if (line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_ && reset_borders) {
+            line_ren->end = line_ren->end->prev;
+        }
     } else {
         line_ren->current->next = new;
         new->prev = line_ren->current;

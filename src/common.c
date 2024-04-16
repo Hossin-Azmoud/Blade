@@ -118,9 +118,6 @@ void string_clean(char *s)
 
     if (s == NULL) return;
     if (!*s) return;
-
-    printf("START => |%s|\n", s);
-
     // remove spaces from the end. 
     while (i > 1 && isspace(s[i - 1])) {
         s[i - 1] = 0x00;
@@ -134,14 +131,14 @@ void string_clean(char *s)
         printf("|%s|\n", s);
         s++;
     }
-    
-    printf("FINAL => |%s|\n", s);
 }
 
 char *resolve_path(char *src, char *dest)
 {
+    // TODO: Implement - command arg. so we can return to our prev dir.
     char *delim = "/";
-
+    
+    
     if (!src || !dest) {
         return NULL;
     }
@@ -149,14 +146,22 @@ char *resolve_path(char *src, char *dest)
     char *buffer = calloc(1, strlen(src) + strlen(dest) + 2);
     if (!strcmp(dest, "..")) {
         // TODO: remove one entry back. /include/x/y => /include/x    
-        size_t last = strlen(src) - 1;
+        // NOTE: if we are already at the root, we stop the movement! and we always return the root.
+        if (strcmp(src, "/") != 0) {
+            size_t last = strlen(src) - 1;
 
-        do {
-            last--;
-        } while (last > 0 && src[last] != *delim);
-        
-        if (src[last] == *delim) last--;
-        buffer = strncpy(buffer, src, last + 1);
+            do {
+                last--;
+            } while (last > 0 && src[last] != *delim);
+            if (last > 0) {
+                if (src[last] == *delim) last--;
+                buffer = strncpy(buffer, src, last + 1);
+                return buffer;
+            }
+            // NOTE: here we know last == 0 so length is 1 and the first char is / so we are the root.
+            // NOTE: this is why we fall thro to the case where we return the root.
+        }
+        buffer = strcpy(buffer, src);
         return buffer;
     }    
 
@@ -177,15 +182,16 @@ int make_dir(char *path)
     int status = 0;
 
     if (!path) return status;
-    if (strcmp(path, ".") == 0 || strcmp(path, "..") == 0) return status;
+    // NOTE: There are directories that are not makeable.
+    if (strcmp(path, ".") == 0 || strcmp(path, "..") == 0 || strcmp(path, "/") == 0) return status;
     if (dir_exists(path)) return status;
-
     status = mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     return status;
 }
 
 Result *make_prompt_buffer(int x, int y, size_t w, int pair)
 {
+    // NOTE/BUG: This bug is kinda tricky to track..
     Result *result = malloc(sizeof(Result));
     bool deleted = false;
     result->data  = malloc(LINE_SZ);
@@ -216,24 +222,23 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair)
                     result->data = strcpy(result->data, "File path/name can not be empty!");
                     return result;
                 }
-                
+
                 result->type = OK;
                 return result;
             } break;
             case KEY_BACKSPACE: {
-                if (size > 0) {
+                if (buffer_idx > 0) {
                     memmove(
                         result->data + buffer_idx - 1,
                         result->data + buffer_idx,
                         size - buffer_idx
                     );
-                    
                     result->data[size] = 0;
                     size--;
                     buffer_idx--;
-                    deleted = true;
                 }
-                result->data[size] = 0;
+    
+                deleted = true;
             } break;
             case KEY_RIGHT: {
                 if (buffer_idx < size) buffer_idx++; 
@@ -260,18 +265,24 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair)
             } break;
         }
 
+
         for (int i = 0; i < size; ++i)
             mvaddch (y, x + i, result->data[i]);
-
-        
-        // 
-        if (deleted) {
+         
+        if (deleted || !size) {
             delch();
             deleted = false;
         }
 
         mvchgat (y, 0, w, A_NORMAL, pair, NULL);
         move(y, x + buffer_idx);
+        refresh();
+        // {
+        //     open_logger();
+        //         FILE *log_f = get_logger_file_ptr();
+        //         fprintf(log_f, "(idx: %i, sz: %i) => buff: %s\n", buffer_idx, size,result->data);    
+        //     close_logger();
+        // }
     }
 
     if (result->type == OK) {
@@ -281,7 +292,6 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair)
 
     return result;
 }
-
 char *slurp_file_content(const char *path) 
 {
     FILE *stream = NULL;
@@ -300,4 +310,3 @@ char *slurp_file_content(const char *path)
     fclose(stream);
     return (buffer);
 }
-
