@@ -2,15 +2,32 @@
 
 static void do_resize(int resize_signal)
 {
-    (void) resize_signal;    
-    // MiEditor *E = editor_get();
-    system("reset");
-    printf("Hello the term was resized!\n");
-    // exit(1);
+    (void) resize_signal;
+    MiEditor *E = editor_get();
+    // Well, since functions that get the width and height r not that good and just return win->_maxy or win->_maxx
+    // then I actually should reinitialize ncurses before redrawing the editor again lol.
+
+    endwin();
+    E->ewindow = init_ncurses_window();
+    
+    // recompute the layout, width and height!
+    editor_load_layout(E);
+
+    // re-init the file browser..    
+    if (E->fb->type == DIR__) 
+        reinit_fb_bounds(E->fb, E->renderer->win_h);
+
+    // re-render the editor.
+
+    editor_render(E);
+    // erase();
+    editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+    refresh();
 }
 
 static void init_ctrl_signals() {
     struct termios term;
+
     tcgetattr(STDIN_FILENO, &term);
     term.c_lflag &= ~(ICANON | ECHO);
     term.c_cc[VMIN] = 1;
@@ -24,7 +41,7 @@ static void init_resize_sig() {
     struct sigaction sa, priorsa;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
-    sa.sa_handler = do_resize;
+    sa.sa_handler = &do_resize;
     sigaction(SIGWINCH, &sa, &priorsa);
 }
 
@@ -36,7 +53,6 @@ void init_signals()
     // enable Ctrl-Z. Ctrl-S
     init_ctrl_signals();
     // Configure a resize function
-    // signal(SIGWINCH, do_resize);   
     init_resize_sig();
 }
 

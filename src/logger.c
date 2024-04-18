@@ -8,10 +8,16 @@ void open_logger()
 
 FILE *get_logger_file_ptr()
 {
+    if (stdl)
+        return stdl;
+    stdl = fopen(LOGGER_FILE, "a+");
     return stdl;
 }
 
 void close_logger()
 {
-    if (stdl) fclose(stdl);
+    if (stdl) {
+        fclose(stdl);
+        stdl = NULL;
+    }
 }

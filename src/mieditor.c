@@ -8,7 +8,6 @@ MiEditor *init_editor(char *path)
 {
     MiEditor *E = malloc(sizeof(MiEditor));
     init_signals();
-
     memset(E, 0, sizeof(*E));
     char *pathBuff = NULL;
     E->renderer = malloc(sizeof(Lines_renderer));
@@ -89,10 +88,18 @@ MiEditor *editor_get()
 void editor_load_layout(MiEditor *E)
 {
     // Set the dimentions of the edittor..
-    getmaxyx(E->ewindow, 
-         E->renderer->win_h, 
-         E->renderer->win_w
-    );
+    WINDOW *win = E->ewindow;
+    
+    E->renderer->win_h = getmaxy(win);
+    E->renderer->win_w = getmaxx(win);
+ 
+    FILE *file = get_logger_file_ptr();
+
+    {
+        fprintf(file, "w:%i h:%i\n", E->renderer->win_w, E->renderer->win_h);
+    }
+
+    close_logger(); 
 }
 
 void release_editor(MiEditor *E)
