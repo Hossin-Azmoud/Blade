@@ -154,7 +154,7 @@ void editor_render(MiEditor *E)
  
     erase();
     curs_set(1);
-    
+ 
     switch (E->mode) {
         case FILEBROWSER: {
             render_file_browser(E);
@@ -181,7 +181,8 @@ void editor_render(MiEditor *E)
             render_lines(E->renderer);
         } break;
     }
-    
+    // render.. 
+    // E->notification_buffer = strcat(E->notification_buffer, );
     editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
 

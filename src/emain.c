@@ -10,12 +10,27 @@ int editor(char **argv)
     if (E == NULL) {
         goto EXIT_AND_RELEASE_RESOURCES;
     }
-    
-    while ((c = getch()) != EOF && !E->exit_pressed) {
-        if (E->resized) {
-            reinit_fb_bounds(E->fb, 
-                E->renderer->win_h);
+
+    while (true) {
+        
+        if (E->resized == 0) {
+            // NOTE: Dont remove halfdelay because it is essencial for some signal interrupts, sometimes u need to wait for something to happen before
+            // updating.
+            halfdelay(1); // NOTE: wait ((1000ms/10ms) * n) => (1000ms/10ms) * 1ms => 100ms.
+            c = getch();
+        } else {
+
+            endwin();
+            E->ewindow = init_ncurses_window();
+ 
+            // recompute the layout, width and height!
             editor_load_layout(E);
+
+            // re-init the file browser..    
+            if (E->fb->type == DIR__) 
+                reinit_fb_bounds(E->fb, E->renderer->win_h);
+
+            sprintf(E->notification_buffer, "resize detected!");
             E->resized = 0;
             goto UPDATE_EDITOR;
         }
