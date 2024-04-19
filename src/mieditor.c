@@ -4,16 +4,37 @@ static Vec2 vec2() {
     return (Vec2) {.x = 0, .y=0, ._line=NULL};
 }
 
+static void init_window(MiEditor *E) 
+{
+    // int it = 0;
+    // it = 0;
+
+    E->renderer->win_w = 0;
+    E->renderer->win_h = 0;
+
+    // log_into_f("[FIRST %i] w => %i h => %i\n", it, E->renderer->win_w, E->renderer->win_h);
+
+    // NOTE: This bootstrap function maybe is neccessary for some terminals.
+    while (E->renderer->win_w == 0 && E->renderer->win_h == 0) {
+        
+        E->ewindow = init_ncurses_window();
+        editor_load_layout(E);
+        // mvprintw(0, 0, "[TERM %i] w => %i h => %i\n", it, E->renderer->win_w, E->renderer->win_h);
+        // log_into_f("[ITERATION %i] w => %i h => %i\n", it, E->renderer->win_w, E->renderer->win_h);
+    }
+
+    // log_into_f("[FINAL %i] w => %i h => %i\n", it, E->renderer->win_w, E->renderer->win_h);
+}
+
 MiEditor *init_editor(char *path)
 {
     MiEditor *E = malloc(sizeof(MiEditor));
     init_signals();
     memset(E, 0, sizeof(*E));
     char *pathBuff = NULL;
-    E->renderer = malloc(sizeof(Lines_renderer));
-    E->ewindow = init_ncurses_window();
-    editor_load_layout(E);
-
+    E->renderer = malloc(sizeof(*(E->renderer)));
+    memset(E->renderer, 0, sizeof(*(E->renderer)));
+    init_window(E);
     // If the caller did not supply a file then we ask him in a seperate screen.
     if (path == NULL) {
         pathBuff = editor_render_startup(E->renderer->win_w / 2, E->renderer->win_h / 2, E->renderer->win_w);
@@ -28,7 +49,7 @@ MiEditor *init_editor(char *path)
     E->fb = new_file_browser(pathBuff, E->renderer->win_h);
     free(pathBuff); 
     // Prepare for highlighting text (Copying and pasting..)
-    E->highlighted_end         = vec2() ; // x=0, Y=0
+    E->highlighted_end  = vec2() ; // x=0, Y=0
     E->highlighted_start       = vec2() ; // x=0, Y=0
     E->highlighted_data_length = 0;
 
@@ -88,18 +109,14 @@ MiEditor *editor_get()
 void editor_load_layout(MiEditor *E)
 {
     // Set the dimentions of the edittor..
-    WINDOW *win = E->ewindow;
-    
-    E->renderer->win_h = getmaxy(win);
-    E->renderer->win_w = getmaxx(win);
- 
-    FILE *file = get_logger_file_ptr();
-
-    {
-        fprintf(file, "w:%i h:%i\n", E->renderer->win_w, E->renderer->win_h);
-    }
-
-    close_logger(); 
+    int h, w;
+    getmaxyx(
+        E->ewindow,
+        h,
+        w
+    );
+    E->renderer->win_h = h;
+    E->renderer->win_w = w;
 }
 
 void release_editor(MiEditor *E)

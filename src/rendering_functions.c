@@ -94,7 +94,10 @@ static int editor_render_help(int x, int y, char *error)
     }
     
     attron(A_UNDERLINE);
-    mvprintw(y * 2, 0, prompt);
+    int ret = mvprintw(y * 2, 0, prompt);
+    while (ret == ERR) {
+        ret = mvprintw(y * 2 - 1, 0, prompt);
+    }
     attroff(A_UNDERLINE);
 
     return (strlen(prompt));
@@ -105,9 +108,13 @@ char *editor_render_startup(int x, int y, size_t width)
     int prompt_offset = editor_render_help(x, y, NULL);
     Result *res = NULL;
     char *file_path = (calloc(1, LINE_SZ));
+    // log_into_f("x: %i, y: %i", x, y);
 
     while (true) {
-        res = make_prompt_buffer(prompt_offset, y * 2, width, MAIN_THEME_PAIR);
+        res = make_prompt_buffer(prompt_offset, 
+                    y * 2, 
+                    width, 
+                    MAIN_THEME_PAIR);
         switch(res->type) {
             case SUCCESS: {
                 strcpy(file_path, res->data);

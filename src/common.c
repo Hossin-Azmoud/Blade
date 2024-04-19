@@ -203,7 +203,12 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair)
     int buffer_idx = 0;
     int size = 0, byte = 0;
     
-    mvchgat (y, 0, w, A_NORMAL, pair, NULL);
+    int ret = mvchgat (y, 0, w, A_NORMAL, pair, NULL);
+    if (ret == ERR) {
+        y -= 1;
+        mvchgat(y, 0, w, A_NORMAL, pair, NULL);
+    }
+ 
     move(y, x + buffer_idx);
     if (result == NULL || result->data == NULL)
         return NULL;

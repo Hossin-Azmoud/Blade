@@ -22,10 +22,8 @@ int editor(char **argv)
 
             endwin();
             E->ewindow = init_ncurses_window();
- 
             // recompute the layout, width and height!
             editor_load_layout(E);
-
             // re-init the file browser..    
             if (E->fb->type == DIR__) 
                 reinit_fb_bounds(E->fb, E->renderer->win_h);

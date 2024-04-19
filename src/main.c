@@ -37,15 +37,26 @@ int main(int argc, char **argv) {
 
 #ifdef EXP
     (void) argv;
-    eCommand *command = command_parse("cd dir");
-    if (command) {
-        printf("NAME: %s\n", command->name);
-        for (size_t j = 0; j < command->size; j++) {
-            printf("v%zu: %s\n", j, command->argv[j]);
-        }
-        printf("\n");
+    int w, h, mx, my, c = 0, x = 0, y = 0;
+
+    WINDOW *win = initscr();
+
+    raw();
+    keypad(stdscr, TRUE);
+    noecho();
+    getmaxyx(win, h, w);
+    getbegyx(win,my,mx);
+    while (c != 'q')
+    {
+        mvprintw(y, x, "[%s] w: %i, h: %i, minx: %i miny: %i\n", 
+                 getenv("TERM"), w, h, mx, my);
+        getmaxyx(win, h, w);
+        getbegyx(win,my,mx);
+        c = getch();
+        y++;
     }
-    command_distroy(command);
+
+    endwin();
 #else
     if (!check_args(argc, argv)) {
         ret = editor(argv);
