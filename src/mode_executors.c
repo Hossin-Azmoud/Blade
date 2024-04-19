@@ -178,6 +178,7 @@ void editor_new_entry(char *path, MiEditor *E)
 
 void editor_file_browser(int c, MiEditor *E)
 {
+    char label[4096] = {0};
     switch (c) {
         case NL: {
             BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
@@ -192,17 +193,62 @@ void editor_file_browser(int c, MiEditor *E)
             
             E->mode = FILEBROWSER;
         } break;
-        case 'd': {} break;
+        case 'd': {
+            curs_set(1);
+            BrowseEntry entry = E->fb->entries[E->fb->cur_row];
+            int y = E->renderer->win_h - 2;
+            sprintf(label, "> Really wanna do that (delete: %s)(y|Y|n|N): ", entry.full_path);
+            mvprintw(y, 0, label);
+
+            Result *res = make_prompt_buffer(strlen(label), 
+                    y, E->renderer->win_w, DRACULA_PAIR);
+
+            switch(res->type) {
+                case SUCCESS: {
+                    if (!strcmp(res->data, "y") || !strcmp(res->data, "Y")) 
+                    {
+                        if (entry.etype == FILE__) {
+                            // TODO: Remove the current entry from the file system.
+                            // FUNC: remove(fullP)
+                            remove (entry.full_path);
+                            // TODO: Remove the current entry from the fb->entries
+                            // FUNC: void remove_entry(FileBrowser *fb) 
+                            remove_entry (E->fb);
+                            sprintf(E->notification_buffer, "%s was deleted successfully", res->data);
+                            return;
+                        } 
+                        // TODO: Do the same thing for the Directories.
+                        sprintf(E->notification_buffer, "Can not delete Directories yet!");
+                    }
+                    free(res->data);
+                    free(res);
+                } break;
+                case ERROR: {
+                    if (res->etype == EXIT_SIG) {    
+                        free(res->data);
+                        free(res);
+                    } else if (res->etype == EMPTY_BUFF) {
+                        free(res->data);
+                        free(res);
+                    }
+                } break;
+                default: {
+                    printf("Unreachable code\n");
+                    abort();
+                }
+            }
+        } break;
         case 'a': {
             // Make nameBuff and pass it to fb_append.  
             curs_set(1);
-            char *label = "> Create File/Directory: ";
             int y = E->renderer->win_h - 2;
+            sprintf(label, "%s", "> Create File/Directory: ");
             mvprintw(y, 0, label);
             Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w, DRACULA_PAIR);
             switch(res->type) {
                 case SUCCESS: {
                     editor_new_entry(res->data, E);
+                    sprintf(E->notification_buffer, "%s was made", res->data);
                     free(res->data);
                     free(res);
                 } break;

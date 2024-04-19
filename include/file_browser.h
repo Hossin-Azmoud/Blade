@@ -47,6 +47,8 @@ FileBrowser *realloc_fb(FileBrowser *fb, char *next, size_t window_height);
 void fb_append(FileBrowser *self, char *name);
 bool fb_exists(FileBrowser *self, char *item);
 void reinit_fb_bounds(FileBrowser *fb, size_t window_height);
+void remove_entry(FileBrowser *fb);
+
 #endif //FILE_B_H
 
 

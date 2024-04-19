@@ -197,3 +197,21 @@ FileBrowser *realloc_fb(FileBrowser *fb, char *next, size_t window_height)
     reinit_fb_bounds(fb, window_height);
     return fb;
 }
+
+void remove_entry(FileBrowser *fb) 
+{
+    if (fb->size) {
+        memmove(
+            fb->entries + fb->cur_row,
+            fb->entries + fb->cur_row + 1,
+            sizeof(fb->entries[0]) * (fb->size - fb->cur_row)
+        );
+        
+        if (fb->cur_row == fb->end) {
+            fb->cur_row--;
+        }
+
+        fb->size--;
+        fb->end--;
+    }
+}

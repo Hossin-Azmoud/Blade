@@ -1,7 +1,11 @@
+## NOW WORKING ON:
+    [] ability to delete files
+
 ## NOTEKEYS:
     [...] => Still under dev
     [*]   => Done
     [-]   => delayed
+
 ## defs
     review: is an idea or a note  about a feature that was implemented but it is kind of wrong and should be fixed.
     feature: something that was not yet implemented and should be
@@ -41,7 +45,6 @@
     [...]  Work on colors and UI. -> Working Here.
     [...]  add the file browser.
     [*] command Mode so we can add vim bindings.
-    [] ability to delete files    
     [] ability to create/delete directories.
     [] add types for c and python so u can add new types and colorize them differantly.    
     [] CD command to change the current dir..
@@ -86,6 +89,7 @@
         3 - I also need markdown highlighting. 
         4 - This currrent version apparently can not lex multiline comments...
         ex: /* COMMENT */
+
 ## CRUCIAL BUGS:
     [FIXED] There is a bug that shows up when I try to cut from the start of the file. I need to fix he updating of lineren->start/lineren->origin apparently
     this problem accurs only when I try cutting a file.
@@ -93,12 +97,12 @@
     this problem accurs only when I try cutting a file.
     [...] The editor does not lazally load files, it just loads the entir file.. which is dangerous if u have a massive file (<more than 2GB>) 
 
+
 ## How To Lex Types in C:
     1 - anything that comes after a struct keyword and is an identifier.
     e: typedef struct T {...} T_t;
     2 - anythin that comes after the enum keyword and is an identifier.
     e: typedef enum T {...} T_e;
-    ...
 
 ## ARCH PROBLEM THAT NEEDS A FIX:
     [] I dont like the way the editor tokenizes the tokens.. I need a more intuitive way like this:
