@@ -29,6 +29,9 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         case DEL_LINE: {
             clipboard_add_line(line_ren->current->content); 
             cut_line(line_ren, line_ren->current, 0, line_ren->current->size);
+            if (line_ren->current->next) {
+               line_ren->current = line_ren->current->next;
+            }
         } break;
         case NOT_VALID: {
         } break;
@@ -68,3 +71,4 @@ void editor_identify_binding(vKeyBindingQueue *bindings)
     bindings->kind = NOT_VALID;
     return;
 }
+

@@ -1,5 +1,5 @@
 #include <mi.h>
-// #define EXP
+//#define EXP
 #define INIT_SCRIPT_PATH "init.mi"
 
 // TODO: Implement -v/--version flags and --help
@@ -27,15 +27,14 @@ bool check_args(int argc, char **argv)
 
     return false;
 }
+void some_function();
 
 int main(int argc, char **argv) {
     (void) argc; 
     int ret = 0;
-
-
 #ifdef EXP
     (void) argv;
-    rmdir("./x");
+    some_function(); 
 #else
     if (!check_args(argc, argv)) {
         ret = editor(argv);
@@ -62,7 +61,10 @@ void some_function() {
         getmaxyx(win, h, w);
         getbegyx(win,my,mx);
         c = getch();
-        y++;
+        if (c == KEY_RESIZE) {
+			mvprintw(y++, x, "Resize.\n");
+		}
+		y++;
     }
 
     endwin();

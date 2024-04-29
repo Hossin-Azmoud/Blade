@@ -7,9 +7,19 @@ void do_resize(int resize_signal)
     // Well, since functions that get the width and height r not that good and just return win->_maxy or win->_maxx
     // then I actually should reinitialize ncurses before redrawing the editor again lol.
     // NOTE: This feature is not completed yet so dont expect much for now.
-    E->resized = 1;
+    
+	endwin();
+	E->ewindow = init_ncurses_window();
+	// recompute the layout, width and height!
+	editor_load_layout(E);
+	// re-init the file browser..    
+	if (E->fb->type == DIR__) 
+		reinit_fb_bounds(E->fb, E->renderer->win_h);
+
+	sprintf(E->notification_buffer, "resize detected!");
+	E->resized = 1;
     // re-render the editor.
-    return;
+	// refresh();
 }
 
 static void init_ctrl_signals() {
@@ -24,14 +34,15 @@ static void init_ctrl_signals() {
 
     tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }
-static void init_resize_sig() {
+/*
+void init_resize_sig() {
     struct sigaction sa, priorsa;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     sa.sa_handler = &do_resize;
     sigaction(SIGWINCH, &sa, &priorsa);
 }
-
+*/
 void init_signals() 
 {
     
@@ -40,6 +51,6 @@ void init_signals()
     // enable Ctrl-Z. Ctrl-S
     init_ctrl_signals();
     // Configure a resize function
-    init_resize_sig();
+    // init_resize_sig();
 }
 
