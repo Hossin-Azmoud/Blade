@@ -11,12 +11,12 @@ int editor(char **argv)
         goto EXIT_AND_RELEASE_RESOURCES;
     }
 
+	halfdelay(.5); // NOTE: wait ((1000ms/10ms) * n) => (1000ms/10ms) * 1ms => 100ms.
     while (true) {
         
         if (E->resized == 0) {
             // NOTE: Dont remove halfdelay because it is essencial for some signal interrupts, sometimes u need to wait for something to happen before
             // updating.
-            halfdelay(1); // NOTE: wait ((1000ms/10ms) * n) => (1000ms/10ms) * 1ms => 100ms.
             c = getch();
         } else {
 

@@ -375,3 +375,4 @@ void render_file_browser(MiEditor *E)
         }
     }
 }
+

@@ -189,9 +189,15 @@ int make_dir(char *path)
     return status;
 }
 
+// int remove_dir(char *full_path)
+// {
+//     (void) full_path;
+//     // TODO: traverse a directory and remove all its files and subdirectoreis.
+// }
+
 Result *make_prompt_buffer(int x, int y, size_t w, int pair)
 {
-    // NOTE/BUG: This bug is kinda tricky to track..
+    // (NOTE/BUG): This bug is kinda tricky to track..
     Result *result = malloc(sizeof(Result));
     bool deleted = false;
     result->data  = malloc(LINE_SZ);

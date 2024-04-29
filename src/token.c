@@ -1,4 +1,5 @@
 #include <mi.h>
+
 // TODO: Make a collector for string lits, number, id tokens.. and also keywords....
 char *get_token_kind_s(MITokenType t)
 {
@@ -67,19 +68,104 @@ static int trim_spaces_left(char *buff, int curr) {
     return i;
 }
 
-void retokenize_line(Line *line, FileType file_type)
+// Reinit the tokens.
+static void reinit_line_toks(Line *line)
 {
-    char temp[512] = { 0 };
-    int xend = 0, xstart = 0, data_idx = 0, x = 0;
-    KeywordList *keywords_list = get_keywords_list(file_type);     
-
     if (line->token_list.size > 0) {
-        // Reinit the tokens.
         line->token_list._list = memset(line->token_list._list, 0, sizeof(line->token_list._list[0]) * line->token_list.cap);
         line->token_list.size = 0;
     }
+}
+ 
+static int collect_string_lit(Line *line, int current_x)
+{
+	int xstart = current_x++; 
+	int xend;
 
-    for (; x < line->size;) {
+	while (current_x < line->size) {
+		switch (line->content[current_x]) {
+			case '\'':
+			case '\"': {
+				xend = current_x;
+				current_x++;
+				goto NEXT;
+			} break;
+			case '\\': {
+				if (current_x + 1 < line->size)
+					current_x = current_x + 2;
+			} break;
+			default: {
+				current_x++;
+			} break;
+		}
+	}
+
+	xend = current_x;
+	current_x++;
+NEXT:
+	if (line->content[xend] == line->content[xstart]) {
+		token_list_append(&(line->token_list), 
+						  STR_LIT, 
+						  xstart, 
+						  xend);
+	} else {
+		token_list_append(&(line->token_list), 
+			STR_LIT_INCOM, 
+			xstart, 
+			xend);
+	}
+
+	return current_x;
+}
+
+inline int ishexdigit(char c) {
+	return (
+		(c >= 'A' && c <= 'F')
+		||	
+		(c >= 'a' && c <= 'f')
+	);
+}
+
+static int collect_digit(Line *line, int current_x)
+{
+	int xstart = current_x++;
+	int xend;
+
+	
+	while (isdigit(line->content[current_x]) || ((line->content[current_x] == 'x' || line->content[current_x] == 'X'))) {
+		
+		if (line->content[current_x] == 'x' || (line->content[current_x] == 'X' && (xstart - current_x == 1))) {
+			// NOTE: (xstart - current_x == 1) means that x is the second char. so it could be a potential hex number.
+			// TODO: Collect the hex digits.
+			// skip the x/X
+			current_x++;
+			while (isdigit(line->content[current_x]) || ishexdigit(line->content[current_x])) {
+				current_x++;
+			}
+			break;
+		}
+
+		current_x++;
+	}
+
+	xend = (current_x - 1);
+	token_list_append(&(line->token_list), 
+		NUMBER_LIT,
+		xstart,
+		xend
+	);
+
+	return current_x;
+}
+
+void retokenize_line(Line *line, FileType file_type)
+{
+	char temp[512] = { 0 };
+    int xend = 0, xstart = 0, data_idx = 0, x = 0;
+    KeywordList *keywords_list = get_keywords_list(file_type);     
+	reinit_line_toks(line);
+
+	for (; x < line->size;) {
         data_idx = 0;
         memset(temp, 0,  512);
         x = trim_spaces_left(line->content, x);
@@ -87,60 +173,13 @@ void retokenize_line(Line *line, FileType file_type)
 
         // Collect a string lit.
         if (line->content[x] == '\"' || line->content[x] == '\'') {
-            x++;
-            while (x < line->size) {
-                switch (line->content[x]) {
-                    case '\'':
-                    case '\"': {
-                        xend = x;
-                        x++;
-                        goto next;
-                    } break;
-                    case '\\': {
-                        if (x + 1 < line->size)
-                            x = x + 2;
-                    } break;
-                    default: {
-                        x++;
-                    } break;
-                }
-            }
-
-            xend = x;
-            x++;
-            next:
-            if (line->content[xend] == line->content[xstart]) {
-                token_list_append(&(line->token_list), 
-                                  STR_LIT, 
-                                  xstart, 
-                                  xend);
-            } else {
-                token_list_append(&(line->token_list), 
-                    STR_LIT_INCOM, 
-                    xstart, 
-                    xend);
-            }
-
+            x = collect_string_lit(line, xstart);
             continue;
         }
         
-        // isalnum,  isalpha, isascii, isblank, iscntrl, isdigit, isgraph, islower, isprint, ispunct, isspace, isupper, isxdigit, isalnum_l, isalpha_l, isascii_l, isblank_l, iscntrl_l, isdigit_l, isgraph_l, islower_l, isprint_l, ispunct_l, isspace_l, isupper_l, isxdigit_l  -  character  classification
-        // Digit collector
-
         if (isdigit(line->content[x])) {
-            x++;
-
-            while (isdigit(line->content[x]) && x < line->size) {
-                xend = (x);
-                x++;
-            }
-            
-            token_list_append(&(line->token_list), 
-                NUMBER_LIT,
-                xstart,
-                xend
-            );
-            continue;
+            x = collect_digit(line, xstart);
+			continue;
         }
 
         // For ids, keywords and other syntaxes!
@@ -410,5 +449,3 @@ bool is_keywrd(char *keywords[], char *word, int keywords_sz) {
     }
     return false;
 }
-
-

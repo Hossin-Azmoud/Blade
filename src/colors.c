@@ -64,3 +64,4 @@ void init_colors()
     init_pair(NUM_PAIR, COLOR_SILVER_, COLOR_GREY_);
     
 }
+

@@ -1,6 +1,4 @@
 #include <mi.h>
-
-
 // #define EXP
 #define INIT_SCRIPT_PATH "init.mi"
 
@@ -37,6 +35,17 @@ int main(int argc, char **argv) {
 
 #ifdef EXP
     (void) argv;
+    rmdir("./x");
+#else
+    if (!check_args(argc, argv)) {
+        ret = editor(argv);
+        CLIPBOARD_FREE();
+    }
+#endif /* ifdef EXP */
+    return ret;
+}
+
+void some_function() {
     int w, h, mx, my, c = 0, x = 0, y = 0;
 
     WINDOW *win = initscr();
@@ -57,11 +66,4 @@ int main(int argc, char **argv) {
     }
 
     endwin();
-#else
-    if (!check_args(argc, argv)) {
-        ret = editor(argv);
-        CLIPBOARD_FREE();
-    }
-#endif /* ifdef EXP */
-    return ret;
 }
