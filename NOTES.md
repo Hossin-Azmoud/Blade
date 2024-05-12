@@ -1,10 +1,13 @@
 ## NOW WORKING ON:
     [] ability to delete files
 
+doing now => [] ability to create/delete directories
+
 ## NOTEKEYS:
     [...] => Still under dev
     [*]   => Done
     [-]   => delayed
+
 
 ## defs
     review: is an idea or a note  about a feature that was implemented but it is kind of wrong and should be fixed.

@@ -388,24 +388,38 @@ static int cut_data(char *buffer, int cstart, int cend, int size) {
 
 Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t end)
 {
-    
-    log_line("CUTTING", line);
     int n  = cut_data(line->content, start, end, line->size);
     Line *local_line = line;
     Line *next = (line->next);
     bool is_origin = (line_ren->origin == line);
     bool is_start  = (line_ren->start == line);
-    bool is_end  = (line_ren->end == line);
+    bool is_end    = (line_ren->end == line);
 
     local_line->size  = local_line->size - n;
     local_line->x     = start;
     
     if (is_origin && is_start) {
-        if (local_line->size == 0) {
-            memset(local_line->content, 0x0, LINE_SZ);
+		// We save the next line after the first line then we switch the start to it..
+		if (is_end) {
+
+			memset(local_line->content, 0x0, LINE_SZ);
             memset(local_line->token_list._list, 0x0, sizeof (MIToken) * MAX_TOKENS);
-        }
-        return local_line;
+			local_line->size = 0;
+			local_line->x    = 0;
+
+			return local_line;
+		}
+
+		local_line = line->next;
+		disconnect_line(line);
+
+		line_ren->origin  = local_line;
+		line_ren->start   = local_line;
+		line_ren->current = local_line;
+
+		line_ren->end = line_ren->end->next;
+		line_ren->count--;
+		return local_line;
     }
 
     if (local_line->size == 0) {

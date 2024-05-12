@@ -25,15 +25,14 @@ char **read_entire_dir(const char *dir_path)
     
     for (;ent != NULL; ++it) {
 
-        dir_name_size =  sizeof(ent->d_name) - 1;
+        dir_name_size =  strlen(ent->d_name);
         files[it] = malloc(dir_name_size + 1);
-        files[it] = memcpy(files[it], ent->d_name, dir_name_size);
+        files[it] = strcpy(files[it], ent->d_name);
         // da_append(files, temp_strdup());
         ent = readdir(dir);
     }
     
     files[it] = NULL;
-
     qsort(files, it, sizeof(*files), file_cmp);
     if (errno != 0) {
         free(files);

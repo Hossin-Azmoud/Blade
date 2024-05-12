@@ -1,13 +1,3 @@
-# Dev Ideas.
-- There is an idea that I have about syntax highlighting which is that it needs to be more flexable.
-- Each language has three things.
-
-- Keywords: A list of Keywords that should be viewed differently than other words.
-- Types:    A Set of rule that define how types should be tokenize and recognized.
-    - In C types are recognized using these rules:
-        - A type is something that comes before * and is an ID token.
-        EX: int *x = <>
-        - A types is something that comes before a function declaration
         EX: int void *func() {  }
         - A type is and ID that comes before an ID.
 
@@ -32,4 +22,6 @@ the rule will be syntactically this way:
     .c#types:     [TYPE, *] [TYPE, FDECLARATION] [TYPE(ID), ID]
     .c#special:   #$ enum #include struct typedef union
     
+
+
 

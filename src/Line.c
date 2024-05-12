@@ -2,7 +2,6 @@
 
 void indent_line(Line *line) 
 {
-    
     int x = line->x;
     line->x = 0;
     editor_tabs(line);
@@ -120,7 +119,7 @@ Line *disconnect_line(Line *head)
     free(current->content);
     free(current);
     lines_shift(next, -1); 
-    return prev;
+	return prev;
 }
 
 
