@@ -98,12 +98,16 @@ typedef struct filessystem_t {
 	size_t        ifs_cap;        // Size of the file or the directory...
     char          *full_path; // /usr/foo 
     char          *value;     // foo
-	// filessystem_t *parent; // In case we want to go up the tree.
+	filessystem_t *parent; // In case we want to go up the tree.
 	filessystem_t **ifs; // if this filesystem_t is a directory. then we need to store the files and directories it holds here.
 } filessystem_t;
 
 
+/*
+ 			(fs)
+			 \ifs => (fs)
 
+ */
 filessystem_t *slurp_fs(char *path)
 {
 	filessystem_t *fs = NULL;
@@ -114,6 +118,7 @@ filessystem_t *slurp_fs(char *path)
 		return (fs);
 
 	fs            = malloc(sizeof(*fs));
+	fs->parent    = NULL;
 	memset(fs, 0, sizeof(*fs));
 	fs->full_path = realpath(path, NULL);
 	fs->value     = string_dup(path);
@@ -122,6 +127,7 @@ filessystem_t *slurp_fs(char *path)
 	if (fs->etype == FILE__) 
 	{
 		// fs->ftype = get_file_type(fs->full_path);
+		
 		return (fs);
 	}
 
@@ -138,9 +144,11 @@ filessystem_t *slurp_fs(char *path)
 		// > if it is a file then u just add it normally.
 		if (fs->ifs_size >= fs->ifs_cap) 
 			fs->ifs = realloc(fs->ifs, (fs->ifs_cap) * sizeof(*fs) * 2);
-		
+			
 		tmp = join_path(fs->full_path, entries[i]);
+		
 		fs->ifs[i - 2] = slurp_fs(tmp);
+		fs->ifs[i - 2]->parent = fs;
 		// > retrieve the name of the entry.
 		free(fs->ifs[i - 2]->value);
 		fs->ifs[i - 2]->value = string_dup(entries[i]);
@@ -156,11 +164,15 @@ void print_fs(filessystem_t *fs, int depth)
 {
 	// TODO: Make a func that prints a tree of the directories struct.
 	if (!fs) return;
+
+	if (fs->parent == NULL)
+		printf("ROOT: %s\n", fs->full_path);
+
 	if (fs->etype == FILE__) {
 		for (int j = 0; j < depth; ++j)
 			printf(" ");
 
-		printf("{FILE} %s\n", (fs->value));
+		printf("{ FILE } %s\n", (fs->value));
 		return;
 	}
 
