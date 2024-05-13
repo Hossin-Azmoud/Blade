@@ -137,27 +137,47 @@ filessystem_t *slurp_fs(char *path)
 	
 	memset(fs->ifs, 0, FILE_SYSTEM_CAP * sizeof(*(fs->ifs)));
 
-	for (int i = 2; entries[i] != NULL; i++) {	
+	for (int i = 0; entries[i] != NULL; i++) {	
 		// > Resolve the path. [DONE]
 		// > if the path is for a directory u call 
 		// the current func on it and store the result in fs->ifs[i];
 		// > if it is a file then u just add it normally.
-		if (fs->ifs_size >= fs->ifs_cap) 
-			fs->ifs = realloc(fs->ifs, (fs->ifs_cap) * sizeof(*fs) * 2);
+		if (i >= 2) {
+			if (fs->ifs_size >= fs->ifs_cap) 
+				fs->ifs = realloc(fs->ifs, (fs->ifs_cap) * sizeof(*fs) * 2);
+				
+			tmp = join_path(fs->full_path, entries[i]);
 			
-		tmp = join_path(fs->full_path, entries[i]);
-		
-		fs->ifs[i - 2] = slurp_fs(tmp);
-		fs->ifs[i - 2]->parent = fs;
-		// > retrieve the name of the entry.
-		free(fs->ifs[i - 2]->value);
-		fs->ifs[i - 2]->value = string_dup(entries[i]);
-		fs->ifs_size++;
-		free(tmp);
+			fs->ifs[i - 2] = slurp_fs(tmp);
+			fs->ifs[i - 2]->parent = fs;
+			// > retrieve the name of the entry.
+			free(fs->ifs[i - 2]->value);
+			fs->ifs[i - 2]->value = string_dup(entries[i]);
+			fs->ifs_size++;
+			free(tmp);
+		}
+		free(entries[i]);
 	} 
 	
+	free(entries);
 	fs->ifs[fs->ifs_size] = NULL;
 	return (fs);
+}
+
+void free_fs(filessystem_t *fs) {
+	if (!fs) return;
+
+	if (fs->etype == DIR__) {
+		// TODO: Make an algorithm to free the strcuture.
+		for (size_t i = 0; (i < fs->ifs_size) && (fs->ifs[i] != NULL); i++) {
+			free_fs(fs->ifs[i]);
+		}
+		free(fs->ifs);
+	}
+
+	free(fs->value);
+	free(fs->full_path);
+	free(fs);
 }
 
 void print_fs(filessystem_t *fs, int depth)
@@ -193,6 +213,7 @@ void some_function2(char *path) {
 	// > a rm fucntion that deletes a dir tree from the tail to the head.
 	if (fs != NULL) {
 		print_fs(fs, 1);
+		free_fs(fs);
 	} else {
 		printf("There was a problem loading the file system at: %s\n", path);
 	}
