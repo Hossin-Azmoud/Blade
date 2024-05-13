@@ -8,6 +8,7 @@ size_t fsize(FILE *stream) {
     return (size_t) size;
 }
 
+
 bool file_exists(const char *fpath)
 {
     struct stat sb;

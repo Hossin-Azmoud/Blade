@@ -21,11 +21,12 @@
 #include <logger.h>
 #include <file_browser.h>
 #include <clipboard.h>
+#include <common.h>
 #include <assert.h>
 #include <colors.h>
-#include <common.h>
 #include <emojis.h>
 #include <signals_.h>
+#include <filessystem.h>
 
 #define INIT_COMMAND_CAP 25
 

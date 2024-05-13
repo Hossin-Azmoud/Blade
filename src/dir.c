@@ -10,6 +10,7 @@ static int file_cmp(const void *ap, const void *bp)
 char **read_entire_dir(const char *dir_path)
 {
     char **files = (char **) malloc(sizeof(char *) * FB_MAX_ENT);
+	int cap = FB_MAX_ENT;
     int it = 0;
     DIR *dir = NULL;
     int dir_name_size = 0;
@@ -24,9 +25,14 @@ char **read_entire_dir(const char *dir_path)
     struct dirent *ent = readdir(dir);
     
     for (;ent != NULL; ++it) {
-
-        dir_name_size =  strlen(ent->d_name);
-        files[it] = malloc(dir_name_size + 1);
+		
+        if (it >= cap) {
+			cap *= 2;
+			files = realloc(files, sizeof(char *) * cap);
+		}
+		
+		dir_name_size =  strlen(ent->d_name);
+		files[it] = malloc(dir_name_size + 1);
         files[it] = strcpy(files[it], ent->d_name);
         // da_append(files, temp_strdup());
         ent = readdir(dir);
