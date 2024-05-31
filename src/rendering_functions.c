@@ -7,10 +7,11 @@ static char *modes[] = {
     "INSERT     ",
     "FILEBROWSER",
     "COMMAND    ",
+    "MPLAYER"
 };
 
 char *get_modeascstr(editorMode mode) {
-    if (mode <= COMMAND) {
+    if (mode <= MPLAYER) {
         return modes[mode];
     }
     return "NONE";
@@ -159,8 +160,11 @@ void editor_render(MiEditor *E)
         E->char_deleted = false;
     }
  
-    erase();
-    curs_set(1);
+    if (E->mode != MPLAYER) {
+      erase();
+      curs_set(1);
+    }
+    
  
     switch (E->mode) {
         case FILEBROWSER: {
@@ -184,6 +188,13 @@ void editor_render(MiEditor *E)
                 render_file_browser(E);
             }
         } break;
+        case MPLAYER: {
+          sprintf(E->notification_buffer, "PLAYING %s", E->mplayer->file);
+          editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
+          refresh();
+          if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
+          return;
+        } break;
         default: {
             render_lines(E->renderer);
         } break;
@@ -192,8 +203,7 @@ void editor_render(MiEditor *E)
     // E->notification_buffer = strcat(E->notification_buffer, );
     editor_render_details(E->renderer, E->fb->open_entry_path, E->mode, E->notification_buffer);
     if (strlen(E->notification_buffer) > 0) memset(E->notification_buffer, 0, 1024);
-
-    if (E->mode == FILEBROWSER) return;
+    if (E->mode == FILEBROWSER || E->mode == MPLAYER) return;
     editor_apply_move(E->renderer);
     refresh();
 }

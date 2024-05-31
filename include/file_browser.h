@@ -1,23 +1,10 @@
 #ifndef FILE_B_H
 #define FILE_B_H
-
+// TODO: Use a file system instead of a file browser.
 #include <limits.h>
+#include <filessystem.h>
 
 #define FB_MAX_ENT 127
-
-typedef enum BrowseEntryT {  
-    FILE__ = 0x0,
-    DIR__,
-    NOT_EXIST
-} BrowseEntryT;
-
-typedef enum FileType {
-    PYTHON = 0,
-    C,
-    JS,
-    GO, 
-    UNSUP
-} FileType;
 
 typedef struct BrowseEntry {
     BrowseEntryT etype;       // FILE__, DIR__, NOT_EXIST.
@@ -34,7 +21,7 @@ typedef struct FileBrowser {
     BrowseEntry *entries;
     BrowseEntryT type;
     char *open_entry_path; // current working path. it can the currrent open dir, or current open file.
-    char *rel_path;
+    char *rel_path; // Not the Real path but the ralative one 
 } FileBrowser;
 
 BrowseEntryT get_entry_type(char *path);

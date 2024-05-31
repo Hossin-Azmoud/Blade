@@ -26,7 +26,7 @@ char **read_entire_dir(const char *dir_path)
     
     for (;ent != NULL; ++it) {
 		
-        if (it >= cap) {
+        if (it >= cap - 1) {
 			cap *= 2;
 			files = realloc(files, sizeof(char *) * cap);
 		}

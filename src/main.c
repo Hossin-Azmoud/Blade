@@ -28,8 +28,10 @@ bool check_args(int argc, char **argv)
 }
 
 
-#define EXP
-int main(int argc, char **argv) {
+
+// #define EXP
+int main(int argc, char **argv)
+{
     (void) argc; 
     int ret = 0;
 
@@ -73,6 +75,4 @@ void some_function() {
 
     endwin();
 }
-
-
 

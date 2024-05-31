@@ -27,6 +27,8 @@
 #include <emojis.h>
 #include <signals_.h>
 #include <filessystem.h>
+#include <miplayer.h>
+
 
 #define INIT_COMMAND_CAP 25
 
@@ -111,7 +113,8 @@ typedef enum editorMode {
     VISUAL,
     INSERT,
     FILEBROWSER,
-    COMMAND
+    COMMAND,
+    MPLAYER
 } editorMode;
 char *get_modeascstr(editorMode mode);
 
@@ -251,6 +254,7 @@ typedef struct MiEditor {
     WINDOW *ewindow;
     vKeyBindingQueue binding_queue;
     FileBrowser *fb;
+    MiAudioPlayer *mplayer; 
     volatile sig_atomic_t resized;
 } MiEditor;
 
@@ -338,6 +342,10 @@ void editor_update(int c, MiEditor *E);
 void render_file_browser(MiEditor *E);
 void editor_file_browser(int c, MiEditor *E);
 
+// mplayer
+void editor_player_update(MiEditor *E, int c);
+void *editor_player_update__internal(void *E);
+void editor_init_player_routine(MiEditor *E, char *mp3_file);
 
 // PATH PARSING.
 Path *path_alloc(int cap);

@@ -136,7 +136,7 @@ void editor_insert(int c, MiEditor *E)
             // TDO: Implement this.
             editor_dl(E->renderer->current);
             E->char_deleted = true;
-        } break;		
+        } break;    
         case NL: {
             editor_new_line(E->renderer, true);
             if (!E->renderer->count) E->renderer->count++;    
@@ -181,16 +181,25 @@ void editor_file_browser(int c, MiEditor *E)
     char label[4096] = {0};
     switch (c) {
         case NL: {
-            BrowseEntry entry = E->fb->entries[E->fb->cur_row];            
+            
+            BrowseEntry entry = E->fb->entries[E->fb->cur_row];
+            FileType ft       =  entry.ftype;
             E->fb   = realloc_fb(E->fb, entry.value, E->renderer->win_h);
 
             if (E->fb->type != DIR__) {
-                E->renderer->file_type = get_file_type (E->fb->open_entry_path);
-                load_file(E->fb->open_entry_path, E->renderer);
-                E->mode = NORMAL;
+                if (ft == MP3) { 
+                  editor_init_player_routine(E, E->fb->open_entry_path);
+                  // after the editor finished we need to 
+                  E->fb = realloc_fb(E->fb, "..", E->renderer->win_h);
+                  E->mode = FILEBROWSER;
+                } else {
+                  E->renderer->file_type = get_file_type (E->fb->open_entry_path);
+                  load_file(E->fb->open_entry_path, E->renderer);
+                  E->mode = NORMAL;
+                }
                 return;
             }
-            
+  
             E->mode = FILEBROWSER;
         } break;
         case 'd': {

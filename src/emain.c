@@ -10,23 +10,24 @@ int editor(char **argv)
     if (E == NULL) {
         goto EXIT_AND_RELEASE_RESOURCES;
     }
-	
+  
     while (true) {
         
         // NOTE: Dont remove halfdelay because it is essencial for some signal interrupts, sometimes u need to wait for something to happen before
         // updating.
-		// halfdelay(0.100); // NOTE: wait ((1000ms/10ms) * n) => (1000ms/10ms) * 1ms => 100ms.
-	    c = getch();
-		if (c == KEY_RESIZE) {
-			editor_load_layout(E);
-			// re-init the file browser..    
-			if (E->fb->type == DIR__) 
-				reinit_fb_bounds(E->fb, E->renderer->win_h);
-			sprintf(E->notification_buffer, "resize detected!");
-			goto UPDATE_EDITOR;
-		}
+        // halfdelay(0.100); // NOTE: wait ((1000ms/10ms) * n) => (1000ms/10ms) * 1ms => 100ms.
+      c = getch();
+      if (c == KEY_RESIZE) {
+        editor_load_layout(E);
+      // re-init the file browser..    
+        if (E->fb->type == DIR__) 
+          reinit_fb_bounds(E->fb, E->renderer->win_h);
+        
+      sprintf(E->notification_buffer, "resize detected!");
+        goto UPDATE_EDITOR;
+      }
 
-		editor_load_layout(E);
+      editor_load_layout(E);
         if (is_move(c)) {
             editor_handle_move(c, E);
             goto UPDATE_EDITOR;
@@ -39,7 +40,7 @@ int editor(char **argv)
                 goto UPDATE_EDITOR;
             }
         }
-
+        
         switch (E->fb->type) 
         {
             case DIR__: { 

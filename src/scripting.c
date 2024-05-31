@@ -6,6 +6,7 @@ char *file_type_as_str(FileType s)
         case PYTHON: return "PYTHON";
         case C: return "C";
         case JS: return "JAVASCRIPT";
+        case MP3: return "MP3";
         default: return "UNSUPPORTED";
     }    
     
@@ -189,7 +190,7 @@ FileType get_file_type(char *spath)
     if (!strcmp(extension, ".js")) return JS;
     if (!strcmp(extension, ".go")) return GO;
     if (!strcmp(extension, ".c") || !strcmp(extension, ".h"))  return C;
-
+    if (!strcmp(extension, ".mp3")) return MP3;
     return UNSUP;
 }
 

@@ -1,5 +1,5 @@
 ## NOW WORKING ON:
-    [] ability to delete files
+    [] add a music player haha.
 
 doing now => [] ability to create/delete directories
 
@@ -8,12 +8,14 @@ doing now => [] ability to create/delete directories
     [*]   => Done
     [-]   => delayed
 
-
 ## defs
     review: is an idea or a note  about a feature that was implemented but it is kind of wrong and should be fixed.
     feature: something that was not yet implemented and should be
 
-### Colors: Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
+## refs
+    Colors: Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
+    
+## DONE
     [*] Pick better coloring for the editor.
     [*] Modes (Normal, Visual, Insert).
     [*] Add copy/paste functionality
@@ -21,15 +23,13 @@ doing now => [] ability to create/delete directories
     [*] Handle Shift + key
     [*] Handle mouse pressing.
     [*] remove the old way of copy paste and introdude a struct.. ClipBoard to be used as a storage for any coppied or deled lines.
-
-## PROTO:
-
+    [*] ability to delete files
     [*] add some keybindings
     [*]  add text highlighting for python as a test..
     [*]  Make the editor know which script it is edeting then apply this to the lexer so the syntax highlighting becomes better.
     [*]  add the cut capability. <- Working here.
     [*] Fix the cut, copy, paste and refactor this feature.
-    
+    [*] command Mode so we can add vim bindings.
 
 ## POSSIBLE NAMES:
     > Fox
@@ -47,7 +47,7 @@ doing now => [] ability to create/delete directories
     [...]  refactor -> Working Here.
     [...]  Work on colors and UI. -> Working Here.
     [...]  add the file browser.
-    [*] command Mode so we can add vim bindings.
+
     [] ability to create/delete directories.
     [] add types for c and python so u can add new types and colorize them differantly.    
     [] CD command to change the current dir..
@@ -115,6 +115,3 @@ doing now => [] ability to create/delete directories
             JS     => tokenize_as_js(&line);
         }
     This way I would have more strict and straight forward rules to tokenize the lines based of the type of the file I am editing
-
-
-
