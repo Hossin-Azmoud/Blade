@@ -1,11 +1,13 @@
 # Mi
+Tui text editor made in ncurses, with an embdedded Music player.
 ### PYTHON
 ![EDITOR-UI-PY](./img/V0.png)
 ### C
 ![EDITOR-UI-C](./img/V1.png)
 ### JS
 ![EDITOR-UI-JS](./img/V2.png)
-Tui text editor made in ncurses
+### Music player
+![MusicPlayer](./img/music.png)
 
 # Quick start
 
