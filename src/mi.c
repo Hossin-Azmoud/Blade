@@ -1,5 +1,7 @@
 #include <mi.h>
 #include <logger.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 WINDOW *init_ncurses_window()
 {
@@ -390,7 +392,6 @@ Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t end)
 {
     int n  = cut_data(line->content, start, end, line->size);
     Line *local_line = line;
-    Line *next = (line->next);
     bool is_origin = (line_ren->origin == line);
     bool is_start  = (line_ren->start == line);
     bool is_end    = (line_ren->end == line);
@@ -399,51 +400,51 @@ Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t end)
     local_line->x     = start;
     
     if (is_origin && is_start) {
-		// We save the next line after the first line then we switch the start to it..
-		if (is_end) {
+      // We save the next line after the first line then we switch the start to it..
+      if (is_end) {
+        memset(local_line->content, 0x0, LINE_SZ);
+              memset(local_line->token_list._list, 0x0, sizeof (MIToken) * MAX_TOKENS);
+        local_line->size = 0;
+        local_line->x    = 0;
+        return local_line; 
+      }
 
-			memset(local_line->content, 0x0, LINE_SZ);
-            memset(local_line->token_list._list, 0x0, sizeof (MIToken) * MAX_TOKENS);
-			local_line->size = 0;
-			local_line->x    = 0;
+      local_line = disconnect_line(line);
 
-			return local_line;
-		}
+      // NOTE: This function fails for some reason so we need to cache the next lne.
+      if (local_line == NULL) {
+        fprintf(stderr, "Error cutting some line,");
+        exit(1);
+      }
 
-		local_line = line->next;
-		disconnect_line(line);
+      line_ren->origin  = local_line;
+      line_ren->start   = local_line;
+      line_ren->current = local_line;
 
-		line_ren->origin  = local_line;
-		line_ren->start   = local_line;
-		line_ren->current = local_line;
-
-		line_ren->end = line_ren->end->next;
-		line_ren->count--;
-		return local_line;
+      if (line_ren->end->next)
+        line_ren->end = line_ren->end->next;
+      line_ren->count--;
+      return local_line;  
     }
 
     if (local_line->size == 0) {
-        local_line = disconnect_line(line);
-
-        if (is_start) {
-            line_ren->start    = next;
-            line_ren->current  = next;
-            if (is_origin) {
-                line_ren->origin   = next;
-            }
-
-            if (line_ren->end->next) {
-                line_ren->end = line_ren->end->next;
-            }
-        } else if (is_end) {
-            line_ren->end      = local_line;
-            line_ren->current  = local_line;
-        } else {
-            line_ren->current = local_line;
-            if (line_ren->end->next) {
-                line_ren->end = line_ren->end->next;
-            }
-        }
+      local_line = disconnect_line(line);
+      line_ren->current = local_line;
+      if (is_start && is_end) {
+      line_ren->start = local_line;
+      line_ren->end   = local_line;
+      } else {
+      if (is_start) {
+        line_ren->start    = local_line;
+        if (line_ren->end->next)
+          line_ren->end = line_ren->end->next;
+      } else if (is_end) {
+        line_ren->end = local_line;
+      } else {
+        if (line_ren->end->next)
+          line_ren->end = line_ren->end->next;
+      }
+      }
     }
 
     // local_line->x = start;
@@ -472,28 +473,25 @@ void clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end) {
 
     curr = start._line;
     get_string_chunk(chunk, 
-        curr->content, 
-        start.x, 
-        curr->size, 
-        curr->size
+      curr->content, 
+      start.x, 
+      curr->size, 
+      curr->size
     );
 
     chunk_append_char(chunk, '\n');
     
     curr = cut_line(line_ren, curr, start.x, curr->size);
-    curr = curr->next;
-    
+     
     while (curr != end._line) {
-        
         get_string_chunk(chunk, 
             curr->content, 
             0,
             curr->size, 
             curr->size
         );
-    
+        
         curr = cut_line(line_ren, curr, 0, curr->size);
-        curr = curr->next;
         chunk_append_char(chunk, '\n');
     }
     
@@ -505,7 +503,7 @@ void clipboard_cut_chunk(Lines_renderer *line_ren, Vec2 start, Vec2 end) {
             curr->size
         );
 
-        curr = cut_line(line_ren, curr, 0, end.x);
+        cut_line(line_ren, curr, 0, end.x);
         chunk_append_char(chunk, '\n');
     }
     

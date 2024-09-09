@@ -27,17 +27,14 @@ void editor_handle_binding(Lines_renderer *line_ren, vKeyBindingQueue *bindings)
         } break;
 
         case DEL_LINE: {
-            int rcol =line_ren->current->x;
-			clipboard_add_line(line_ren->current->content); 
-            cut_line(line_ren, line_ren->current, 0, line_ren->current->size);
-            if (line_ren->current->next && (line_ren->origin != line_ren->current)) {
-            	line_ren->current = line_ren->current->next;
-				if (rcol < line_ren->current->size) {
-					line_ren->current->x = rcol;
-				} else {
-					line_ren->current->x = rcol;
-				}
-            }
+          int rcol = line_ren->current->x;
+          clipboard_add_line(line_ren->current->content); 
+          cut_line(line_ren, line_ren->current, 0, line_ren->current->size);
+				  if (rcol < line_ren->current->size) {
+					  line_ren->current->x = rcol;
+				  } else {
+					  line_ren->current->x = rcol;
+				  }
         } break;
         case NOT_VALID: {
         } break;

@@ -42,12 +42,15 @@ void editor_push_data_from_clip(Lines_renderer *line_ren)
             if ((*data == '\n') && (chunk->lines) >= 1) {
                 
                 if (!(line_ren->current->next) || line_ren->current->size > 0) {
-                    line_ren->current->x = line_ren->current->size;
-                    editor_new_line(line_ren, true);
-                    continue;
+                  line_ren->current->x = line_ren->current->size;
+                  editor_new_line(line_ren, true);
+                    
+                  if (line_ren->current->y - line_ren->start->y == line_ren->win_h - MENU_HEIGHT_) {
+                      line_ren->end = line_ren->current;
+                  }
+                  continue;
                 }
             }
-
             line_push_char(line_ren->current, *data, true);
         }
     }

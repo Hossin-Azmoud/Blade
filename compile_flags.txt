@@ -1,0 +1,11 @@
+ -lncursesw
+-pthread 
+Wall 
+-pedantic 
+-g 
+-ggdb 
+-Wextra 
+-std=c11 
+-O3
+-I./include/
+-lm

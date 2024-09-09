@@ -1,5 +1,7 @@
 # Mi
 Tui text editor made in ncurses, with an embdedded Music player.
+### KITTY
+![MI_INKITY](./img/kitty.png)
 ### PYTHON
 ![EDITOR-UI-PY](./img/V0.png)
 ### C

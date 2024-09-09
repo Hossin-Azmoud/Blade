@@ -5,19 +5,18 @@ void editor_up(Lines_renderer *line_ren)
     size_t col = line_ren->current->x;
 
     if (line_ren->current->prev) {
-
         if (line_ren->current->y - line_ren->start->y == 0) {
             line_ren->start = line_ren->start->prev;
-            if (line_ren->end->prev) {
-                line_ren->end = line_ren->end->prev;
+            if (line_ren->end->prev && line_ren->end->y - line_ren->start->y > line_ren->win_h - MENU_HEIGHT_) {
+              line_ren->end = line_ren->end->prev;
             }
         }
         
         line_ren->current = line_ren->current->prev;
         if (col < (size_t)line_ren->current->size) {
-            line_ren->current->x = col;
+          line_ren->current->x = col;
         } else {
-            line_ren->current->x = line_ren->current->size;
+          line_ren->current->x = line_ren->current->size;
         }
     }
 }

@@ -102,24 +102,28 @@ void free_lines(Line *lines) {
 
 Line *disconnect_line(Line *head)
 {
-    Line *current = head;
-    Line *prev    = current->prev;
-    Line *next    = current->next;
-    
-    if (!prev && !next) {
-        return current;
-    }
+  Line *current = head;
+  Line *prev    = current->prev;
+  Line *next    = current->next;
+  
+  if (!prev && !next) {
+    return current;
+  }
+  
+  if (prev)
+    prev->next = next;
 
-    if (prev)
-        prev->next = next;
+  if (next)
+    next->prev = prev;
 
-    if (next)
-        next->prev = prev;
-
-    free(current->content);
-    free(current);
-    lines_shift(next, -1); 
-	return prev;
+  free(current->content);
+  free(current);
+  lines_shift(next, -1); 
+  if (next)
+    return (next);
+  if (prev)
+    return (prev);
+  return (NULL);
 }
 
 
