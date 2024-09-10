@@ -27,8 +27,6 @@ bool check_args(int argc, char **argv)
     return false;
 }
 
-
-
 // #define EXP
 int main(int argc, char **argv)
 {
@@ -36,7 +34,7 @@ int main(int argc, char **argv)
     int ret = 0;
 
 #ifdef EXP
-    (void) argv;
+ (void) argv;
 	if (argc > 1) {
 		test_fs(argv[1]); 
 	}
@@ -48,31 +46,3 @@ int main(int argc, char **argv)
 #endif /* ifdef EXP */
     return ret;
 }
-
-void some_function() {
-    int w, h, mx, my, c = 0, x = 0, y = 0;
-
-    WINDOW *win = initscr();
-
-    raw();
-    keypad(stdscr, TRUE);
-    noecho();
-    getmaxyx(win, h, w);
-    getbegyx(win,my,mx);
-
-	while (c != 'q')
-    {
-        mvprintw(y, x, "[%s] w: %i, h: %i, minx: %i miny: %i\n", 
-                 getenv("TERM"), w, h, mx, my);
-        getmaxyx(win, h, w);
-        getbegyx(win,my,mx);
-        c = getch();
-        if (c == KEY_RESIZE) {
-			mvprintw(y++, x, "Resize.\n");
-		}
-		y++;
-    }
-
-    endwin();
-}
-

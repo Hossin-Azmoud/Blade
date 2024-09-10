@@ -229,12 +229,11 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair)
             } break;
             case NL: {
                 if (size == 0) {
-                    result->type = ERROR;
-                    result->etype = EMPTY_BUFF;
-                    result->data = strcpy(result->data, "File path/name can not be empty!");
-                    return result;
+                   result->type = ERROR;
+                   result->etype = EMPTY_BUFF;
+                   result->data = strcpy(result->data, "File path/name can not be empty!");
+                   return result;
                 }
-
                 result->type = OK;
                 return result;
             } break;
@@ -267,8 +266,8 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair)
             default: {
                 if (isprintable(byte)) {
                     memmove(result->data + buffer_idx + 1,
-                        result->data + buffer_idx,
-                        size - buffer_idx
+                      result->data + buffer_idx,
+                      size - buffer_idx
                     );
 
                     result->data[buffer_idx++] = byte;

@@ -2,7 +2,7 @@
 int editor(char **argv)
 {
     setlocale(LC_CTYPE,""); 
-    open_logger();
+    // open_logger();
     emoji_init(); // Init the emojis cache.
     // system("reset");
     MiEditor *E = init_editor(argv[1]);
@@ -60,9 +60,6 @@ int editor(char **argv)
 
 EXIT_AND_RELEASE_RESOURCES:
     release_editor(E);
-    close_logger();
+    // close_logger();
     return 0;
 }
-
-
-

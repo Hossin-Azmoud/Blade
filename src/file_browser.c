@@ -72,7 +72,8 @@ void fb_append(FileBrowser *self, char *name)
     if (!name) return;
     if (self->size + 1 >= self->cap) {
         self->cap    += 10;
-        self->entries = realloc(self->entries, sizeof(sizeof(BrowseEntry) * self->cap));
+        self->entries = realloc(self->entries, 
+          sizeof(BrowseEntry) * self->cap);
     } 
 
 
@@ -181,7 +182,7 @@ FileBrowser *update_fb(FileBrowser *fb, char *new_path) {
         char *p = resolve_path(fb->open_entry_path, new_path);
         free(fb->open_entry_path);
         fb->open_entry_path = p;
-        fprintf(get_logger_file_ptr(), "resolve: %s %p\n", fb->open_entry_path, fb->open_entry_path);
+        fprintf(get_logger_file_ptr(), "resolve: %s %p\n", fb->open_entry_path, (void *)fb->open_entry_path);
     }
     
     fb->type    = get_entry_type(fb->open_entry_path);

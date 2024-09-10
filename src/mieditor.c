@@ -1,6 +1,6 @@
 #include <mi.h>
 
-static Vec2 vec2() {
+static Vec2 vec2(void) {
     return (Vec2) {.x = 0, .y=0, ._line=NULL};
 }
 
@@ -101,7 +101,7 @@ MiEditor *editor_register_(MiEditor *E)
     return E_;
 }
 
-MiEditor *editor_get() 
+MiEditor *editor_get(void) 
 {
     return editor_register_(NULL); 
 }

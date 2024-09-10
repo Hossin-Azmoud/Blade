@@ -12,8 +12,7 @@ main:
 	mkdir -p $(OUT_DIR) ; $(CC) $(CFLAGS) $(INCLUDE) -o $(OUT_FILE) $(SRC) $(LIBS)
 
 run:
-	$(OUT_FILE) $(TEST_FILE)
-	cat $(TEST_FILE)
+	$(OUT_FILE) .
 
 debug:
 	valgrind $(OUT_FILE) $(TEST_FILE)

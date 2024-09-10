@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-WINDOW *init_ncurses_window()
+WINDOW *init_ncurses_window(void)
 {
     WINDOW *win = initscr();
 
