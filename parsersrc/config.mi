@@ -1,2 +1,3 @@
-# CONFIG FOR THE MI EDITOR >~<
-# Example fields.
+autosave: true
+indent_char: " "
+indent_count: 6
