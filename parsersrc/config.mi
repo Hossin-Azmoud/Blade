@@ -1,4 +1,3 @@
-
-autosave: true
+autosave: 1
 indent_char: " "
 indent_count: 6

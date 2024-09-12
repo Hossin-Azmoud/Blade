@@ -1,4 +1,5 @@
 #include "parser.h"
+#include <stdio.h>
 /*** 
   Docs:
   Defauls
@@ -19,6 +20,13 @@ int main(int count, char **vec) {
   EditorConfig_t *cfg = load_editor_config(file);
   // TODO: integrate the config into the editor.
   // > Come up with new config fields.
+  printf("-------Parsed configuration------\n");
+  printf("{\n");
+    printf("  autosave: %s, \n", cfg->autosave ? "true" : "false");
+    printf("  indent_char: %c, \n", cfg->indent_char);
+    printf("  indent_count: %d, \n", cfg->indent_count);
+  printf("}\n");
+  
   free(cfg);
-    return (0);
+  return (0);
 }

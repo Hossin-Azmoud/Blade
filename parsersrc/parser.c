@@ -39,18 +39,29 @@ EditorConfig_t *load_editor_config(char *file)
     // toks = split(next, ": \t\n", &count);
     TokenList *tokens = retokenize_line(next);
 
-    if (tokens->size != 3)
-    {
-      fprintf(stderr, "[ERROR] line %i <%s> has a syntax error\n", i + 1, next);
-      free(cfg);
-      array_free(toks);
-      exit(1);
-    }
+    // if (tokens->size != 3)
+    // {
+    //   fprintf(stderr, "[ERROR] line %i <%s> has a syntax error\n", i + 1, next);
+    //   free(cfg);
+    //   array_free(toks);
+    //   exit(1);
+    // }
+    
     char *rhs = tokens->_list[0].data;
     char *expr = tokens->_list[1].data; // usually : or =
     assert(*expr == ':' || *expr == '=');
     char *lhs = tokens->_list[2].data;
-    printf("%i: %s | %s\n", i, rhs, lhs);
+    if (strcmp(rhs, "autosave") == 0) {
+      cfg->autosave = atoi(lhs);
+    } else if (strcmp(rhs, "indent_char") == 0) {
+      assert(*lhs == '"');
+      assert(*(lhs + 1) != 0);
+
+      cfg->indent_char = *(lhs + 1); // The letter directly after the qoutes.
+    } else if (strcmp(rhs, "indent_count") == 0){
+      cfg->indent_count = atoi(lhs);
+      // printf("VOUNT: %s\n", lhs);
+    }
   }
   // TODO: split it by : to get a key and a value.
   // free the allocated things.
