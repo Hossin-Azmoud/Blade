@@ -259,7 +259,7 @@ typedef struct MiEditor {
 } MiEditor;
 
 int editor(char **argv);
-WINDOW *init_ncurses_window();
+WINDOW *init_ncurses_window(void);
 int load_file(char *file_path, Lines_renderer *line_ren);
 int save_file(char *file_path, Line *lines, bool release);
 void reinit_renderer(char *file_path, Lines_renderer *line_ren);

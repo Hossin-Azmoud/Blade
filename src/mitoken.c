@@ -118,7 +118,7 @@ NEXT:
 	return current_x;
 }
 
-inline int ishexdigit(char c) {
+static int ishexdigit(char c) {
 	return (
 		(c >= 'A' && c <= 'F')
 		||	

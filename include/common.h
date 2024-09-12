@@ -1,11 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include <string.h>
+#include <filessystem.h>
 #define TEC_MOST_SIG_BIT 128
-
-typedef struct s {
-    int s;
-} s;
 
 int   max(int a, int b);
 int   min(int a, int b); 

@@ -245,37 +245,40 @@ TokenList *retokenize_line(char *line)
                 } break;
 
                 case '@': {
-                    token_list_append(line, token_list, AT, x, x);
-                    x++;
+                  token_list_append(line, token_list, AT, x, x);
+                  x++;
                 } break;
                 
                 case '!': {
-                    token_list_append(line, token_list, BANG, x, x);
-                    x++;
+                  token_list_append(line, token_list, BANG, x, x);
+                  x++;
                 } break;
                 
                 case '+': {
-                    token_list_append(line, token_list, PLUS, x, x);
-                    x++;
+                  token_list_append(line, token_list, PLUS, x, x);
+                  x++;
                 } break;
                    
                 case '-': {
-                    token_list_append(line, token_list, MINUS, x, x);
-                    x++;
+                  token_list_append(line, token_list, MINUS, x, x);
+                  x++;
                 } break;
                 
                 case ';': {
-                    token_list_append(line, token_list, SEMICOLON, x, x);
-                    x++;
+                  token_list_append(line, token_list, SEMICOLON, x, x);
+                  x++;
                 } break;
                 case ':': {
-                    token_list_append(line, token_list, COLON, x, x);
-                    x++;
+                  token_list_append(line, token_list, COLON, x, x);
+                  x++;
                 } break;
-
                 case '/': {
-                    token_list_append(line, token_list, FSLASH, x, x);
-                    x++;
+                  if (line[x + 1] == '/') {
+                    token_list_append(line, token_list, COMMENT, x, x);
+                    return (token_list);
+                  }
+                  token_list_append(line, token_list, FSLASH, x, x);
+                  x++;
                 } break;
                 
                 case '\\': {
