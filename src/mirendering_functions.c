@@ -1,25 +1,26 @@
 #include <mi.h>
+#include <string.h>
 
 // Possible modes in the editor!
 static char *modes[] = { 
-    "NORMAL     ",
-    "VISUAL     ",
-    "INSERT     ",
-    "FILEBROWSER",
-    "COMMAND    ",
-    "MPLAYER"
+  "NORMAL     ",
+  "VISUAL     ",
+  "INSERT     ",
+  "FILEBROWSER",
+  "COMMAND    ",
+  "MPLAYER"
 };
 
 char *get_modeascstr(editorMode mode) {
-    if (mode <= MPLAYER) {
-        return modes[mode];
-    }
-    return "NONE";
+  if (mode <= MPLAYER) {
+    return modes[mode];
+  }
+  return "NONE";
 }
 
 static int evenize(const char *s) {
-    int length = strlen(s);
-    return (length % 2) ? length : length + 1;
+  int length = strlen(s);
+  return (length % 2) ? length : length + 1;
 }
 
 void editor_render_details(Lines_renderer *line_ren, char *_path, editorMode mode_, char *notification)
@@ -353,7 +354,7 @@ void render_file_browser(MiEditor *E)
         for (size_t y = E->fb->start; y <= E->fb->end; y++) {
             xpadding = 5;
             BrowseEntry entry = E->fb->entries[y];  
-    
+            int length = strlen(entry.value); 
             switch (entry.etype) {
                 // TODO: render a file emoji if it is a file, otherwise render a folder emoji.
                 case DIR__: {
@@ -375,12 +376,15 @@ void render_file_browser(MiEditor *E)
             mvprintw(y + ypadding - E->fb->start, xpadding, "%3s ", emoji->decoded);
             colorize(y + ypadding - E->fb->start, xpadding, emoji->size, CALL_SYNTAX_PAIR);
             xpadding += emoji->size;
-            mvprintw(y + ypadding - E->fb->start, xpadding, entry.value);
-            
+            mvprintw(y + ypadding - E->fb->start, xpadding, "%s", entry.value);
+            if (entry.selected) {
+              mvprintw(y + ypadding - E->fb->start, xpadding + length, " [*]");
+              length += 4;
+            }
             if (row == y) {
-                colorize(row + ypadding - E->fb->start, xpadding, 
-                    strlen(entry.value), 
-                    HIGHLIGHT_WHITE);
+              colorize(row + ypadding - E->fb->start, xpadding, 
+                length, 
+                HIGHLIGHT_WHITE);
             }
         }
     }

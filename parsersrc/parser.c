@@ -54,9 +54,9 @@ EditorConfig_t *load_editor_config(char *file)
     if (strcmp(rhs, "autosave") == 0) {
       cfg->autosave = atoi(lhs);
     } else if (strcmp(rhs, "indent_char") == 0) {
+      
       assert(*lhs == '"');
       assert(*(lhs + 1) != 0);
-
       cfg->indent_char = *(lhs + 1); // The letter directly after the qoutes.
     } else if (strcmp(rhs, "indent_count") == 0){
       cfg->indent_count = atoi(lhs);

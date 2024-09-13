@@ -78,8 +78,14 @@ typedef struct TokenList {
     MIToken *_list;
     int size, cap;
 } TokenList;
+typedef struct MiStatus_s {
+  bool ok;
+  char *errmsg; // Should be exclusively static.. read only.
+} MiStatus_t;
+
 typedef struct EditorConfig_s {
-  bool autosave; // Unused
+  MiStatus_t status;
+  bool autosave;
   char indent_char;
   int indent_count;
 } EditorConfig_t;

@@ -1,4 +1,8 @@
+#include <file_browser.h>
 #include <mi.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -174,10 +178,90 @@ void editor_new_entry(char *path, MiEditor *E)
     release_path(p);
 }
 
+void remove_entry_(MiEditor *E, size_t index, bool notified) {
+  char label[4096];
+  BrowseEntry entry = E->fb->entries[index];
+  if (notified) {
+    if (entry.etype == FILE__) {
+      // TODO: Remove the current entry from the file system.
+      // FUNC: remove(fullP)
+      remove (entry.full_path);
+      // TODO: Remove the current entry from the fb->entries
+      // FUNC: void remove_entry(FileBrowser *fb) 
+      remove_entry_by_index(E->fb, index);
+      return;
+    }
+    // TODO: Do the same thing for the Directories.
+    sprintf(E->notification_buffer, "Can not delete Directories yet!");
+    return;
+  }
+  int y = E->renderer->win_h - 2;
+  sprintf(label, "> Really wanna do that (delete: %s)(y|Y|n|N): ", entry.full_path);
+  mvprintw(y, 0, "%s", label);
+  Result *res = make_prompt_buffer(strlen(label), 
+    y, E->renderer->win_w, DRACULA_PAIR);
+
+  switch(res->type) {
+    case SUCCESS: {
+      if (!strcmp(res->data, "y") || !strcmp(res->data, "Y")) 
+      {
+        if (entry.etype == FILE__) {
+          // TODO: Remove the current entry from the file system.
+          // FUNC: remove(fullP)
+          remove (entry.full_path);
+          // TODO: Remove the current entry from the fb->entries
+          // FUNC: void remove_entry(FileBrowser *fb) 
+          remove_entry_by_index(E->fb, index);
+          // remove_entry (E->fb);
+          sprintf(E->notification_buffer, "%s was deleted successfully", res->data);
+          return;
+        } 
+        // TODO: Do the same thing for the Directories.
+        sprintf(E->notification_buffer, "Can not delete Directories yet!");
+      }
+      free(res->data);
+      free(res);
+    } break;
+    case ERROR: {
+      if (res->etype == EXIT_SIG) {    
+        free(res->data);
+        free(res);
+      } else if (res->etype == EMPTY_BUFF) {
+        free(res->data);
+        free(res);
+      }
+    } break;
+    default: {
+      printf("Unreachable code\n");
+      abort();
+    }
+  }
+}
+char *xstrdup(char *s) {
+  size_t size = strlen(s);
+  char *dup = malloc(size + 1);
+  size_t idx = 0;
+  for (;idx < size; idx++) {
+    dup[idx] = s[idx];
+  }
+  dup[idx] = 0;
+  return (dup);
+}
 void editor_file_browser(int c, MiEditor *E)
 {
   char label[4096] = {0};
+  // static BrowseEntry *marked_entries[100] = {NULL};
+  static bool marking_mode = false;
+
   switch (c) {
+    case SHIFT('m'):
+    case 'm': {
+      BrowseEntry *e = (E->fb->entries + E->fb->cur_row);
+      if (strcmp(e->value, ".") == 0 || strcmp(e->value, "..") == 0)
+        return;
+      e->selected = !e->selected;
+      marking_mode = true;
+    } break;
     case NL: {
       BrowseEntry entry = E->fb->entries[E->fb->cur_row];
       FileType ft       =  entry.ftype;
@@ -201,48 +285,29 @@ void editor_file_browser(int c, MiEditor *E)
     } break;
     case 'd': {
       curs_set(1);
-      BrowseEntry entry = E->fb->entries[E->fb->cur_row];
-      int y = E->renderer->win_h - 2;
-      sprintf(label, "> Really wanna do that (delete: %s)(y|Y|n|N): ", entry.full_path);
-      mvprintw(y, 0, "%s", label);
-
-      Result *res = make_prompt_buffer(strlen(label), 
-        y, E->renderer->win_w, DRACULA_PAIR);
-
-      switch(res->type) {
-        case SUCCESS: {
-          if (!strcmp(res->data, "y") || !strcmp(res->data, "Y")) 
-          {
-            if (entry.etype == FILE__) {
-              // TODO: Remove the current entry from the file system.
-              // FUNC: remove(fullP)
-              remove (entry.full_path);
-              // TODO: Remove the current entry from the fb->entries
-              // FUNC: void remove_entry(FileBrowser *fb) 
-              remove_entry (E->fb);
-              sprintf(E->notification_buffer, "%s was deleted successfully", res->data);
-              return;
-            } 
-            // TODO: Do the same thing for the Directories.
-            sprintf(E->notification_buffer, "Can not delete Directories yet!");
+      if (marking_mode) {
+        int y = E->renderer->win_h - 2;
+        sprintf(label, "%s", "> Sure wanna procced to delete the selected files: ");
+        mvprintw(y, 0, "%s", label);
+        Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w, DRACULA_PAIR);
+        // TODO: instead of having to check the selected field maybe it is better to store them in a local static list
+        switch (res->type) {
+          case SUCCESS: {
+            if (!strcmp(res->data, "y") || !strcmp(res->data, "Y")) {
+              for (size_t i = 0; i < E->fb->size; i++) {
+                if (E->fb->entries[i].selected) {
+                  remove_entry_(E, i, true);
+                  i--;
+                }
+              }
+            }
           }
-          free(res->data);
-          free(res);
-        } break;
-        case ERROR: {
-          if (res->etype == EXIT_SIG) {    
-            free(res->data);
-            free(res);
-          } else if (res->etype == EMPTY_BUFF) {
-            free(res->data);
-            free(res);
-          }
-        } break;
-        default: {
-          printf("Unreachable code\n");
-          abort();
+          default: {};
         }
+        marking_mode = false;
+        return;
       }
+      remove_entry_(E, E->fb->cur_row, false);
     } break;
     case 'a': {
       // Make nameBuff and pass it to fb_append.  
@@ -257,7 +322,9 @@ void editor_file_browser(int c, MiEditor *E)
           char *toks[125] = { NULL };
           size_t size = 0;
           for (char *entry = strtok(res->data, " \t");entry;(entry = strtok(NULL, " \t")))
-            toks[size++] = strdup(entry);  
+          {
+            toks[size++] = (char *)xstrdup(entry);  
+          }
           for (size_t i = 0; i < size; i++)
           {
             entry = toks[i];

@@ -1,4 +1,5 @@
 #include <mi.h>
+#include <stdlib.h>
 
 static char *All[] = {
     [FILE__]    = "FILE__",
@@ -48,22 +49,23 @@ char *entry_type_as_cstr(BrowseEntryT T)
 
 static FileBrowser *new_fb(const char *path) {
 
-    FileBrowser *fb = malloc(sizeof (FileBrowser));
+  FileBrowser *fb = malloc(sizeof (FileBrowser));
 
-    fb->cur_row = 0;
-    fb->cap     = FB_MAX_ENT;
-    fb->entries = malloc(sizeof(BrowseEntry) * fb->cap);
-    memset(fb->entries, 0, sizeof(BrowseEntry) * fb->cap);
-    fb->size    = 0;
-    fb->open_entry_path = malloc(sizeof(char) * PATH_MAX);
-    
-    {
-        realpath(path, fb->open_entry_path);
-        // fprintf(get_logger_file_ptr(), "p: %s %p\n", p, p);
-    }
-    
-    fb->type    = get_entry_type(fb->open_entry_path);
-    return fb;
+  fb->cur_row = 0;
+  fb->cap     = FB_MAX_ENT;
+  fb->entries = malloc(sizeof(BrowseEntry) * fb->cap);
+  memset(fb->entries, 0, sizeof(BrowseEntry) * fb->cap);
+  
+  fb->size    = 0;
+  fb->open_entry_path = malloc(sizeof(char) * PATH_MAX);
+  
+  {
+      realpath(path, fb->open_entry_path);
+      // fprintf(get_logger_file_ptr(), "p: %s %p\n", p, p);
+  }
+  
+  fb->type    = get_entry_type(fb->open_entry_path);
+  return fb;
 }
 
 
@@ -92,34 +94,34 @@ void fb_append(FileBrowser *self, char *name)
 
 void release_fb(FileBrowser *fb)
 {
-    if (!fb) return;
-    
-    // Relaase Entries.
-    for (size_t x = 0; x < fb->size; x++) {
-        free(fb->entries[x].value);
-        free(fb->entries[x].full_path);
-    }
+  if (!fb) return;
+  
+  // Relaase Entries.
+  for (size_t x = 0; x < fb->size; x++) {
+      free(fb->entries[x].value);
+      free(fb->entries[x].full_path);
+  }
 
-    free(fb->open_entry_path);
-    free(fb->entries);
-    free(fb);
+  free(fb->open_entry_path);
+  free(fb->entries);
+  free(fb);
 }
 
 bool fb_exists(FileBrowser *self, char *item) 
 {
-    for (size_t i = 0; i < self->size; ++i) {
-        if (strcmp(self->entries[i].value, item) == 0) {
-            return true;
-        }
+  for (size_t i = 0; i < self->size; ++i) {
+    if (strcmp(self->entries[i].value, item) == 0) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 static int entry_cmp(const void *ap, const void *bp)
 {
-    const char *a = (const char *)((BrowseEntry*)ap)->value;
-    const char *b = (const char *)((BrowseEntry*)bp)->value;
-    return strcmp(a, b);
+  const char *a = (const char *)((BrowseEntry*)ap)->value;
+  const char *b = (const char *)((BrowseEntry*)bp)->value;
+  return strcmp(a, b);
 }
 
 void load_dir_fb(FileBrowser *fb) 
@@ -194,25 +196,28 @@ FileBrowser *update_fb(FileBrowser *fb, char *new_path) {
 
 FileBrowser *realloc_fb(FileBrowser *fb, char *next, size_t window_height)
 {
-    update_fb(fb, next); 
-    reinit_fb_bounds(fb, window_height);
-    return fb;
+  update_fb(fb, next); 
+  reinit_fb_bounds(fb, window_height);
+  return fb;
 }
+void remove_entry_by_index(FileBrowser *fb, size_t index) 
+{
+  if (fb->size) {
+    memmove(
+      fb->entries + index,
+      fb->entries + index + 1,
+      sizeof(fb->entries[0]) * (fb->size - index)
+    );
+    
+    if (fb->cur_row == fb->end) {
+      fb->cur_row--;
+    }
 
+    fb->size--;
+    fb->end--;
+  }
+}
 void remove_entry(FileBrowser *fb) 
 {
-    if (fb->size) {
-        memmove(
-            fb->entries + fb->cur_row,
-            fb->entries + fb->cur_row + 1,
-            sizeof(fb->entries[0]) * (fb->size - fb->cur_row)
-        );
-        
-        if (fb->cur_row == fb->end) {
-            fb->cur_row--;
-        }
-
-        fb->size--;
-        fb->end--;
-    }
+  remove_entry_by_index(fb, fb->cur_row);
 }
