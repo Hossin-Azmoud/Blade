@@ -322,9 +322,7 @@ void editor_file_browser(int c, MiEditor *E)
           char *toks[125] = { NULL };
           size_t size = 0;
           for (char *entry = strtok(res->data, " \t");entry;(entry = strtok(NULL, " \t")))
-          {
             toks[size++] = (char *)xstrdup(entry);  
-          }
           for (size_t i = 0; i < size; i++)
           {
             entry = toks[i];

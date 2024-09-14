@@ -49,8 +49,7 @@ debug:
 clean:
 	rm ./*.o
 
-fclean: clean
-	rm $(OUT_FILE)
-	rm $(FINAL_LIB)
-	
 
+fclean: clean
+	rm $(FINAL_LIB)
+	rm $(OUT_FILE)
