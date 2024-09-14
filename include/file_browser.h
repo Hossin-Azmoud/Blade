@@ -7,6 +7,8 @@
 #include <filessystem.h>
 
 #define FB_MAX_ENT 127
+#define FILE_BROWSER_YPADDING 1
+#define FILE_BROWSER_XPADDING FILE_BROWSER_YPADDING
 
 typedef struct BrowseEntry {
   bool selected; 

@@ -144,8 +144,8 @@ FileBrowser *new_file_browser(const char *dir_path, size_t window_height) {
   FileBrowser *fb = new_fb(dir_path);
   load_dir_fb(fb);
   fb->start = 0;
-  if (fb->size >= (window_height - MENU_HEIGHT_ - 6)) {
-    fb->end = (window_height - MENU_HEIGHT_ - 6);
+  if (fb->size >= (window_height - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2)) {
+    fb->end = (window_height - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2);
     return (fb);
   }
   fb->end = fb->size - 1;
@@ -154,8 +154,8 @@ FileBrowser *new_file_browser(const char *dir_path, size_t window_height) {
 
 void reinit_fb_bounds(FileBrowser *fb, size_t window_height) {
   fb->start = 0;
-  if (fb->size >= (window_height - MENU_HEIGHT_) - 6) {
-    fb->end = (window_height - MENU_HEIGHT_ - 6);
+  if (fb->size >= (window_height - MENU_HEIGHT_) - FILE_BROWSER_YPADDING * 2) {
+    fb->end = (window_height - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2);
     return;
   }
   fb->end = fb->size - 1;
@@ -193,12 +193,12 @@ void remove_entry_by_index(FileBrowser *fb, size_t index) {
     memmove(fb->entries + index, fb->entries + index + 1,
             sizeof(fb->entries[0]) * (fb->size - index));
 
-    if (fb->cur_row == fb->end) {
+    if (fb->cur_row == fb->end)
       fb->cur_row--;
-    }
 
     fb->size--;
     fb->end--;
   }
 }
+
 void remove_entry(FileBrowser *fb) { remove_entry_by_index(fb, fb->cur_row); }

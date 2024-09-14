@@ -322,15 +322,15 @@ void render_file_browser(MiEditor *E) {
   erase();
   curs_set(0);
 
-  size_t xpadding = 3;
-  size_t ypadding = 3;
+  size_t xpadding = FILE_BROWSER_XPADDING;
+  size_t ypadding = FILE_BROWSER_YPADDING;
   size_t row = E->fb->cur_row;
   Emoji *emoji = NULL;
 
   if (E->fb->type == DIR__) {
     // TODO: Render only what is visible and not out of bound
     for (size_t y = E->fb->start; y <= E->fb->end; y++) {
-      xpadding = 3;
+      xpadding = FILE_BROWSER_XPADDING ;
       BrowseEntry entry = E->fb->entries[y];
       int length = strlen(entry.value);
       switch (entry.etype) {

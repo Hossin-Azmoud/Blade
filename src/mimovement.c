@@ -86,7 +86,7 @@ static void fb_handle_mv(int c, FileBrowser *fb) {
     if (fb->cur_row < fb->size - 1)
       fb->cur_row++;
 
-    if (fb->cur_row == fb->end) {
+    if (fb->cur_row == fb->end + 1) {
       if (fb->end < fb->size - 1) {
         fb->start++;
         fb->end++;
