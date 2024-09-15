@@ -1,4 +1,5 @@
 #include <mi.h>
+#include <stdio.h>
 
 void editor_up(Lines_renderer *line_ren) {
   size_t col = line_ren->current->x;
@@ -66,7 +67,7 @@ bool is_move(int key) {
          (key == L_SHIFT) || (key == R_SHIFT);
 }
 
-static void fb_handle_mv(int c, FileBrowser *fb) {
+static void fb_handle_mv(int c, FileBrowser *fb, size_t win_h) {
   switch (c) {
   case KEY_UP: {
     if (fb->cur_row) {
@@ -74,8 +75,9 @@ static void fb_handle_mv(int c, FileBrowser *fb) {
         // TODO: ADJUST THE START AND END TO POINT TO VALID ENTRIES.
         if (fb->cur_row) {
           fb->start--;
-          if (fb->end > fb->start)
+          if (fb->end - fb->start > (win_h - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2))
             fb->end--;
+          // fix_layout_file_browser(fb, );
         }
       }
 
@@ -218,7 +220,7 @@ void editor_handle_move(int c, MiEditor *E) {
     renderer_handle_mv(c, E->renderer);
   } break;
   case DIR__: {
-    fb_handle_mv(c, E->fb);
+    fb_handle_mv(c, E->fb, E->renderer->win_h);
   } break;
   default: {
   } break;

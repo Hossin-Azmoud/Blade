@@ -140,25 +140,25 @@ void load_dir_fb(FileBrowser *fb) {
   }
 }
 
+void fix_layout_file_browser(FileBrowser *fb, size_t window_height) {
+  if (fb->size >= (window_height - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2)) {
+    fb->end = (window_height - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2);
+    return;
+  }
+  fb->end = fb->size - 1;
+}
+
 FileBrowser *new_file_browser(const char *dir_path, size_t window_height) {
   FileBrowser *fb = new_fb(dir_path);
   load_dir_fb(fb);
   fb->start = 0;
-  if (fb->size >= (window_height - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2)) {
-    fb->end = (window_height - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2);
-    return (fb);
-  }
-  fb->end = fb->size - 1;
+  fix_layout_file_browser(fb, window_height);
   return (fb);
 }
 
 void reinit_fb_bounds(FileBrowser *fb, size_t window_height) {
   fb->start = 0;
-  if (fb->size >= (window_height - MENU_HEIGHT_) - FILE_BROWSER_YPADDING * 2) {
-    fb->end = (window_height - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2);
-    return;
-  }
-  fb->end = fb->size - 1;
+  fix_layout_file_browser(fb, window_height);
 }
 
 FileBrowser *update_fb(FileBrowser *fb, char *new_path) {
@@ -193,11 +193,12 @@ void remove_entry_by_index(FileBrowser *fb, size_t index) {
     memmove(fb->entries + index, fb->entries + index + 1,
             sizeof(fb->entries[0]) * (fb->size - index));
 
-    if (fb->cur_row == fb->end)
+    if (fb->cur_row == fb->size - 1)
       fb->cur_row--;
 
+    if (fb->size - 1 == fb->end)
+      fb->end--;
     fb->size--;
-    fb->end--;
   }
 }
 

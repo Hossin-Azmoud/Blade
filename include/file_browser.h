@@ -41,7 +41,7 @@ bool fb_exists(FileBrowser *self, char *item);
 void reinit_fb_bounds(FileBrowser *fb, size_t window_height);
 void remove_entry(FileBrowser *fb);
 void remove_entry_by_index(FileBrowser *fb, size_t index);
-
+void fix_layout_file_browser(FileBrowser *fb, size_t window_height);
 #endif //FILE_B_H
 
 
