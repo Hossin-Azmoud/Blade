@@ -1,4 +1,2 @@
-set -xe
-make miapi bin
-./bin/mi .
-reset
+set -xe 
+make miapi bin ; ./bin/mi . ; reset

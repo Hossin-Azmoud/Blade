@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 void editor_visual(int c, MiEditor *E) {
   switch (c) {
@@ -161,8 +162,7 @@ void editor_new_entry(char *path, MiEditor *E) {
 
   // TODO: Handle abs paths.
   if (!fb_exists(E->fb, p->items[tree_head_idx])) {
-    fb_append(E->fb, p->items[tree_head_idx]);
-    
+    fb_append(E->fb, p->items[tree_head_idx]); 
     fix_layout_file_browser(E->fb, (size_t)(E->renderer->win_h));
   }
 
@@ -239,17 +239,40 @@ char *xstrdup(char *s) {
   dup[idx] = 0;
   return (dup);
 }
+
 void editor_file_browser(int c, MiEditor *E) {
   char label[4096] = {0};
-  // static BrowseEntry *marked_entries[100] = {NULL};
+  // NOTE: I will use this for caching selected or important entries.
   static bool marking_mode = false;
-
+  
   switch (c) {
   case SHIFT('s'):
   case 's': {
     BrowseEntry *e = (E->fb->entries + E->fb->cur_row);
     if (strcmp(e->value, ".") == 0 || strcmp(e->value, "..") == 0)
       return;
+    
+    if (E->selected == NULL) {
+      E->selected_cap = FB_MAX_ENT; 
+      E->selected = malloc(sizeof(*E->selected) * E->selected_cap );
+    }
+    if (E->selected_size >= E->selected_cap) {
+      E->selected_cap += FB_MAX_ENT;
+      E->selected = realloc(E->selected, sizeof(*E->selected) * E->selected_cap);
+    }
+    if (!e->selected) {
+      memcpy(E->selected + E->selected_size, e, sizeof(*E->selected));
+      e->index_in_selection = E->selected_size;
+      E->selected_size++;
+      sprintf(E->notification_buffer, "$SELECTED: %zu $SELECTED_IDX_ADD: %zu", 
+              E->selected_size, e->index_in_selection);
+    } else {
+      memmove(E->selected + e->index_in_selection - 1, 
+          E->selected + e->index_in_selection, 
+          (E->selected_size - e->index_in_selection) * sizeof(*e));
+      E->selected_size--;
+    }
+    
     e->selected = !e->selected;
     marking_mode = true;
   } break;
@@ -304,6 +327,71 @@ void editor_file_browser(int c, MiEditor *E) {
     }
     remove_entry_(E, E->fb->cur_row, false);
   } break;
+  case SHIFT('m'):
+  case 'm': {
+    // TODO: The move function will just create a question buffer, ask where u want to move
+    // the selected entries. if the Directory exists then it move everything there.
+    // else, it makes the Directory.
+    char *err = NULL;
+    BrowseEntry *list_to_be_moved = E->selected;
+    BrowseEntry dest =  E->fb->entries[E->fb->cur_row];
+    // Move to highlted entry.
+    if (!E->selected_size) {
+      sprintf(E->notification_buffer, "fb_mv: None was selected to move");
+      return ;
+    }
+    for (size_t i = 0; i < E->selected_size; ++i) {
+      err = execute_fbsys_command(MOVE, 
+            list_to_be_moved[i],
+            dest);
+      if (err) {
+        sprintf(E->notification_buffer, "fb_mv: %s", err);
+        break;
+      }
+    }
+    if (!err) {
+      // NOTE: Since no error was encounterred, we unselect everyting.
+      for (size_t i = 0; i < E->fb->size; i++)
+        E->fb->entries[i].selected = false;
+      free(E->selected);
+      E->selected = NULL;
+      E->selected_size = 0;
+      E->selected_cap = 0;
+      marking_mode = false;
+    }
+  } break;
+  case SHIFT('c'):
+  case 'c': {
+    // TODO: the copy function does the same thing as the move
+    // the difference is that it does not,
+    char *err = NULL;
+    BrowseEntry *list_to_be_coppied = E->selected;
+    BrowseEntry dest =  E->fb->entries[E->fb->cur_row];
+    // Move to highlted entry.
+    if (!E->selected_size) {
+      sprintf(E->notification_buffer, "fb_cp: None was selected to copy");
+      return ;
+    }
+    for (size_t i = 0; i < E->selected_size; ++i) {
+      err = execute_fbsys_command(COPY, 
+            list_to_be_coppied[i],
+            dest);
+      if (err) {
+        sprintf(E->notification_buffer, "fb_cp: %s", err);
+        break;
+      }
+    }
+    if (!err) {
+      // NOTE: Since no error was encounterred, we unselect everyting.
+      for (size_t i = 0; i < E->fb->size; i++)
+        E->fb->entries[i].selected = false;
+      free(E->selected);
+      E->selected = NULL;
+      E->selected_size = 0;
+      E->selected_cap = 0;
+      marking_mode = false;
+    }
+  } break;
   case 'a': {
     // Make nameBuff and pass it to fb_append.
     curs_set(1);
@@ -315,7 +403,9 @@ void editor_file_browser(int c, MiEditor *E) {
     switch (res->type) {
     case SUCCESS: {
       char *entry = NULL;
-      char *toks[125] = {NULL};
+      char *toks[125] = {
+        NULL
+      };
       size_t size = 0;
       for (char *entry = strtok(res->data, " \t"); entry;
            (entry = strtok(NULL, " \t")))

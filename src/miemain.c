@@ -56,7 +56,7 @@ int editor(char **argv) {
     }
 
   UPDATE_EDITOR:
-    sprintf(E->notification_buffer, "$END: %d $CUR: %d", (int)E->fb->end, (int)E->fb->cur_row);
+    // sprintf(E->notification_buffer, "$END: %d $CUR: %d", (int)E->fb->end, (int)E->fb->cur_row);
     editor_render(E);
     if (E->exit_pressed)
       break;

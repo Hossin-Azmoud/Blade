@@ -1,5 +1,7 @@
 #include <mi.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static char *All[] = {
     [FILE__] = "FILE__", [DIR__] = "DIR__", [NOT_EXIST] = "NOT_EXIST"};
@@ -173,7 +175,7 @@ FileBrowser *update_fb(FileBrowser *fb, char *new_path) {
     free(fb->open_entry_path);
     fb->open_entry_path = p;
     // fprintf(get_logger_file_ptr(), "resolve: %s %p\n", fb->open_entry_path,
-            // (void *)fb->open_entry_path);
+    // (void *)fb->open_entry_path);
   }
 
   fb->type = get_entry_type(fb->open_entry_path);
@@ -192,10 +194,8 @@ void remove_entry_by_index(FileBrowser *fb, size_t index) {
   if (fb->size) {
     memmove(fb->entries + index, fb->entries + index + 1,
             sizeof(fb->entries[0]) * (fb->size - index));
-
     if (fb->cur_row == fb->size - 1)
       fb->cur_row--;
-
     if (fb->size - 1 == fb->end)
       fb->end--;
     fb->size--;
@@ -203,3 +203,23 @@ void remove_entry_by_index(FileBrowser *fb, size_t index) {
 }
 
 void remove_entry(FileBrowser *fb) { remove_entry_by_index(fb, fb->cur_row); }
+char *execute_fbsys_command(fb_command_t cmd, BrowseEntry src,
+                            BrowseEntry dst) {
+  // MOVE "x y"
+  char *commands[FB_COMMAND_COUNT] = {
+      [MOVE] = "mv",
+      [COPY] = "cp",
+  };
+  char *command_buffer = malloc(1024 * 2);
+  FILE *stream = NULL;
+
+  if (dst.etype != DIR__)
+    return string_dup("invalid dest. a directory required to perform operation.");
+
+  sprintf(command_buffer, "%s %s %s %s", commands[cmd],
+          (src.etype == DIR__) ? "-r" : "", src.full_path, dst.full_path);
+  stream = popen(command_buffer, "r");
+  pclose(stream);
+  free(command_buffer);
+  return (NULL);
+}

@@ -10,15 +10,24 @@
 #define FILE_BROWSER_YPADDING 1
 #define FILE_BROWSER_XPADDING FILE_BROWSER_YPADDING
 
+
 typedef struct BrowseEntry {
   bool selected; 
   BrowseEntryT etype;       // FILE__, DIR__, NOT_EXIST.
   FileType     ftype;       // C, PYTHON, JS...
-  size_t       size;        // Size of the file or the directory...
+  size_t       size, index_in_selection;        // Size of the file or the directory...
   char         *full_path; // /usr/foo 
   char         *value;     // foo
 } BrowseEntry;
 
+typedef enum fb_command_e {
+  MOVE = 0,
+  COPY,
+  FB_COMMAND_COUNT
+} fb_command_t;
+
+char *execute_fbsys_command(fb_command_t cmd, BrowseEntry src,
+                            BrowseEntry dst);
 // typedef struct FileBrowser FileBrowser;
 
 typedef struct FileBrowser {

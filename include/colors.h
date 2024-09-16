@@ -35,10 +35,10 @@
 #define LIGHT_YELLOW_PAIR    16
 #define CHI_GONG_RED_PAIR    17 
 #define DRACULA_PAIR         18
-
+#include <stdint.h>
 void make_new_color(int index, int r, int g, int b);
 void make_new_color_u32(int index, uint32_t color);
-void init_colors();
+void init_colors(void);
 void colorize(int y, int xs, int xe, int pair);
 
 #endif // COLORS_H
