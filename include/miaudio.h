@@ -20,7 +20,7 @@ typedef struct {
   ma_uint64  totalFrames;
   double     duration;
   uint32_t   framecount;
-  float complex *fft_; // Needs to be loaded each frame.
+  TComplex *fft_; // Needs to be loaded each frame.
   size_t spec_sz;
   float *spectrum;     // Needs to be loaded each frame.
 } MiAudio;

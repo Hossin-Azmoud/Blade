@@ -1,7 +1,7 @@
 ## NOW WORKING ON:
-    [] add a music player haha.
+    [*] add a music player haha.
 
-doing now => [] ability to create/delete directories
+doing now => [] Make sure the editor's music player looks and seeems better.
 
 ## NOTEKEYS:
     [...] => Still under dev
@@ -30,6 +30,8 @@ doing now => [] ability to create/delete directories
     [*]  add the cut capability. <- Working here.
     [*] Fix the cut, copy, paste and refactor this feature.
     [*] command Mode so we can add vim bindings.
+    [*] ability to create/delete directories
+    [*] ability to move/copy directories and files.
 
 ## POSSIBLE NAMES:
     > Fox

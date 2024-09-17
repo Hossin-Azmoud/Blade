@@ -1,6 +1,7 @@
 #ifndef MIPLAYER
 #define MIPLAYER
 #include <miaudio.h>
+#include <fft.h>
 
 typedef struct {
 	MiAudio   audio;
