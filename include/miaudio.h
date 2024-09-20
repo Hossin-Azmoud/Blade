@@ -12,6 +12,7 @@
 #include <complex.h>
 #include <math.h>
 // const double PI = acos(-1);
+#define FFT_SIZE 48000
 typedef struct {
   ma_decoder decoder;
   ma_uint64  position;
@@ -20,9 +21,12 @@ typedef struct {
   ma_uint64  totalFrames;
   double     duration;
   uint32_t   framecount;
-  TComplex *fft_; // Needs to be loaded each frame.
-  size_t spec_sz;
+  TComplexF *fft_; // Needs to be loaded each frame.
+  TComplexF *Input;
+  float *hnnwindow;
+  float *fft_abs;
   float *spectrum;     // Needs to be loaded each frame.
+  size_t spec_sz;
 } MiAudio;
 
 void   init_audio(MiAudio *audio);

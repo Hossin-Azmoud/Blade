@@ -13,6 +13,7 @@
 extern "C" {
 #endif
 
+#define PI 3.14159265358979323846
 //   Complex number type, double
 typedef struct
 {

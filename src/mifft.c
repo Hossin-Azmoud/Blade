@@ -65,12 +65,11 @@ static void FFTRearrangeInplace(TComplex *const Data, const unsigned int N)
 		Target |= Mask;
 	}
 }
-
 //   FFT implementation
 static void FFTPerform(TComplex *const Data, const unsigned int N, const unsigned int Inverse)
 {
 	//   Pi constant
-	const double pi = Inverse ? 3.14159265358979323846 : -3.14159265358979323846;
+	const double pi = Inverse ? PI : -PI;
 	//   Cycle counters
 	unsigned int Step, Group, Pair;
 	//   Jump to the next entry of the same transform factor
@@ -361,7 +360,7 @@ static void FFTScaleF(TComplexF *const Data, const unsigned int N)
 unsigned int FFTForwardF(const TComplexF *const Input, TComplexF *const Output, const unsigned int N)
 {
 	//   Check input parameters
-	if (!Input || !Output || N < 1 || N & (N - 1))
+	if (!Input || !Output || N < 1)
 		return 0;
 	//   Initialize data
 	FFTRearrangeF(Input, Output, N);

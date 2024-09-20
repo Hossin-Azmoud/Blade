@@ -1,11 +1,18 @@
 #include "fft.h"
+#include "logger.h"
+#include <assert.h>
+#include <math.h>
 #include <mi.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio/miniaudio.h>
-
+#define _ISOC99_SOURCE
 pthread_mutex_t Mutx;
 static float max_amp;
+static float min_amp;
+static const int FFTSZ = (127 * 2);
 
 void DistroyPlayerMutex(void) { pthread_mutex_destroy(&Mutx); }
 void InitPlayerLock(void) { pthread_mutex_init(&Mutx, NULL); }
@@ -17,12 +24,11 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   MiAudioPlayer *player = (MiAudioPlayer *)pDevice->pUserData;
   MiAudio *audio = &player->audio;
   ma_uint32 channels = pDevice->playback.channels;
-  TComplex *Input;
 
   LockPlayer();
   if (audio == NULL || player->quit)
     return;
-  
+
   ma_uint32 leftSamples;
   // (1 frame = 2 samples) in Stereo.
   // so we need to multiply the totalFrames by channels to get the last sample
@@ -36,25 +42,39 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
 
   audio->framecount = ((frameCount > leftSamples) ? leftSamples : frameCount);
 
-  if (leftSamples > 0 && player->play) {
+  if (audio->framecount > 0 && player->play) {
     float *out = (float *)pOutput;
     ma_uint32 N = (audio->framecount * channels);
-    // memcpy(audio->spectrum, audio->samples + audio->position, N);
-    Input = malloc(sz * sizeof(TComplex));
-    audio->fft_ = malloc(sz * sizeof(TComplex));
-    memset(audio->fft_, 0, N); 
-    for (size_t sig = 0; sig < N; sig++) {
-      Input[sig].im = 0.0f;
-      Input[sig].re = *(audio->position + audio->samples + sig);
+    float val;
+    // memset(audio->fft_, 0, N);
+    // memset(audio->Input, 0, N);
+
+    for (size_t sig = 0; sig < (size_t)N; sig++) {
+      val = *(audio->samples + sig + audio->position);
+      if (val > max_amp)
+        max_amp = val;
+      audio->Input[sig].re = val;
+      audio->Input[sig].im = 0.0f;
+      out[sig] = val * player->volume;
     }
-    FFTForward(audio->fft_, Input, N);
-    max_amp = 0.0f;
-    for (size_t k = 0; k < N; k++) {
-      float f = *((audio->samples + audio->position) + k);
-      out[k] = f * player->volume;
-      if (f > max_amp)
-        max_amp = f;
-    }
+    // FFTForwardF(audio->Input, audio->fft_, FFTSZ);
+    // max_amp = 0.0f;
+
+    // for (size_t i = 0; i < (size_t)FFTSZ/2; ++i) {
+    //   val = sqrt(audio->fft_[i].re * audio->fft_[i].re + audio->fft_[i].im * audio->fft_[i].im);
+    //   audio->fft_abs[i] = val;
+    // }
+    
+    // for (size_t i = 0; i < (size_t)FFTSZ/2; ++i)
+    //   audio->fft_abs[i] /= max_amp;
+
+    // max_amp = 10 * log10f(audio->fft_abs[0]);
+    // min_amp = max_amp;
+
+    // for (ma_uint32 i = 0; i < (size_t)FFTSZ/2; ++i) {
+    //   val = 10 * log10f(audio->fft_abs[i]);
+    //   audio->spectrum[i] = (val);
+    // }
 
     // TODO: Copy the samples to be visualized,
     audio->position += N;
@@ -215,24 +235,15 @@ void *player_visualize_audio(void *E) {
 
     LockPlayer();
     // render the possible freqs
-    int N = audio->framecount;
+    int N = audio->spec_sz;
 
     if (N > viw)
       N = viw;
 
-    // Apply hann window and fft
-    // player->audio.fft_ = (float complex *) malloc(sizeof(float complex) * N);
-    // apply_hamming_window(player->audio.spectrum, N);
-    // fft(player->audio.spectrum,
-    // 1,
-    // audio->fft_,
-    // N);
-    // get_spectrum(audio->fft_, player->audio.spectrum, player->audio.spec_sz,
-    // N, player->audio.srate);
-
     float t1 = 0;
     for (int k = 0, x = xstart; k < N; k++, x++) {
-      t1 = fabsf(*((audio->samples + audio->position) + k)) / max_amp * vih;
+     
+      t1 = fabsf(*((audio->samples + audio->position) + k)) / max_amp * vih;     
       for (int y = ystart; (y > yend - t1); --y) {
         mvaddch(y, x, ' ');
         mvchgat(y, x, 1, A_NORMAL, 1, NULL);
@@ -270,19 +281,15 @@ void *player_visualize_audio(void *E) {
     // Render whatever the editor needs to render.
     // We dont need a refresh call because the editor will take care of it.
     editor_render(Ed);
-    if (player->audio.fft_)
-      free(player->audio.fft_);
 
-    if (player->audio.spec_sz || player->audio.spectrum) {
-      // memset(player->audio.spectrum, 0, player->audio.spec_sz);
-      player->audio.spec_sz = 0;
-    }
+    // if (player->audio.spec_sz || player->audio.spectrum)
+    //   player->audio.spec_sz = 0;
+
     unLockPlayer();
   }
   return NULL;
 }
 
-// TODO: make the volume editable using left and right arrow keys.
 void editor_init_player_routine(MiEditor *E, char *mp3_file) {
   E->mplayer = init_player(mp3_file);
   E->mode = MPLAYER; // Set the mode to music player.
@@ -290,9 +297,10 @@ void editor_init_player_routine(MiEditor *E, char *mp3_file) {
   pthread_t updateThread;
   pthread_create(&updateThread, NULL, editor_player_update__internal, E);
   pthread_create(&playerThread, NULL, player_visualize_audio, E);
-
+  log_into_f("[CREATED THREADS]\n");
   pthread_join(updateThread, NULL);
   pthread_join(playerThread, NULL);
+  log_into_f("[JOINED THREADS]\n");
 
   // Clean
   pthread_cancel(playerThread);
