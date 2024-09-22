@@ -1,5 +1,6 @@
 #include "fft.h"
 #include "logger.h"
+#include "miaudio.h"
 #include <assert.h>
 #include <math.h>
 #include <mi.h>
@@ -9,10 +10,11 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio/miniaudio.h>
 #define _ISOC99_SOURCE
+
 pthread_mutex_t Mutx;
-static float max_amp;
-static float min_amp;
-static const int FFTSZ = (127 * 2);
+static float max_amp = 0;
+// static float min_amp;
+
 
 void DistroyPlayerMutex(void) { pthread_mutex_destroy(&Mutx); }
 void InitPlayerLock(void) { pthread_mutex_init(&Mutx, NULL); }
@@ -24,12 +26,18 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   MiAudioPlayer *player = (MiAudioPlayer *)pDevice->pUserData;
   MiAudio *audio = &player->audio;
   ma_uint32 channels = pDevice->playback.channels;
-
+  float freq_bins[BARS + 1];
+  ma_uint32 leftSamples;
+  // construct a range of frequencies based on NSAMPLES
   LockPlayer();
   if (audio == NULL || player->quit)
     return;
 
-  ma_uint32 leftSamples;
+  for (int i = 0; i < BARS; i++) {
+    audio->spectrum[i] = 1.7E-308;
+    freq_bins[i] = i * ((float)audio->srate / NSAMPLES) + i;
+  }
+  freq_bins[BARS] = (float)NSAMPLES / 2;
   // (1 frame = 2 samples) in Stereo.
   // so we need to multiply the totalFrames by channels to get the last sample
   // position
@@ -48,37 +56,67 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
     float val;
     // memset(audio->fft_, 0, N);
     // memset(audio->Input, 0, N);
-
-    for (size_t sig = 0; sig < (size_t)N; sig++) {
+    size_t sig = 0;
+    for (; sig < NSAMPLES && sig < (size_t)N; sig += 2) {
       val = *(audio->samples + sig + audio->position);
-      if (val > max_amp)
-        max_amp = val;
-      audio->Input[sig].re = val;
+      float m = .5f * (1 - cos(2 * PI * sig / NSAMPLES));
+      audio->Input[sig].re = (val * m);
       audio->Input[sig].im = 0.0f;
       out[sig] = val * player->volume;
+      if (sig < N)
+        out[sig + 1] = *(audio->samples + sig + audio->position + 1) * player->volume;
     }
-    // FFTForwardF(audio->Input, audio->fft_, FFTSZ);
-    // max_amp = 0.0f;
-
-    // for (size_t i = 0; i < (size_t)FFTSZ/2; ++i) {
-    //   val = sqrt(audio->fft_[i].re * audio->fft_[i].re + audio->fft_[i].im * audio->fft_[i].im);
-    //   audio->fft_abs[i] = val;
-    // }
+    for (; sig < (size_t)N; sig++) {
+      val = *(audio->samples + sig + audio->position);
+      out[sig] = val * player->volume;
+    }
+    FFTForwardF(audio->Input, audio->fft_, (NSAMPLES));
     
-    // for (size_t i = 0; i < (size_t)FFTSZ/2; ++i)
-    //   audio->fft_abs[i] /= max_amp;
+    float re;
+    float im;
+    float magnitude;
+    float freq;
 
-    // max_amp = 10 * log10f(audio->fft_abs[0]);
-    // min_amp = max_amp;
+    for (int j = 0; j < NSAMPLES / 2; j++) {
+      re = audio->fft_[j].re;
+      im = audio->fft_[j].im;
+      magnitude = sqrt((re * re) + (im * im));
+      freq = j * ((float)audio->srate / NSAMPLES);
+      for (int i = 0; i < BARS; i++) {
+        if ((freq > freq_bins[i]) && (freq <= freq_bins[i + 1])) {
+          if (magnitude > audio->spectrum[i]) {
+            audio->spectrum[i] = magnitude;
+          }
+        }
+      }
+    }
+  //   int count = 0;
+  //   for(int i=0;i<BARS;i++)
+  //   {
+  //     if(count<window_size)
+  //         count++;
+  //     sum=audio->spectrum[i];
+  //     
+  //     if(i+count < BARS)
+  //         for(int j=0;j<count;j++)
+  //             sum+=audio->spectrum[i+j];
+  //     else
+  //         count-=window_size;
+  // 
+  //     if(i-count > 0)
+  //         for(int j=0;j<count;j++)
+  //             sum+=audio->spectrum[i-j];
 
-    // for (ma_uint32 i = 0; i < (size_t)FFTSZ/2; ++i) {
-    //   val = 10 * log10f(audio->fft_abs[i]);
-    //   audio->spectrum[i] = (val);
-    // }
-
+  //     audio->spectrum[i]=sum/(count*2+1);
+  //     
+  //   }
     // TODO: Copy the samples to be visualized,
+    for (size_t s = 0; s < BARS; s++) {
+      if (audio->spectrum[s] > max_amp)
+        max_amp = audio->spectrum[s];
+    }
     audio->position += N;
-    audio->spec_sz = N;
+    audio->spec_sz = BARS;
     // audio->framecount = sz/channels;
   }
   (void)pInput; // Unused.
@@ -225,12 +263,15 @@ void *player_visualize_audio(void *E) {
   while (!(player->quit)) {
     h = Ed->renderer->win_h;
     w = Ed->renderer->win_w;
+
     viw = ((w / 10) * 7); // 70% of the width
-    vih = ((h / 10) * 3); // 40% of the height
+    vih = ((h / 10) * 4); // 40% of the height
     // Chords to use in order to visualize the spectrum and the configurations
     // (volume, timestamp...)
-    int ystart = (h / 2 + vih / 2), xstart = (w / 2 - viw / 2),
-        yend = (h / 2 + vih / 2), xend;
+    
+    int ystart = (h / 2 + vih / 2), 
+      xstart = (w / 2 - viw / 2),
+      yend = (h / 2 + vih / 2), xend;
     erase();
 
     LockPlayer();
@@ -239,15 +280,27 @@ void *player_visualize_audio(void *E) {
 
     if (N > viw)
       N = viw;
-
+   //effects techniques
+    //max[i]=f(max[i])
+    //
+    //normal:       f(x)=FIT_FACTOR*x
+    //exponential:  f(x)=log(x*FIT_FACTOR2)*FIT_FACTOR
+    //multiPeak:    f(x)=x/Peak[i]*FIT_FACTOR
+    //maxPeak:      f(x)=x/Global_Peak*FIT_FACTOR
     float t1 = 0;
+    // float factor = 1.0f;
     for (int k = 0, x = xstart; k < N; k++, x++) {
-     
-      t1 = fabsf(*((audio->samples + audio->position) + k)) / max_amp * vih;     
+
+      // t1 = fabsf(*((audio->samples + audio->position) + k)) / max_amp * vih;
+      t1 = (*(audio->spectrum + k)/max_amp);
+      // t1 = (int)t1;
+      t1 *= (float)vih;
+      t1 = (int) t1;
       for (int y = ystart; (y > yend - t1); --y) {
         mvaddch(y, x, ' ');
         mvchgat(y, x, 1, A_NORMAL, 1, NULL);
       }
+
       xend = x;
     }
     // Bar of audio progress.

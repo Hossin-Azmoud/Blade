@@ -12,7 +12,10 @@
 #include <complex.h>
 #include <math.h>
 // const double PI = acos(-1);
-#define FFT_SIZE 48000
+
+#define BARS 127
+#define NSAMPLES 1024
+#define FFT_SIZE NSAMPLES
 typedef struct {
   ma_decoder decoder;
   ma_uint64  position;

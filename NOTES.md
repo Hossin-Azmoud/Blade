@@ -1,8 +1,9 @@
 ## NOW WORKING ON:
-    [*] add a music player haha.
+    
 
-doing now => [] Make sure the editor's music player looks and seeems better.
-
+doing now => 
+    [] Make sure the editor's music player looks and seeems better.
+    [] Make an integrated shell.
 ## NOTEKEYS:
     [...] => Still under dev
     [*]   => Done
@@ -16,6 +17,7 @@ doing now => [] Make sure the editor's music player looks and seeems better.
     Colors: Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
     
 ## DONE
+    [*] add a music player haha.
     [*] Pick better coloring for the editor.
     [*] Modes (Normal, Visual, Insert).
     [*] Add copy/paste functionality

@@ -41,7 +41,7 @@ main: merge
 	@echo "To run the editor just run ./bin/mi :3"
 
 run:
-	@$(OUT_FILE) .
+	@$(OUT_FILE) . ; reset
 
 debug:
 	@valgrind $(OUT_FILE) $(TEST_FILE)
