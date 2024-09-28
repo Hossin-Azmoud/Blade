@@ -11,7 +11,7 @@ MILIB=$(OUT_DIR)/libmi.so
 FINAL_LIB=mlib.a
 
 
-all: deps main
+all: deps main clean
 bin: main
 
 audioapi:
@@ -47,9 +47,10 @@ debug:
 	@valgrind $(OUT_FILE) $(TEST_FILE)
 
 clean:
-	rm ./*.o
+	rm -f ./*.o
+	rm -f $(FINAL_LIB)
 
 
 fclean: clean
-	rm $(FINAL_LIB)
-	rm $(OUT_FILE)
+	rm -f $(FINAL_LIB)
+	rm -f $(OUT_FILE)
