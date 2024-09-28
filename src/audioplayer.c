@@ -90,31 +90,16 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
         }
       }
     }
-  //   int count = 0;
-  //   for(int i=0;i<BARS;i++)
-  //   {
-  //     if(count<window_size)
-  //         count++;
-  //     sum=audio->spectrum[i];
-  //     
-  //     if(i+count < BARS)
-  //         for(int j=0;j<count;j++)
-  //             sum+=audio->spectrum[i+j];
-  //     else
-  //         count-=window_size;
-  // 
-  //     if(i-count > 0)
-  //         for(int j=0;j<count;j++)
-  //             sum+=audio->spectrum[i-j];
-
-  //     audio->spectrum[i]=sum/(count*2+1);
-  //     
-  //   }
     // TODO: Copy the samples to be visualized,
     for (size_t s = 0; s < BARS; s++) {
       if (audio->spectrum[s] > max_amp)
         max_amp = audio->spectrum[s];
     }
+    
+    for (size_t s = 0; s < BARS; s++)
+      audio->spectrum[s] /= (max_amp);
+    max_amp = 0;
+
     audio->position += N;
     audio->spec_sz = BARS;
     // audio->framecount = sz/channels;
@@ -292,10 +277,9 @@ void *player_visualize_audio(void *E) {
     for (int k = 0, x = xstart; k < N; k++, x++) {
 
       // t1 = fabsf(*((audio->samples + audio->position) + k)) / max_amp * vih;
-      t1 = (*(audio->spectrum + k)/max_amp);
-      // t1 = (int)t1;
-      t1 *= (float)vih;
-      t1 = (int) t1;
+      t1 = (*(audio->spectrum + k));
+      t1 *= vih;
+      // t1 = (int) t1;
       for (int y = ystart; (y > yend - t1); --y) {
         mvaddch(y, x, ' ');
         mvchgat(y, x, 1, A_NORMAL, 1, NULL);
