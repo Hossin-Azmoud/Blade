@@ -1,3 +1,4 @@
+// #include "filessystem.h"
 #include <mi.h>
 
 static Vec2 vec2(void) { return (Vec2){.x = 0, .y = 0, ._line = NULL}; }
@@ -72,7 +73,14 @@ MiEditor *init_editor(char *path) {
   // If the path that was passed was a file, or if it does not exist. we assign.
   if (E->fb->type == FILE__ || E->fb->type == NOT_EXIST) {
     E->renderer->file_type = get_file_type(E->fb->open_entry_path);
-    load_file(E->fb->open_entry_path, E->renderer);
+    if (E->renderer->file_type == MP3) {
+      editor_init_player_routine(E, E->fb->open_entry_path);
+      // after the editor finished we need to
+      E->fb = realloc_fb(E->fb, "..", E->renderer->win_h);
+      E->mode = FILEBROWSER;
+    } else {
+      load_file(E->fb->open_entry_path, E->renderer);
+    }
   }
 
   // Init binding queue.

@@ -279,7 +279,6 @@ void *player_visualize_audio(void *E) {
       // t1 = fabsf(*((audio->samples + audio->position) + k)) / max_amp * vih;
       t1 = (*(audio->spectrum + k));
       t1 *= vih;
-      // t1 = (int) t1;
       for (int y = ystart; (y > yend - t1); --y) {
         mvaddch(y, x, ' ');
         mvchgat(y, x, 1, A_NORMAL, 1, NULL);

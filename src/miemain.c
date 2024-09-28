@@ -18,6 +18,7 @@ int editor(char **argv) {
     // updating.
     // halfdelay(0.100); // NOTE: wait ((1000ms/10ms) * n) => (1000ms/10ms) *
     // 1ms => 100ms.
+    
     c = getch();
     if (c == KEY_RESIZE) {
       editor_load_layout(E);
