@@ -1,12 +1,5 @@
 #include "parser.h"
 #include <stdio.h>
-/*** 
-  Docs:
-  Defauls
-    autosave: false,
-    indent_char: " ",
-    indent_count: 4
-***/
 
 
 int main(int count, char **vec) {
@@ -25,6 +18,9 @@ int main(int count, char **vec) {
     printf("  autosave: %s, \n", cfg->autosave ? "true" : "false");
     printf("  indent_char: %c, \n", cfg->indent_char);
     printf("  indent_count: %d, \n", cfg->indent_count);
+    printf("  back: %x, \n", cfg->background);
+    printf("  front: %x, \n", cfg->foreground);
+  
   printf("}\n");
   
   free(cfg);

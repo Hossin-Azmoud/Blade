@@ -271,7 +271,7 @@ void editor_file_browser(int c, MiEditor *E) {
     if (E->selected_size >= E->selected_cap) {
       E->selected_cap += FB_MAX_ENT;
       E->selected =
-          realloc(E->selected, sizeof(*E->selected) * E->selected_cap);
+        realloc(E->selected, sizeof(*E->selected) * E->selected_cap);
     }
     if (!e->selected) {
       memcpy(E->selected + E->selected_size, e, sizeof(*E->selected));
@@ -333,10 +333,15 @@ void editor_file_browser(int c, MiEditor *E) {
         sprintf(E->notification_buffer, "Entry was not found.");
       }
     } break;
+    case ERROR: {
+      sprintf(E->notification_buffer, "%s", res->data);
+    } break;
     default: {
-      sprintf(E->notification_buffer, "%s", (res->data != NULL) ? (res->data) : "Some error accured!");
     };
     }
+
+    free(res->data);
+    free(res);
   } break;
   case 'd': {
     curs_set(1);
@@ -363,7 +368,10 @@ void editor_file_browser(int c, MiEditor *E) {
       default: {
       };
       }
+      
       marking_mode = false;
+      free(res->data);
+      free(res);
       return;
     }
     remove_entry_(E, E->fb->cur_row, false);
@@ -451,24 +459,18 @@ void editor_file_browser(int c, MiEditor *E) {
         sprintf(E->notification_buffer, "%s was made", entry);
         free(toks[i]);
       }
-      free(res->data);
-      free(res);
     } break;
     case ERROR: {
-      sprintf(E->notification_buffer, ";( the master has no orders");
-      if (res->etype == EXIT_SIG) {
-        free(res->data);
-        free(res);
-      } else if (res->etype == EMPTY_BUFF) {
-        free(res->data);
-        free(res);
-      }
+      sprintf(E->notification_buffer, "%s", res->data);
     } break;
     default: {
       fprintf(stderr, "Unreachable code\n");
       abort();
     }
     }
+
+    free(res->data);
+    free(res);
   } break;
   }
 }

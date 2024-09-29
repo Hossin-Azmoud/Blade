@@ -1,4 +1,4 @@
-#include "logger.h"
+// #include "logger.h"
 #include <mi.h>
 #include <ncurses.h>
 #include <string.h>
@@ -105,7 +105,7 @@ int decode_utf8(uint32_t utf8_bytes, char *str) {
   return (3);
 }
 
-void string_clean(char *s) {
+void string_vlean(char *s) {
   size_t i = strlen(s);
 
   if (s == NULL)
@@ -115,13 +115,11 @@ void string_clean(char *s) {
   // remove spaces from the end.
   while (i > 1 && isspace(s[i - 1])) {
     s[i - 1] = 0x00;
-    printf("|%s|\n", s);
     i--;
   }
 
   // remove spaces from the start.
   while (isspace(*s)) {
-    printf("|%s|\n", s);
     s++;
   }
 }
@@ -215,19 +213,19 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair) {
   move(y, x + buffer_idx);
   if (result == NULL || result->data == NULL)
     return NULL;
-  log_into_f(">> hello from Mi command mode ;3\n");
   while ((byte = getch())) {
     switch (byte) {
     case ESC: {
       result->type = ERROR;
       result->etype = EXIT_SIG;
+      result->data = strcpy(result->data, "<killed>");
       return result;
     } break;
     case NL: {
       if (size == 0) {
         result->type = ERROR;
         result->etype = EMPTY_BUFF;
-        result->data = strcpy(result->data, "File path/name can not be empty!");
+        result->data = strcpy(result->data, "<Empty>");
         return result;
       }
       result->type = OK;
@@ -289,13 +287,6 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair) {
     mvchgat(y, 0, w, A_NORMAL, pair, NULL);
     move(y, x + buffer_idx);
     refresh();
-    // {
-    //     open_logger();
-    //         FILE *log_f = get_logger_file_ptr();
-    //         fprintf(log_f, "(idx: %i, sz: %i) => buff: %s\n", buffer_idx,
-    //         size,result->data);
-    //     close_logger();
-    // }
   }
 
   if (result->type == OK) {

@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "parser.h"
 #include <fcntl.h>
-#include <math.h>
+// #include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -53,14 +53,20 @@ EditorConfig_t *load_editor_config(char *file)
     char *lhs = tokens->_list[2].data;
     if (strcmp(rhs, "autosave") == 0) {
       cfg->autosave = atoi(lhs);
-    } else if (strcmp(rhs, "indent_char") == 0) {
-      
+    } else if (strcmp(rhs, "indent_char") == 0) {      
       assert(*lhs == '"');
       assert(*(lhs + 1) != 0);
       cfg->indent_char = *(lhs + 1); // The letter directly after the qoutes.
-    } else if (strcmp(rhs, "indent_count") == 0){
+    } else if (strcmp(rhs, "indent_count") == 0) {
       cfg->indent_count = atoi(lhs);
       // printf("VOUNT: %s\n", lhs);
+    } else if (strcmp(rhs, "background")) { 
+      cfg->background = (int)np_atoi_base(lhs, NULL);
+      printf("%s\n", lhs);
+    } else if (strcmp(rhs, "foreground")) {
+      cfg->foreground = (int)np_atoi_base(lhs, NULL);
+      
+      printf("%s\n", lhs);
     }
   }
   // TODO: split it by : to get a key and a value.
