@@ -25,6 +25,7 @@
 #include <miplayer.h>
 #include <ncurses.h>
 #include <signals_.h>
+#include <xstring.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/types.h>

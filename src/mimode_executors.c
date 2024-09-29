@@ -231,32 +231,7 @@ void remove_entry_(MiEditor *E, size_t index, bool notified) {
   }
   }
 }
-char *xstrdup(char *s) {
-  size_t size = strlen(s);
-  char *dup = malloc(size + 1);
-  size_t idx = 0;
-  for (; idx < size; idx++) {
-    dup[idx] = s[idx];
-  }
-  dup[idx] = 0;
-  return (dup);
-}
-int xstrcmp(const char *s1, const char *s2) {
-  char c1 = 0;
-  char c2 = 0;
-  int ln  = 0;
-  for (;*s1 && *s2; s1++, s2++) {
-    c1 = toupper(*s1);
-    c2 = toupper(*s2);
-    if (c1 != c2)
-      break;
-    ln++;
-  }
-  if (!*s1 && ln) {
-    return (0);
-  }
-  return (c1 - c2);
-}
+
 void editor_file_browser(int c, MiEditor *E) {
   char label[4096] = {0};
   static int findex    = -1;
@@ -297,14 +272,24 @@ void editor_file_browser(int c, MiEditor *E) {
     marking_mode = true;
   } break;
   case 'n': {
-    if (findex != -1 && flist[findex + 1] != -1) {
-      findex++;
+    if (findex != -1) {
+      if (flist[findex + 1] != -1) {
+         findex++;
+      } else {
+         findex--;
+      }
+     
       E->fb->cur_row = flist[findex];
     }
   } break;
   case 'p': {
-    if (findex != -1 && findex > 0) {
-      findex--;
+    if (findex != -1) {
+
+      if (findex > 0)
+        findex--;
+      else
+        findex++;
+
       E->fb->cur_row = flist[findex];
     }
   } break;
@@ -333,7 +318,9 @@ void editor_file_browser(int c, MiEditor *E) {
     // TODO: Make a list that corresponds to the list of similar entries.
     // enable the user to cycle thro them. select one of em.
     int idx = 0;
-    memset(flist, -1, 64);
+    for (int i = 0; i < 64; i++)
+      flist[i] = -1;
+
     curs_set(1);
     int y = E->renderer->win_h - 2;
     sprintf(label, "%s", "search > ");
