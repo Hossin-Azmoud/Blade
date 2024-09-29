@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <file_browser.h>
 #include <mi.h>
+#include <ncurses.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -243,20 +244,26 @@ char *xstrdup(char *s) {
 int xstrcmp(const char *s1, const char *s2) {
   char c1 = 0;
   char c2 = 0;
-
+  int ln  = 0;
   for (;*s1 && *s2; s1++, s2++) {
     c1 = toupper(*s1);
     c2 = toupper(*s2);
     if (c1 != c2)
       break;
+    ln++;
+  }
+  if (!*s1 && ln) {
+    return (0);
   }
   return (c1 - c2);
 }
 void editor_file_browser(int c, MiEditor *E) {
   char label[4096] = {0};
+  static int findex    = -1;
+  static int flist[64] = {-1};
   // NOTE: I will use this for caching selected or important entries.
   static bool marking_mode = false;
-
+  
   switch (c) {
   case SHIFT('s'):
   case 's': {
@@ -289,6 +296,18 @@ void editor_file_browser(int c, MiEditor *E) {
     e->selected = !e->selected;
     marking_mode = true;
   } break;
+  case 'n': {
+    if (findex != -1 && flist[findex + 1] != -1) {
+      findex++;
+      E->fb->cur_row = flist[findex];
+    }
+  } break;
+  case 'p': {
+    if (findex != -1 && findex > 0) {
+      findex--;
+      E->fb->cur_row = flist[findex];
+    }
+  } break;
   case NL: {
     BrowseEntry entry = E->fb->entries[E->fb->cur_row];
     FileType ft = entry.ftype;
@@ -311,6 +330,10 @@ void editor_file_browser(int c, MiEditor *E) {
     E->mode = FILEBROWSER;
   } break;
   case '/': {
+    // TODO: Make a list that corresponds to the list of similar entries.
+    // enable the user to cycle thro them. select one of em.
+    int idx = 0;
+    memset(flist, -1, 64);
     curs_set(1);
     int y = E->renderer->win_h - 2;
     sprintf(label, "%s", "search > ");
@@ -322,14 +345,18 @@ void editor_file_browser(int c, MiEditor *E) {
       uint8_t found = 0;
       for (size_t i = 0; i < E->fb->size; i++) {
         if (xstrcmp(res->data, E->fb->entries[i].value) == 0) {
-          E->fb->cur_row = i;  
+          // TODO: For now I will just store it here.
+          // I will find a way to use it.
+          flist[idx++] = i;
           found = 1;
-          break;
         }
       }
       if (found) {
-        sprintf(E->notification_buffer, "Entry found.");
+        findex = 0;
+        E->fb->cur_row = flist[findex];
+        sprintf(E->notification_buffer, "<n>: Next <p>: prev");
       } else {
+        findex = -1;
         sprintf(E->notification_buffer, "Entry was not found.");
       }
     } break;

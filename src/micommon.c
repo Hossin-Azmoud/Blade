@@ -105,7 +105,7 @@ int decode_utf8(uint32_t utf8_bytes, char *str) {
   return (3);
 }
 
-void string_vlean(char *s) {
+void string_clean(char *s) {
   size_t i = strlen(s);
 
   if (s == NULL)
