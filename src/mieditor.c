@@ -75,7 +75,6 @@ MiEditor *init_editor(char *path) {
     E->renderer->file_type = get_file_type(E->fb->open_entry_path);
     if (E->renderer->file_type == MP3) {
       editor_init_player_routine(E, E->fb->open_entry_path);
-      // after the editor finished we need to
       E->fb = realloc_fb(E->fb, "..", E->renderer->win_h);
       E->mode = FILEBROWSER;
     } else {
