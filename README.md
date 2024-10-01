@@ -11,6 +11,7 @@ Tui text editor made in ncurses, with an embdedded Music player.
 ### Music player
 ![MusicPlayer](./img/music.png)
 ### File Browser
+![FileBrowser](./img/fb.png)
 
 # Quick start
 
@@ -31,22 +32,28 @@ Tui text editor made in ncurses, with an embdedded Music player.
 ```
 
 ## Keys and bindings.
-- `EXIT`: F<2> (NOTE: does not saves the file.)
-- `EXIT_AND_SAVE`: F<1> (NOTE: saves the file.))
-- `SAVE`: ESC + w
+### Normal Editor Mode
+- `EXIT`: ESC + : + q
+- `EXIT_AND_SAVE`: ESC + : + x
+- `SAVE`: ESC + : + w
 - `FBROWSER_MODE`: ESC + .
-- `FILE_MODES`: ESC + (n || v || i) -> (NORMAL, VISUAL, INSERT)
+- `FILE_EDITING_MODES`: ESC + (n || v || i) -> (NORMAL, VISUAL, INSERT)
 - `CUT`: ESC + v + SELECT TEXT + c
-- `CUPY`: ESC + v + SELECT TEXT + yy
+- `CUT_LINE`: ESC + v + dd
+- `COPY`: ESC + v + SELECT TEXT + y
+- `COPY_LINE`: ESC + v + yy
 - `PASTE`: ESC + n + p
 
+### File Browser Mode
+- `Open File`: Hit enter when the cursor is on top of the file/dir u want to open.
+- `Select/Unselect`: `s`
+- `Delete file/files`: hit `d` to delete one file or all Selected files.
+- `move files/dirs`: when u finish selecting the files/dirs u want to move. place the cursor on the destination. then hit `m` and everything will be moved there.
+- `copy files/`: same as move but now u hit `c` instead of `m`
+- `Create files/directories`: Hit `a` then enter the name of the directory/directories you want to Create. FORMAT: dir1/ file1 dir2/ file2
 
 ## Implemented Syntax Highlighting
 - `Python`: was implemented. 
-
-
-
-
 - `Js`: was implemented
 - `C`: is still under developement.
 - `Rust`: Not Yet
