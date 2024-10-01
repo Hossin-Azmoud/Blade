@@ -62,3 +62,9 @@ Tui text editor made in ncurses, with an embdedded Music player.
 ## WARNINGS!
 - Please don't open very large files for now because there is no way to just effeciently load them, it just loads the whole file.
 
+# Next Up
+[] review and fix bug.
+[] Implementing a way to costumize the editor using a config file.
+[] Implementing mode for language Highlighting
+[] Implementing more commands to change stuff inside the editor.
+[] Implementing smoother audio spect.

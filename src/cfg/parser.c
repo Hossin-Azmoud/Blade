@@ -19,9 +19,10 @@ EditorConfig_t *load_editor_config(char *file) {
     return (NULL);
   }
   line = Alloc_line_node(0);
-
+  free(line->content);
   for (char *next = read_next_line(stream); next;
        (next = read_next_line(stream)), i++) {
+    line->content = next;
     retokenize_line(line, UNSUP);
     tokens = &line->token_list;
 
@@ -81,8 +82,12 @@ EditorConfig_t *load_editor_config(char *file) {
       continue;
     }
   }
+
+
   // TODO: split it by : to get a key and a value.
   // free the allocated things.
   close(stream);
+  free(line);
+  free((line->token_list)._list);
   return (cfg);
 }
