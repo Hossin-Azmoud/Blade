@@ -10,6 +10,7 @@ Tui text editor made in ncurses, with an embdedded Music player.
 ![EDITOR-UI-JS](./img/V2.png)
 ### Music player
 ![MusicPlayer](./img/music.png)
+### File Browser
 
 # Quick start
 

@@ -1,5 +1,8 @@
+#include "colors.h"
 #include "emojis.h"
+#include "filessystem.h"
 #include <mi.h>
+#include <stdio.h>
 #include <string.h>
 
 // Possible modes in the editor!
@@ -353,15 +356,20 @@ void render_file_browser(MiEditor *E) {
       // NOTE: latest possible col = y + ypadding + ``
       // Render the size of each entry.
       mvprintw(y + ypadding - E->fb->start, xpadding, "%3s ", emoji->decoded);
-      colorize(y + ypadding - E->fb->start, xpadding, emoji->size,
-               CALL_SYNTAX_PAIR);
+      // colorize the icon.
+      if (entry.etype == FILE__)
+        colorize(y + ypadding - E->fb->start, xpadding, emoji->size,
+                 CALL_SYNTAX_PAIR);
+      else
+        colorize(y + ypadding - E->fb->start, xpadding, emoji->size,
+                 YELLOW_PAIR);
       xpadding += emoji->size;
       mvprintw(y + ypadding - E->fb->start, xpadding, "%s", entry.value);
       if (entry.selected) {
         emoji = emoji_get(E_CHECK);
         mvprintw(y + ypadding - E->fb->start, xpadding + length, " %3s", emoji->decoded);  
-        // colorize(y + ypadding - E->fb->start, xpadding, emoji->size,
-        //     CALL_SYNTAX_PAIR);
+        colorize(y + ypadding - E->fb->start, xpadding, emoji->size,
+            CALL_SYNTAX_PAIR);
         length += emoji->size + 1;
       }
       if (row == y) {
