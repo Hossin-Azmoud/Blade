@@ -184,7 +184,7 @@ typedef struct vKeyBindingQueue {
 typedef struct MIToken {
   MITokenType kind;
   int xstart, xend;
-  /* char data[512]; */
+  char *data;
 } MIToken;
 
 typedef struct TokenList {

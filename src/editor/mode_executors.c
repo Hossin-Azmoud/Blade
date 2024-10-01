@@ -331,7 +331,7 @@ void editor_file_browser(int c, MiEditor *E) {
     case SUCCESS: {
       uint8_t found = 0;
       for (size_t i = 0; i < E->fb->size; i++) {
-        if (xstrcmp(res->data, E->fb->entries[i].value) == 0) {
+        if (xstr(res->data, E->fb->entries[i].value) == 0) {
           // TODO: For now I will just store it here.
           // I will find a way to use it.
           flist[idx++] = i;

@@ -23,7 +23,7 @@ void make_new_color_u32(int index, uint32_t color)
     );
 }
 
-void init_colors() 
+void init_colors(void) 
 {
     start_color();
     make_new_color_u32(COLOR_DRACULA,      0x001900);

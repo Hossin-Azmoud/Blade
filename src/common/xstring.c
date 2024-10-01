@@ -11,7 +11,7 @@ char *xstrdup(char *s) {
   return (dup);
 }
 
-int xstrcmp(const char *s1, const char *s2) {
+int xstr(const char *s1, const char *s2) {
   char c1 = 0;
   char c2 = 0;
   int ln  = 0;
@@ -35,4 +35,17 @@ int xstrcmp(const char *s1, const char *s2) {
     return (0);
   }
   return (c1 - c2);
+}
+
+char *memxcpy(char *src, int n)
+{
+  char *dst = malloc(n + 1);
+  int i = 0;
+  while (src[i] && n) {
+    dst[i] = src[i];
+    n--;
+    i++;
+  }
+  dst[i] = 0;
+  return (dst);
 }

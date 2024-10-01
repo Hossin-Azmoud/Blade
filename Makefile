@@ -9,7 +9,14 @@ LIBS=-lncursesw -lm -pthread
 AUDIOLIB=$(OUT_DIR)/libaudiolib.so
 MILIB=$(OUT_DIR)/libmi.so
 FINAL_LIB=mlib.a
-
+# Sources.
+AUDIOAPISRC=./src/audio/*.c
+COMMONAPISRC=./src/common/*.c
+EDITORAPISRC=./src/editor/*.c
+VISUALAPISRC=./src/visuals/*.c
+TOKENIZERAPISRC=./src/tokenizer/*.c
+FILEBROWSERAPISRC=./src/filebrowser/*.c
+CFGSRC=./src/cfg/*.c
 
 all: deps main clean
 bin: main
@@ -17,14 +24,19 @@ bin: main
 audioapi:
 	@echo ">> compiling miniaudio"
 	@mkdir -p $(OUT_DIR)
-	@$(CC) $(CFLAGS) $(INCLUDE) ./src/audio*.c -c $(LIBS) -fPIC
+	@$(CC) $(CFLAGS) $(INCLUDE) $(AUDIOAPISRC) -c $(LIBS) -fPIC
 	@# uncomment if u need to also compile dyn libs.
-	@# $(CC) $(CFLAGS) -shared -o $(AUDIOLIB) audioplayer.o audio.o
+	@# $CC) $(CFLAGS) -shared -o $(AUDIOLIB) audioplayer.o audio.o
 
 miapi:
 	@echo ">> compiling miapi"
 	@mkdir -p $(OUT_DIR)
-	@$(CC) $(CFLAGS) $(INCLUDE) ./src/mi*.c -c $(LIBS) -fPIC
+	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(COMMONAPISRC) $(LIBS) -fPIC
+	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(EDITORAPISRC) $(LIBS) -fPIC
+	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(VISUALAPISRC) $(LIBS) -fPIC
+	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(TOKENIZERAPISRC) $(LIBS) -fPIC
+	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(FILEBROWSERAPISRC) $(LIBS) -fPIC
+	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(CFGSRC) $(LIBS) -fPIC
 	@# uncomment if u need to also compile dyn libs.
 	@#$(CC) $(CFLAGS) -shared -o $(MILIB) mi*.o
 

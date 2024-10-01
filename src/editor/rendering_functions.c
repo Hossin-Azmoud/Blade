@@ -228,7 +228,7 @@ static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {
   } break;
   case TYPE: {
     colorize(y - y_offset, token->xstart + x_offset, token->xend + x_offset,
-             CHI_GONG_RED_PAIR);
+          CHI_GONG_RED_PAIR);
   } break;
   case KEYWORD: {
     colorize(y - y_offset, token->xstart + x_offset, token->xend + x_offset,

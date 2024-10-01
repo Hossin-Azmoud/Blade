@@ -91,13 +91,24 @@ typedef struct MiStatus_s {
   char *errmsg; // Should be exclusively static.. read only.
 } MiStatus_t;
 
+typedef struct Theme {
+  int background;
+  int foreground;
+  int keyword_color;
+  int type_color;
+  int funcall_color;
+  int special_token_color;
+  int string_lit_color;
+  int comment_color;
+} Theme;
+
 typedef struct EditorConfig_s {
   MiStatus_t status;
   bool autosave;
   char indent_char;
   int indent_count;
-  int background;
-  int foreground;
+  Theme theme;
+  
 } EditorConfig_t;
 
 typedef enum FileType {

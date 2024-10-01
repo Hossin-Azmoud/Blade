@@ -18,9 +18,14 @@ int main(int count, char **vec) {
     printf("  autosave: %s, \n", cfg->autosave ? "true" : "false");
     printf("  indent_char: %c, \n", cfg->indent_char);
     printf("  indent_count: %d, \n", cfg->indent_count);
-    printf("  back: %x, \n", cfg->background);
-    printf("  front: %x, \n", cfg->foreground);
-  
+    printf("  back: %x, \n", cfg->theme.background);
+    printf("  front: %x, \n", cfg->theme.foreground);
+    printf("  keyword_color: %x, \n", cfg->theme.keyword_color);
+    printf("  type_color: %x, \n", cfg->theme.type_color);
+    printf("  funcall_color: %x, \n", cfg->theme.funcall_color);
+    printf("  special_token_color: %x, \n", cfg->theme.special_token_color);
+    printf("  string_lit_color: %x, \n", cfg->theme.string_lit_color);
+    printf("  comment_color: %x, \n", cfg->theme.comment_color);
   printf("}\n");
   
   free(cfg);

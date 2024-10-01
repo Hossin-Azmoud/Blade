@@ -1,5 +1,13 @@
 autosave:     1
 indent_char:  " "
 indent_count: 6
+
+# Theme.
 background:   0xffccbb
 foreground:   0xeaeaea
+keyword_color: 0xf9ca24
+type_color: 0xff7675
+funcall_color: 0x00ffff
+special_token_color: 0x01a3a4
+string_lit_color: 0x6ab04c
+comment_color: 0x3f553c
