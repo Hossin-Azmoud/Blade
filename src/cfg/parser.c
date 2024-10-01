@@ -83,9 +83,6 @@ EditorConfig_t *load_editor_config(char *file) {
     }
   }
 
-
-  // TODO: split it by : to get a key and a value.
-  // free the allocated things.
   close(stream);
   free(line);
   free((line->token_list)._list);

@@ -1,6 +1,7 @@
 #ifndef PARSING_H
 #define PARSING_H
-#include <mi.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #define BASE_16_ASCII     "0123456789abcdef"
 #define BASE_16_ASCII_UP  "0123456789abcdef"
 #define BASE_10_ASCII     "0123456789"

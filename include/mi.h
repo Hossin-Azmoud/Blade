@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <emojis.h>
 #include <file_browser.h>
+#include <parser.h>
 #include <filessystem.h>
 #include <logger.h>
 #include <miplayer.h>
@@ -29,6 +30,7 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
 
 #define INIT_COMMAND_CAP 25
 
@@ -242,6 +244,7 @@ typedef struct MiEditor {
   FileBrowser *fb;
   MiAudioPlayer *mplayer;
   volatile sig_atomic_t resized;
+  EditorConfig_t *cfg;
 } MiEditor;
 
 int editor(char **argv);
