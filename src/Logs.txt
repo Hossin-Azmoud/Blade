@@ -1,1 +1,0 @@
-xterm-kitty: >> hello from Mi command mode ;3

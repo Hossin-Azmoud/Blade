@@ -1,34 +1,45 @@
-#include "parser.h"
-#include <stdio.h>
+#include <mi.h>
+#define INIT_SCRIPT_PATH "init.mi"
 
-
-int main(int count, char **vec) {
-  char *file;
-  if (count < 2) {
-      file = "config.mi";
-  } else {
-      file = vec[1];
-  }
-  // TODO: Make the load_editor_config() func.
-  EditorConfig_t *cfg = load_editor_config(file);
-  // TODO: integrate the config into the editor.
-  // > Come up with new config fields.
-  printf("-------Parsed configuration------\n");
-  printf("{\n");
-    printf("  autosave: %s, \n", cfg->autosave ? "true" : "false");
-    printf("  indent_char: %c, \n", cfg->indent_char);
-    printf("  indent_count: %d, \n", cfg->indent_count);
-    printf("  back: %x, \n", cfg->theme.background);
-    printf("  front: %x, \n", cfg->theme.foreground);
-    printf("  keyword_color: %x, \n", cfg->theme.keyword_color);
-    printf("  type_color: %x, \n", cfg->theme.type_color);
-    printf("  funcall_color: %x, \n", cfg->theme.funcall_color);
-    printf("  special_token_color: %x, \n", cfg->theme.special_token_color);
-    printf("  string_lit_color: %x, \n", cfg->theme.string_lit_color);
-    printf("  comment_color: %x, \n", cfg->theme.comment_color);
-  printf("}\n");
-  
-  free(cfg);
-  return (0);
+// TODO: Implement -v/--version flags and --help
+void editor_help(char *program) {
+  printf("\nusage => %s <file/directory>\n", program);
+  printf("flags:\n");
+  printf("-h, --help    => Prints the help message into stdout.\n");
+  printf("-v, --version => Prints the version of the editor.\n\n");
 }
 
+bool check_args(int argc, char **argv) {
+  char *program = *argv;
+  if (argc >= 2) {
+    if (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version")) {
+      printf(MI_V);
+      return true;
+    }
+    if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
+      editor_help(program);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// #define EXP
+int main(int argc, char **argv) {
+  (void)argc;
+  int ret = 0;
+
+#ifdef EXP
+  (void)argv;
+  if (argc > 1) {
+    test_fs(argv[1]);
+  }
+#else
+  if (!check_args(argc, argv)) {
+    ret = editor(argv);
+    CLIPBOARD_FREE();
+  }
+#endif /* ifdef EXP */
+  return ret;
+}

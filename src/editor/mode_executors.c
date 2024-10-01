@@ -358,6 +358,8 @@ void editor_file_browser(int c, MiEditor *E) {
     free(res);
   } break;
   case 'd': {
+    // BUG: I will fix this bug. when we remove some entry we forget
+    // we need to remove it also from the selected stuff.
     curs_set(1);
     if (marking_mode) {
       int y = E->renderer->win_h - 2;
@@ -386,8 +388,10 @@ void editor_file_browser(int c, MiEditor *E) {
       marking_mode = false;
       free(res->data);
       free(res);
+      // E->fb = realloc_fb(E->fb, ".", E->renderer->win_h);
       return;
     }
+    
     remove_entry_(E, E->fb->cur_row, false);
   } break;
   case SHIFT('m'):
