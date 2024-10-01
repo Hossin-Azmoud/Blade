@@ -1,4 +1,5 @@
-#include <ctype.h>
+// #include "filessystem.h"
+// #include <ctype.h>
 #include <file_browser.h>
 #include <mi.h>
 #include <ncurses.h>
@@ -234,51 +235,28 @@ void remove_entry_(MiEditor *E, size_t index, bool notified) {
 
 void editor_file_browser(int c, MiEditor *E) {
   char label[4096] = {0};
-  static int findex    = -1;
+  static int findex = -1;
   static int flist[64] = {-1};
   // NOTE: I will use this for caching selected or important entries.
   static bool marking_mode = false;
-  
+
   switch (c) {
   case SHIFT('s'):
   case 's': {
     BrowseEntry *e = (E->fb->entries + E->fb->cur_row);
     if (strcmp(e->value, ".") == 0 || strcmp(e->value, "..") == 0)
       return;
-
-    if (E->selected == NULL) {
-      E->selected_cap = FB_MAX_ENT;
-      E->selected = malloc(sizeof(*E->selected) * E->selected_cap);
-    }
-    if (E->selected_size >= E->selected_cap) {
-      E->selected_cap += FB_MAX_ENT;
-      E->selected =
-        realloc(E->selected, sizeof(*E->selected) * E->selected_cap);
-    }
-    if (!e->selected) {
-      memcpy(E->selected + E->selected_size, e, sizeof(*E->selected));
-      e->index_in_selection = E->selected_size;
-      E->selected_size++;
-      sprintf(E->notification_buffer, "$SELECTED: %zu $SELECTED_IDX_ADD: %zu",
-              E->selected_size, e->index_in_selection);
-    } else {
-      memmove(E->selected + e->index_in_selection - 1,
-              E->selected + e->index_in_selection,
-              (E->selected_size - e->index_in_selection) * sizeof(*e));
-      E->selected_size--;
-    }
-
     e->selected = !e->selected;
     marking_mode = true;
   } break;
   case 'n': {
     if (findex != -1) {
       if (flist[findex + 1] != -1) {
-         findex++;
+        findex++;
       } else {
-         findex--;
+        findex--;
       }
-     
+
       E->fb->cur_row = flist[findex];
     }
   } break;
@@ -362,21 +340,26 @@ void editor_file_browser(int c, MiEditor *E) {
     // we need to remove it also from the selected stuff.
     curs_set(1);
     if (marking_mode) {
+      BrowseEntry *e;
       int y = E->renderer->win_h - 2;
       sprintf(label, "%s",
               "> Sure wanna procced to delete the selected files: ");
       mvprintw(y, 0, "%s", label);
       Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w,
                                        DRACULA_PAIR);
-      // TODO: instead of having to check the selected field maybe it is better
-      // to store them in a local static list
       switch (res->type) {
       case SUCCESS: {
         if (!strcmp(res->data, "y") || !strcmp(res->data, "Y")) {
           for (size_t i = 0; i < E->fb->size; i++) {
-            if (E->fb->entries[i].selected) {
-              remove_entry_(E, i, true);
-              i--;
+            e = E->fb->entries + i;
+            if (e->selected) {
+              if (e->etype == FILE__) {
+                remove_entry_(E, i, true);
+                i--;
+              } else {
+              sprintf(E->notification_buffer, "%s is a Directory. can not delete.", e->value);
+              break;
+              }
             }
           }
         }
@@ -384,14 +367,13 @@ void editor_file_browser(int c, MiEditor *E) {
       default: {
       };
       }
-      
+
       marking_mode = false;
       free(res->data);
       free(res);
-      // E->fb = realloc_fb(E->fb, ".", E->renderer->win_h);
       return;
     }
-    
+
     remove_entry_(E, E->fb->cur_row, false);
   } break;
   case SHIFT('m'):
@@ -399,60 +381,52 @@ void editor_file_browser(int c, MiEditor *E) {
     // TODO: The move function will just create a question buffer, ask where u
     // want to move the selected entries. if the Directory exists then it move
     // everything there. else, it makes the Directory.
+    BrowseEntry *e;
     char *err = NULL;
-    BrowseEntry *list_to_be_moved = E->selected;
     BrowseEntry dest = E->fb->entries[E->fb->cur_row];
     // Move to highlted entry.
-    if (!E->selected_size) {
-      sprintf(E->notification_buffer, "fb_mv: None was selected to move");
-      return;
-    }
-    for (size_t i = 0; i < E->selected_size; ++i) {
-      err = execute_fbsys_command(MOVE, list_to_be_moved[i], dest);
-      if (err) {
-        sprintf(E->notification_buffer, "fb_mv: %s", err);
-        break;
+    for (size_t i = 0; i < E->fb->size; i++) {
+      e = E->fb->entries + i;
+      if (e->selected) {
+        err = execute_fbsys_command(MOVE, 
+            *e, dest);
+        if (err) {
+          sprintf(E->notification_buffer, "fb_mv: %s", err);
+          break;
+        }
+        remove_entry_by_index(E->fb, i);
+        i--;
       }
     }
-    if (!err) {
-      // NOTE: Since no error was encounterred, we unselect everyting.
-      for (size_t i = 0; i < E->fb->size; i++)
-        E->fb->entries[i].selected = false;
-      free(E->selected);
-      E->selected = NULL;
-      E->selected_size = 0;
-      E->selected_cap = 0;
-      marking_mode = false;
-    }
+    // E->fb = realloc_fb(E->fb, ".", E->renderer->win_h);
+    // NOTE: I know, not the best way to handle that but it is not slow
+    // so....
+    // if (cursor >= E->fb->size)
+    //   E->fb->cur_row = E->fb->size - 1;
+    // else
+    //   E->fb->cur_row = cursor;
   } break;
+
   case SHIFT('c'):
   case 'c': {
     // TODO: the copy function does the same thing as the move
     // the difference is that it does not,
+    
+    BrowseEntry *e;
     char *err = NULL;
-    BrowseEntry *list_to_be_coppied = E->selected;
     BrowseEntry dest = E->fb->entries[E->fb->cur_row];
     // Move to highlted entry.
-    if (!E->selected_size) {
-      sprintf(E->notification_buffer, "fb_cp: None was selected to copy");
-      return;
-    }
-    for (size_t i = 0; i < E->selected_size; ++i) {
-      err = execute_fbsys_command(COPY, list_to_be_coppied[i], dest);
-      if (err) {
-        sprintf(E->notification_buffer, "fb_cp: %s", err);
-        break;
+    for (size_t i = 0; i < E->fb->size; i++) {
+      e = E->fb->entries + i;
+      if (e->selected) {
+        err = execute_fbsys_command(COPY, 
+          *e, dest);
+        if (err) {
+          sprintf(E->notification_buffer, "fb_mv: %s", err);
+          break;
+        }
+        e->selected = false;
       }
-    }
-    if (!err) {
-      // NOTE: Since no error was encounterred, we unselect everyting.
-      for (size_t i = 0; i < E->fb->size; i++)
-        E->fb->entries[i].selected = false;
-      free(E->selected);
-      E->selected = NULL;
-      E->selected_size = 0;
-      E->selected_cap = 0;
-      marking_mode = false;
     }
   } break;
   case 'a': {

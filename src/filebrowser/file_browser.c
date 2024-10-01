@@ -1,3 +1,4 @@
+// #include "file_browser.h"
 #include <mi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -190,10 +191,22 @@ FileBrowser *realloc_fb(FileBrowser *fb, char *next, size_t window_height) {
   reinit_fb_bounds(fb, window_height);
   return fb;
 }
+
+void rem_entry_from_list(BrowseEntry *list, size_t size, size_t i) {
+  if (!list || !size)
+    return;
+  if (i == 0 && size == 1)
+  {
+    free(list[0].value);
+    free(list[0].full_path);
+    return;
+  }
+  memmove(list + i, list + i + 1, sizeof(list[0]) * (size - i));
+}
+
 void remove_entry_by_index(FileBrowser *fb, size_t index) {
   if (fb->size) {
-    memmove(fb->entries + index, fb->entries + index + 1,
-            sizeof(fb->entries[0]) * (fb->size - index));
+    rem_entry_from_list(fb->entries, fb->size, index);
     if (fb->cur_row == fb->size - 1)
       fb->cur_row--;
     if (fb->size - 1 == fb->end)
@@ -216,8 +229,7 @@ char *execute_fbsys_command(fb_command_t cmd, BrowseEntry src,
   if (dst.etype != DIR__)
     return string_dup("invalid dest. a directory required to perform operation.");
 
-  sprintf(command_buffer, "%s %s %s %s", commands[cmd],
-          (src.etype == DIR__) ? "-r" : "", src.full_path, dst.full_path);
+  sprintf(command_buffer, "%s %s %s", commands[cmd], src.full_path, dst.full_path);
   stream = popen(command_buffer, "r");
   pclose(stream);
   free(command_buffer);

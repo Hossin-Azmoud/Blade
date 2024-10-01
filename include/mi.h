@@ -242,8 +242,6 @@ typedef struct MiEditor {
   FileBrowser *fb;
   MiAudioPlayer *mplayer;
   volatile sig_atomic_t resized;
-  BrowseEntry *selected;
-  size_t selected_size, selected_cap;
 } MiEditor;
 
 int editor(char **argv);

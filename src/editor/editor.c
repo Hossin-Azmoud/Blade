@@ -128,8 +128,6 @@ void release_editor(MiEditor *E) {
 
   endwin();
   free(E->notification_buffer);
-  if (E->selected)
-    free(E->selected);
   free(E);
 }
 

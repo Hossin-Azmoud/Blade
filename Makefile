@@ -3,7 +3,7 @@ OUT_DIR=./bin
 OUT_FILE=$(OUT_DIR)/mi
 TEST_FILE=./src/test.c
 INCLUDE=-I./include
-CFLAGS=-Wall -pedantic -Wextra -std=c11
+CFLAGS=-Wall -pedantic -Wextra -std=c11 -ggdb
 SRC=./src/main.c
 LIBS=-lncursesw -lm -pthread
 AUDIOLIB=$(OUT_DIR)/libaudiolib.so
