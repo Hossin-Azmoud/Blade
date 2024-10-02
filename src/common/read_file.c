@@ -1,4 +1,4 @@
-#include "parser.h"
+#include <mi.h>
 
 long lget_file_size(int Stream) 
 {

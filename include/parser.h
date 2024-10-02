@@ -40,5 +40,5 @@ long np_atoi_base(char *a, char *base);
 EditorConfig_t *load_editor_config(char *file);
 char	**split(char *str, char *charset, size_t *count);
 char *read_next_line(int fd);
-
+char *read_file(int fd);
 #endif // PARSING_H

@@ -1,5 +1,7 @@
 # Mine
 ./mi
+obj/
+static/
 bin/
 files/
 logs/

@@ -1,6 +1,6 @@
 #ifndef FILE_S_H
 #define FILE_S_H
-
+#include <stdlib.h>
 #define FILE_SYSTEM_CAP 256
 
 typedef enum BrowseEntryT {  

@@ -1,4 +1,4 @@
-#include <parser.h>
+#include <mi.h>
 int	find_sym(char sym, char *base)
 {
 	int	i;	

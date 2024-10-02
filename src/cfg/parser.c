@@ -1,5 +1,5 @@
 #include <fcntl.h>
-#include <parser.h>
+#include <mi.h>
 
 EditorConfig_t *load_editor_config(char *file) {
   EditorConfig_t *cfg;
@@ -13,6 +13,7 @@ EditorConfig_t *load_editor_config(char *file) {
 
   cfg = malloc(sizeof(*cfg));
   memset(cfg, 0, sizeof(*cfg));
+
   stream = open(file, O_RDONLY);
   if (stream < 0) {
     free(cfg);
@@ -84,7 +85,8 @@ EditorConfig_t *load_editor_config(char *file) {
   }
 
   close(stream);
-  free(line);
+
   free((line->token_list)._list);
+  free(line);
   return (cfg);
 }
