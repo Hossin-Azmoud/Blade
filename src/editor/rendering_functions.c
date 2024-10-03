@@ -1,7 +1,4 @@
-#include "colors.h"
-#include "emojis.h"
-#include "filessystem.h"
-#include <mi.h>
+#include <blade.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -153,7 +150,7 @@ char *editor_render_startup(int x, int y, size_t width) {
 }
 
 // EDITOR RENDERER.
-void editor_render(MiEditor *E) {
+void editor_render(BladeEditor *E) {
   // Check exit signal
   if (E->exit_pressed) {
     return;
@@ -220,7 +217,7 @@ void editor_render(MiEditor *E) {
 }
 
 // LINE RENDERER<>
-static void token_highlight(MIToken *token, int y, int y_offset, int x_offset) {
+static void token_highlight(BladeToken *token, int y, int y_offset, int x_offset) {
   switch (token->kind) {
   case C_UNION:
   case C_STRUCT:
@@ -321,7 +318,7 @@ void render_lines(Lines_renderer *line_ren) {
 }
 
 // FILE BROWSER
-void render_file_browser(MiEditor *E) {
+void render_file_browser(BladeEditor *E) {
   erase();
   curs_set(0);
 

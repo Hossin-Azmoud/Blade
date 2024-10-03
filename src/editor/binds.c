@@ -1,4 +1,4 @@
-#include <mi.h>
+#include <blade.h>
 
 void clipboard_add_line(char *line_content) {
     Chunk *c = chunk_new();

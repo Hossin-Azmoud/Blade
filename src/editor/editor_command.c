@@ -1,6 +1,6 @@
-#include <mi.h>
+#include <blade.h>
 
-static void editor_command_execute_normal(MiEditor *E, char *command) 
+static void editor_command_execute_normal(BladeEditor *E, char *command) 
 {
     if (strlen(command) == 1) {
         switch (*command) {
@@ -30,7 +30,7 @@ static void editor_command_execute_normal(MiEditor *E, char *command)
     }
 }
 
-static void editor_cd_internal(eCommand *cmd, MiEditor *E) {
+static void editor_cd_internal(eCommand *cmd, BladeEditor *E) {
     // Performs the cd command.
     if (cmd->size) {
         BrowseEntryT type = get_entry_type(cmd->argv[0]);
@@ -54,7 +54,7 @@ static void editor_cd_internal(eCommand *cmd, MiEditor *E) {
     } 
 }
 
-static void editor_edit(eCommand *cmd, MiEditor *E) {
+static void editor_edit(eCommand *cmd, BladeEditor *E) {
     // Performs the cd command.
     if (cmd->size) {
         BrowseEntryT type = get_entry_type(cmd->argv[0]);
@@ -76,7 +76,7 @@ static void editor_edit(eCommand *cmd, MiEditor *E) {
     } 
 }
 
-static void editor_command_execute_fb(MiEditor *E, char *command) 
+static void editor_command_execute_fb(BladeEditor *E, char *command) 
 {
     if (!*command || !command) return; // This might be dead code that never gets executed in the editor but for some security we better check.
     if (strlen(command) == 1) {
@@ -119,7 +119,7 @@ static void editor_command_execute_fb(MiEditor *E, char *command)
 }
 
 
-void editor_command_execute(MiEditor *E, char *command, editorMode mode) {
+void editor_command_execute(BladeEditor *E, char *command, editorMode mode) {
     switch (mode) {
         case FILEBROWSER: {
             editor_command_execute_fb(E, command);

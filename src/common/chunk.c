@@ -1,6 +1,6 @@
-#include <mi.h>
+#include <blade.h>
 
-Chunk *chunk_new()
+Chunk *chunk_new(void)
 {
     Chunk *c = malloc(sizeof(Chunk));
     c->size  = 0;

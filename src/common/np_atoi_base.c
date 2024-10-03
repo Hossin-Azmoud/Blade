@@ -1,4 +1,4 @@
-#include <mi.h>
+#include <blade.h>
 int	find_sym(char sym, char *base)
 {
 	int	i;	

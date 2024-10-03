@@ -1,9 +1,9 @@
 // #include "filessystem.h"
-#include <mi.h>
+#include <blade.h>
 
 static Vec2 vec2(void) { return (Vec2){.x = 0, .y = 0, ._line = NULL}; }
 
-static void init_window(MiEditor *E) {
+static void init_window(BladeEditor *E) {
   // int it = 0;
   // it = 0;
 
@@ -27,8 +27,8 @@ static void init_window(MiEditor *E) {
   // E->renderer->win_h);
 }
 
-MiEditor *init_editor(char *path) {
-  MiEditor *E = malloc(sizeof(MiEditor));
+BladeEditor *init_editor(char *path) {
+  BladeEditor *E = malloc(sizeof(BladeEditor));
   init_signals();
   memset(E, 0, sizeof(*E));
   char *pathBuff = NULL;
@@ -97,8 +97,8 @@ MiEditor *init_editor(char *path) {
   return (E);
 }
 
-MiEditor *editor_register_(MiEditor *E) {
-  static MiEditor *E_ = NULL;
+BladeEditor *editor_register_(BladeEditor *E) {
+  static BladeEditor *E_ = NULL;
 
   if (E != NULL && E_ == NULL) {
     E_ = E;
@@ -107,9 +107,9 @@ MiEditor *editor_register_(MiEditor *E) {
   return E_;
 }
 
-MiEditor *editor_get(void) { return editor_register_(NULL); }
+BladeEditor *editor_get(void) { return editor_register_(NULL); }
 
-void editor_load_layout(MiEditor *E) {
+void editor_load_layout(BladeEditor *E) {
   // Set the dimentions of the edittor..
   int h, w;
   getmaxyx(E->ewindow, h, w);
@@ -117,7 +117,7 @@ void editor_load_layout(MiEditor *E) {
   E->renderer->win_w = w;
 }
 
-void release_editor(MiEditor *E) {
+void release_editor(BladeEditor *E) {
   if (!E)
     return;
   release_fb(E->fb);
@@ -131,7 +131,7 @@ void release_editor(MiEditor *E) {
   free(E);
 }
 
-void editor_refresh(MiEditor *E) {
+void editor_refresh(BladeEditor *E) {
   erase();
   render_lines(E->renderer);
   editor_render_details(E->renderer, E->fb->open_entry_path, E->mode,
@@ -140,7 +140,7 @@ void editor_refresh(MiEditor *E) {
   refresh();
 }
 
-void editor_update(int c, MiEditor *E) {
+void editor_update(int c, BladeEditor *E) {
   // Globals.
   switch (c) {
   case ESC: {

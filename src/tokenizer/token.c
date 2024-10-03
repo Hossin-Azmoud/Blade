@@ -1,8 +1,8 @@
-#include <mi.h>
+#include <blade.h>
 
 // TODO: Make a collector for string lits, number, id tokens.. and also
 // keywords....
-char *get_token_kind_s(MITokenType t) {
+char *get_token_kind_s(BladeTokenType t) {
   switch (t) {
   case STR_LIT:
     return "STR_LIT";
@@ -87,14 +87,14 @@ char *get_token_kind_s(MITokenType t) {
   }
 }
 
-void token_list_append(TokenList *list, MITokenType kind, int xstart,
+void token_list_append(TokenList *list, BladeTokenType kind, int xstart,
                        int xend) {
   if (list->size >= list->cap) {
     list->cap *= 2;
     list->_list = realloc(list->_list, sizeof(list->_list[0]) * list->cap);
   }
 
-  MIToken *current_tok = (list->_list + list->size);
+  BladeToken *current_tok = (list->_list + list->size);
   current_tok->xend = xend;
   current_tok->xstart = xstart;
   current_tok->kind = kind;

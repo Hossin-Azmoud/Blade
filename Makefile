@@ -1,7 +1,7 @@
 
 CC=gcc
 OUT_DIR=./bin
-OUT_FILE=$(OUT_DIR)/mi
+OUT_FILE=$(OUT_DIR)/blade
 TEST_FILE=./src/test.c
 INCLUDE=-I./include
 CFLAGS=-Wall -pedantic -Wextra -std=c11 -ggdb
@@ -12,7 +12,7 @@ STATICD = ./static
 OBJD    = ./obj
 DYND    = ./dynamic
 AUDIOLIB=$(OUT_DIR)/libaudiolib.so
-MILIB=$(OUT_DIR)/libmi.so
+BLADELIB=$(OUT_DIR)/libBLADE.so
 FINAL_LIB=mlib.a
 
 # Sources.
@@ -38,10 +38,10 @@ audioapi:
 	@$(CC) $(CFLAGS) $(INCLUDE) $(AUDIOAPISRC) -c $(LIBS) -fPIC
 	@mv *.o $(OBJD)
 	@# uncomment if u need to also compile dyn libs.
-	@$CC) $(CFLAGS) -shared -o $(AUDIOLIB) audioplayer.o audio.o
+	@# @$CC) $(CFLAGS) -shared -o $(AUDIOLIB) audioplayer.o audio.o
 
-miapi:
-	@echo ">> compiling miapi"
+bladeapi:
+	@echo ">> compiling bladeapi"
 	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(COMMONAPISRC) $(LIBS) -fPIC
 	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(EDITORAPISRC) $(LIBS) -fPIC
 	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(VISUALAPISRC) $(LIBS) -fPIC
@@ -50,18 +50,18 @@ miapi:
 	@$(CC) $(CFLAGS) $(INCLUDE)  -c $(CFGSRC) $(LIBS) -fPIC
 	@mv *.o $(OBJD)
 	@# uncomment if u need to also compile dyn libs.
-	@#$(CC) $(CFLAGS) -shared -o $(MILIB) mi*.o
+	@#$(CC) $(CFLAGS) -shared -o $(BLADELIB) $(OBJD)/*.o
 	
 merge:
 	@echo ">> merging lib internal/external libs"
 	@ar rcs $(FINAL_LIB) $(OBJD)/*.o
 	@mv $(FINAL_LIB) $(STATICD)
-deps: audioapi miapi merge
+deps: audioapi bladeapi merge
 
 main: merge
 	@echo ">> compiling the final executable"
 	@$(CC) $(CFLAGS) $(INCLUDE) -o $(OUT_FILE) $(SRC) $(STATICD)/$(FINAL_LIB) $(LIBS)
-	@echo "To run the editor just run ./bin/mi :3"
+	@echo "To run the editor just run ./bin/blade :3"
 
 run:
 	@$(OUT_FILE) . ; reset
@@ -70,9 +70,9 @@ debug:
 	@valgrind $(OUT_FILE) $(TEST_FILE)
 
 clean:
-	@rm -f $(OBJD)
+	@rm -rf $(OBJD)
 
 fclean: clean
-	@rm -f $(STATICD)
-	@rm -f $(DYND)
-	@rm -f $(OUT_DIR)
+	@rm -rf $(STATICD)
+	@rm -rf $(DYND)
+	@rm -rf $(OUT_DIR)

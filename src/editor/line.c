@@ -1,4 +1,4 @@
-#include <mi.h>
+#include <blade.h>
 
 void indent_line(Line *line) {
   int x = line->x;
@@ -65,8 +65,8 @@ Line *Alloc_line_node(int row) {
   memset(line->content, 0x0, LINE_SZ);
 
   line->token_list = (TokenList){0};
-  (line->token_list)._list = malloc(sizeof(MIToken) * MAX_TOKENS);
-  memset(line->token_list._list, 0x0, sizeof(MIToken) * MAX_TOKENS);
+  (line->token_list)._list = malloc(sizeof(BladeToken) * MAX_TOKENS);
+  memset(line->token_list._list, 0x0, sizeof(BladeToken) * MAX_TOKENS);
   (line->token_list).cap = MAX_TOKENS;
   return (line);
 }

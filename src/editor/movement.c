@@ -1,4 +1,4 @@
-#include <mi.h>
+#include <blade.h>
 #include <stdio.h>
 
 void editor_up(Lines_renderer *line_ren) {
@@ -213,7 +213,7 @@ static void renderer_handle_mv(int c, Lines_renderer *line_ren) {
   }
 }
 
-void editor_handle_move(int c, MiEditor *E) {
+void editor_handle_move(int c, BladeEditor *E) {
   switch (E->fb->type) {
   case FILE__:
   case NOT_EXIST: {

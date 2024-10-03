@@ -1,9 +1,9 @@
-#include <mi.h>
+#include <blade.h>
 
 void do_resize(int resize_signal)
 {
     (void) resize_signal;
-    MiEditor *E = editor_get();
+    BladeEditor *E = editor_get();
     // Well, since functions that get the width and height r not that good and just return win->_maxy or win->_maxx
     // then I actually should reinitialize ncurses before redrawing the editor again lol.
     // NOTE: This feature is not completed yet so dont expect much for now.
@@ -22,7 +22,7 @@ void do_resize(int resize_signal)
 	// refresh();
 }
 
-static void init_ctrl_signals() {
+static void init_ctrl_signals(void) {
     struct termios term;
 
     tcgetattr(STDIN_FILENO, &term);
@@ -43,7 +43,7 @@ void init_resize_sig() {
     sigaction(SIGWINCH, &sa, &priorsa);
 }
 */
-void init_signals() 
+void init_signals(void) 
 {
     
     // Disable Ctrl-C.

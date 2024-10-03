@@ -1,8 +1,8 @@
-#include "filessystem.h"
+// #include "parser.h"
 #include <fcntl.h>
-#include <mi.h>
+#include <linux/limits.h>
+#include <blade.h>
 #include <stdio.h>
-#include <stdlib.h>
 #define INIT_SCRIPT_PATH "init.mi"
 
 // TODO: Implement -v/--version flags and --help
@@ -37,7 +37,30 @@ bool check_args(int argc, char **argv) {
  * else just load it and use it throught the editor
  *
  * **/
-#define LEN(A) (sizeof(A)/sizeof(A[0]))
+// #define LEN(A) (sizeof(A)/sizeof(A[0]))
+
+// EditorConfig_t *resolve_cfg(const char *path) {
+//   char *Home = "HOME";
+//   char *value = getenv(Home);
+//   char xdg_cfg_path[PATH_MAX];
+//   sprintf(xdg_cfg_path, "%s/.config/micfg", value);
+//   // switch x = (get_entry_type("~/.bashrc"));
+
+//   switch (get_entry_type("~/.bashrc")) {
+//     case FILE__: {
+//       int fd = open("~/.bashrc", O_WRONLY);
+//       char *s = read_file(fd);
+//       printf("%s", s);
+//     } break;
+//     case DIR__: {
+//       printf("Can not read dir.\n");
+//     } break;
+//     default:
+//     case NOT_EXIST: {
+//       printf("~/.bashrc does not exit tho.;\n");
+//     } break;
+//   }
+// }
 
 // #define EXP
 int main(int argc, char **argv) {
@@ -47,24 +70,8 @@ int main(int argc, char **argv) {
 #ifdef EXP
   (void)argv;
   (void)argc;
-  char *Home = "HOME";
-  char *value = getenv(Home);
-  printf("%s => %s\n", Home, value);
-  return 0;
-  switch (get_entry_type("~/.bashrc")){
-    case FILE__: {
-      int fd = open("~/.bashrc", O_WRONLY);
-      char *s = read_file(fd);
-      printf("%s", s);
-    } break;
-    case DIR__: {
-      printf("Can not read dir.\n");
-    } break;
-    default:
-    case NOT_EXIST: {
-      printf("~/.bashrc does not exit tho.;\n");
-    } break;
-  } 
+
+
 #else
   if (!check_args(argc, argv)) {
     ret = editor(argv);

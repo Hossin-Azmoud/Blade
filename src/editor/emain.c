@@ -1,11 +1,11 @@
-#include <mi.h>
+#include <blade.h>
 #include <stdio.h>
 int editor(char **argv) {
   setlocale(LC_CTYPE, "");
   // open_logger();
   emoji_init(); // Init the emojis cache.
   // system("reset");
-  MiEditor *E = init_editor(argv[1]);
+  BladeEditor *E = init_editor(argv[1]);
   int c = 0;
   if (E == NULL) {
     goto EXIT_AND_RELEASE_RESOURCES;

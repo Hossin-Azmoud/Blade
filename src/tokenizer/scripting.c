@@ -1,4 +1,4 @@
-#include <mi.h>
+#include <blade.h>
 
 char *file_type_as_str(FileType s) 
 {
@@ -74,7 +74,7 @@ KeywordList *get_keywords_list(FileType s)
                 "abstract",
                 "arguments",
                 "await", 	
-                "boolean"
+                "boolean",
                 "case", 	
                 "catch",
                 "break",

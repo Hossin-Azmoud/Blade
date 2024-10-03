@@ -1,4 +1,4 @@
-#include <mi.h>
+#include <blade.h>
 
 void colorize(int y, int xs, int xe, int pair) {
     mvchgat(y, xs, xe, A_NORMAL, pair, NULL);

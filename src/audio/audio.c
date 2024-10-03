@@ -1,12 +1,11 @@
-#include "fft.h"
-#include "miaudio.h"
-#include <miplayer.h>
+#include <fft.h>
+#include <blade.h>
 
 double get_frames_as_seconds(ma_decoder *decoder, ma_uint64 frame) {
   return (double)((double)frame / decoder->outputSampleRate);
 }
 
-void init_audio(MiAudio *audio) {
+void init_audio(BladeAudio *audio) {
 
   // Preparing the decoder for the audio.
   // Identify how much frames are in the audio file so we can load them all at

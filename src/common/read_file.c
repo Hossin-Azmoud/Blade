@@ -1,4 +1,4 @@
-#include <mi.h>
+#include <blade.h>
 
 long lget_file_size(int Stream) 
 {

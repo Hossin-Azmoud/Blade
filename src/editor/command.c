@@ -1,4 +1,4 @@
-#include <mi.h>
+#include <blade.h>
 
 static void parse_ecommand_internal(eCommand *c, char *buffer)
 {

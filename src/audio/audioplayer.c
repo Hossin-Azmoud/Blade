@@ -1,9 +1,6 @@
-#include "fft.h"
-#include "logger.h"
-#include "miaudio.h"
 #include <assert.h>
 #include <math.h>
-#include <mi.h>
+#include <blade.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,8 +20,8 @@ void unLockPlayer(void) { pthread_mutex_unlock(&Mutx); }
 void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
                    ma_uint32 frameCount) {
 
-  MiAudioPlayer *player = (MiAudioPlayer *)pDevice->pUserData;
-  MiAudio *audio = &player->audio;
+  BladeAudioPlayer *player = (BladeAudioPlayer *)pDevice->pUserData;
+  BladeAudio *audio = &player->audio;
   ma_uint32 channels = pDevice->playback.channels;
   float freq_bins[BARS + 1];
   ma_uint32 leftSamples;
@@ -107,9 +104,9 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   (void)pInput; // Unused.
   unLockPlayer();
 }
-MiAudioPlayer *init_player(char *file) {
-  MiAudioPlayer *player = (MiAudioPlayer *)malloc(sizeof(MiAudioPlayer));
-  MiAudio *audio = &player->audio;
+BladeAudioPlayer *init_player(char *file) {
+  BladeAudioPlayer *player = (BladeAudioPlayer *)malloc(sizeof(BladeAudioPlayer));
+  BladeAudio *audio = &player->audio;
   ma_result result;
   memset(player, 0, sizeof(*player));
   strcpy(player->file, file);
@@ -157,7 +154,7 @@ MiAudioPlayer *init_player(char *file) {
   return (player);
 }
 
-void deallocate_player(MiAudioPlayer *player) {
+void deallocate_player(BladeAudioPlayer *player) {
   ma_device_uninit(&player->dev);
   ma_decoder_uninit(&player->audio.decoder);
   // endwin(); We dont end the window here because we still need it..
@@ -165,7 +162,7 @@ void deallocate_player(MiAudioPlayer *player) {
   free(player);
 }
 
-void start_playing(MiAudioPlayer *player) {
+void start_playing(BladeAudioPlayer *player) {
   ma_result result = ma_device_start(&player->dev);
   if (result != MA_SUCCESS) {
     printf("Failed to start playback device.\n");
@@ -175,11 +172,11 @@ void start_playing(MiAudioPlayer *player) {
   }
 }
 
-void player_play(MiAudioPlayer *player) { player->play = 1; }
+void player_play(BladeAudioPlayer *player) { player->play = 1; }
 
-void player_pause(MiAudioPlayer *player) { player->play = 0; }
+void player_pause(BladeAudioPlayer *player) { player->play = 0; }
 
-void toggle_play(MiAudioPlayer *player) {
+void toggle_play(BladeAudioPlayer *player) {
   if (player->play) {
     player_pause(player);
     return;
@@ -187,9 +184,9 @@ void toggle_play(MiAudioPlayer *player) {
   player_play(player);
 }
 
-void seek_position(MiAudioPlayer *player, int offset_in_secs) {
+void seek_position(BladeAudioPlayer *player, int offset_in_secs) {
   ma_uint64 sr = player->audio.srate;
-  MiAudio *audio = &player->audio;
+  BladeAudio *audio = &player->audio;
   int moveoffsetframes = (offset_in_secs * sr);
   if (moveoffsetframes > 0) {
 
@@ -218,11 +215,11 @@ void seek_position(MiAudioPlayer *player, int offset_in_secs) {
   }
 }
 
-void rewind_audio(MiAudioPlayer *player) {
+void rewind_audio(BladeAudioPlayer *player) {
   player->audio.position = 0; // Replay.
 }
 
-void volume(MiAudioPlayer *player, float new_volume) {
+void volume(BladeAudioPlayer *player, float new_volume) {
   player->volume = new_volume;
 
   if (new_volume > 1.0f)
@@ -234,9 +231,9 @@ void volume(MiAudioPlayer *player, float new_volume) {
 void *player_visualize_audio(void *E) {
   // We load the audio in this thread for some reasonl
   LockPlayer();
-  MiEditor *Ed = (MiEditor *)E;
-  MiAudioPlayer *player = (MiAudioPlayer *)Ed->mplayer;
-  MiAudio *audio = &player->audio;
+  BladeEditor *Ed = (BladeEditor *)E;
+  BladeAudioPlayer *player = (BladeAudioPlayer *)Ed->mplayer;
+  BladeAudio *audio = &player->audio;
   int h, w;
 
   player->play = 1;
@@ -326,7 +323,7 @@ void *player_visualize_audio(void *E) {
   return NULL;
 }
 
-void editor_init_player_routine(MiEditor *E, char *mp3_file) {
+void editor_init_player_routine(BladeEditor *E, char *mp3_file) {
   E->mplayer = init_player(mp3_file);
   E->mode = MPLAYER; // Set the mode to music player.
   pthread_t playerThread;
@@ -346,8 +343,8 @@ void editor_init_player_routine(MiEditor *E, char *mp3_file) {
 }
 
 void *editor_player_update__internal(void *E) {
-  MiEditor *Ed = (MiEditor *)E;
-  MiAudioPlayer *player = (MiAudioPlayer *)Ed->mplayer;
+  BladeEditor *Ed = (BladeEditor *)E;
+  BladeAudioPlayer *player = (BladeAudioPlayer *)Ed->mplayer;
   int c = 0;
   while (!player->quit) {
     c = getchar();
@@ -380,8 +377,9 @@ void *editor_player_update__internal(void *E) {
   return NULL;
 }
 
-void editor_player_update(MiEditor *E, int c) {
-  MiAudioPlayer *player = (MiAudioPlayer *)E->mplayer;
+void editor_player_update(BladeEditor *E, int c) {
+
+  BladeAudioPlayer *player = (BladeAudioPlayer *)E->mplayer;
   LockPlayer();
 
   switch (c) {

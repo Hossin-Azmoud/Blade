@@ -1,5 +1,5 @@
 #include <fcntl.h>
-#include <mi.h>
+#include <blade.h>
 
 EditorConfig_t *load_editor_config(char *file) {
   EditorConfig_t *cfg;

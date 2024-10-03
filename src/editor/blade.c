@@ -1,5 +1,5 @@
 #include <logger.h>
-#include <mi.h>
+#include <blade.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -385,7 +385,7 @@ Line *cut_line(Lines_renderer *line_ren, Line *line, size_t start, size_t end) {
     // it..
     if (is_end) {
       memset(local_line->content, 0x0, LINE_SZ);
-      memset(local_line->token_list._list, 0x0, sizeof(MIToken) * MAX_TOKENS);
+      memset(local_line->token_list._list, 0x0, sizeof(BladeToken) * MAX_TOKENS);
       local_line->size = 0;
       local_line->x = 0;
       return local_line;

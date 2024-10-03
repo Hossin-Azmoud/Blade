@@ -23,7 +23,7 @@
 #include <parser.h>
 #include <filessystem.h>
 #include <logger.h>
-#include <miplayer.h>
+#include <player.h>
 #include <ncurses.h>
 #include <signals_.h>
 #include <xstring.h>
@@ -78,7 +78,7 @@
 #define DQUOTE '\"'
 #define SQUOTE '\''
 #define WLCM_BUFF "(WELLCOME TO MI EDITOR V0.1!)"
-#define MI_V "Mi 0.0.1\n"
+#define MI_V "Blade 0.0.1\n"
 // command
 
 typedef struct eCommand {
@@ -130,7 +130,7 @@ typedef struct KeywordList {
 } KeywordList;
 
 // TODO: IMPLEMET FUNCTIONS THAT CAN COLLECT THESE TOKENS..
-typedef enum MITokenType {
+typedef enum BladeTokenType {
   /* Groups */
   STR_LIT_INCOM,
   STR_LIT,
@@ -175,7 +175,7 @@ typedef enum MITokenType {
   FSLASH,      // /
   BSLASH,      // '\' /
   OTHER_PUNCT, // Any unknown punct.
-} MITokenType;
+} BladeTokenType;
 
 typedef struct vKeyBindingQueue {
   char keys[MAX_KEY_BINDIND];
@@ -183,14 +183,14 @@ typedef struct vKeyBindingQueue {
   bindingKind kind;
 } vKeyBindingQueue;
 
-typedef struct MIToken {
-  MITokenType kind;
+typedef struct BladeToken {
+  BladeTokenType kind;
   int xstart, xend;
   char *data;
-} MIToken;
+} BladeToken;
 
 typedef struct TokenList {
-  MIToken *_list;
+  BladeToken *_list;
   int size, cap;
 } TokenList;
 
@@ -231,7 +231,7 @@ typedef struct Result {
   char *data;
 } Result;
 
-typedef struct MiEditor {
+typedef struct BladeEditor {
   Lines_renderer *renderer;
   Vec2 highlighted_start,
       highlighted_end; // The chordinated of highlighted text.
@@ -242,10 +242,10 @@ typedef struct MiEditor {
   WINDOW *ewindow;
   vKeyBindingQueue binding_queue;
   FileBrowser *fb;
-  MiAudioPlayer *mplayer;
+  BladeAudioPlayer *mplayer;
   volatile sig_atomic_t resized;
   EditorConfig_t *cfg;
-} MiEditor;
+} BladeEditor;
 
 int editor(char **argv);
 WINDOW *init_ncurses_window(void);
@@ -291,11 +291,11 @@ void editor_left(Lines_renderer *line_ren);
 void editor_down(Lines_renderer *line_ren);
 void editor_right(Lines_renderer *line_ren);
 
-void editor_insert(int c, MiEditor *E);
-void editor_visual(int c, MiEditor *E);
-void editor_normal(int c, MiEditor *E);
-void editor_handle_move(int c, MiEditor *E);
-void editor_command_(MiEditor *E);
+void editor_insert(int c, BladeEditor *E);
+void editor_visual(int c, BladeEditor *E);
+void editor_normal(int c, BladeEditor *E);
+void editor_handle_move(int c, BladeEditor *E);
+void editor_command_(BladeEditor *E);
 
 bool is_move(int key);
 void editor_render_details(Lines_renderer *line_ren, char *_path,
@@ -303,11 +303,11 @@ void editor_render_details(Lines_renderer *line_ren, char *_path,
 void editor_handle_binding(Lines_renderer *line_ren,
                            vKeyBindingQueue *bindings);
 void editor_identify_binding(vKeyBindingQueue *bindings);
-void editor_command_execute(MiEditor *E, char *command, editorMode mode);
+void editor_command_execute(BladeEditor *E, char *command, editorMode mode);
 
 // EDITOR REGISTRY.
-MiEditor *editor_get(void);
-MiEditor *editor_register_(MiEditor *E);
+BladeEditor *editor_get(void);
+BladeEditor *editor_register_(BladeEditor *E);
 
 // CHUNK
 void chunk_append_s(Chunk *c, char *str);
@@ -316,27 +316,27 @@ Chunk *chunk_new(void);
 void chunk_distroy(Chunk *c);
 
 // Token List ops
-void token_list_append(TokenList *list, MITokenType kind, int xstart, int xend);
+void token_list_append(TokenList *list, BladeTokenType kind, int xstart, int xend);
 void retokenize_line(Line *line, FileType file_type);
 KeywordList *get_keywords_list(FileType s);
 bool is_keywrd(char *keywords[], char *word, int keywords_sz);
-char *get_token_kind_s(MITokenType t);
+char *get_token_kind_s(BladeTokenType t);
 
 FileType get_file_type(char *spath);
 char *file_type_as_str(FileType s);
-MiEditor *init_editor(char *path);
-void editor_load_layout(MiEditor *E);
-void release_editor(MiEditor *E);
-void editor_refresh(MiEditor *E);
-void editor_render(MiEditor *E);
-void editor_update(int c, MiEditor *E);
-void render_file_browser(MiEditor *E);
-void editor_file_browser(int c, MiEditor *E);
+BladeEditor *init_editor(char *path);
+void editor_load_layout(BladeEditor *E);
+void release_editor(BladeEditor *E);
+void editor_refresh(BladeEditor *E);
+void editor_render(BladeEditor *E);
+void editor_update(int c, BladeEditor *E);
+void render_file_browser(BladeEditor *E);
+void editor_file_browser(int c, BladeEditor *E);
 
 // mplayer
-void editor_player_update(MiEditor *E, int c);
+void editor_player_update(BladeEditor *E, int c);
 void *editor_player_update__internal(void *E);
-void editor_init_player_routine(MiEditor *E, char *mp3_file);
+void editor_init_player_routine(BladeEditor *E, char *mp3_file);
 
 // PATH PARSING.
 Path *path_alloc(int cap);

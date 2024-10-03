@@ -1,7 +1,7 @@
 // #include "filessystem.h"
 // #include <ctype.h>
-#include <file_browser.h>
-#include <mi.h>
+
+#include <blade.h>
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -9,7 +9,7 @@
 #include <string.h>
 #include <time.h>
 
-void editor_visual(int c, MiEditor *E) {
+void editor_visual(int c, BladeEditor *E) {
   switch (c) {
   // unCapitalize COMMAND.
   case SHIFT(KEY_CAP): {
@@ -63,7 +63,7 @@ void editor_visual(int c, MiEditor *E) {
   }
 }
 
-void editor_normal(int c, MiEditor *E) {
+void editor_normal(int c, BladeEditor *E) {
   switch (c) {
   case SHIFT('c'): {
     E->highlighted_start = (Vec2){.x = E->renderer->current->x,
@@ -121,7 +121,7 @@ void editor_normal(int c, MiEditor *E) {
   }
 }
 
-void editor_insert(int c, MiEditor *E) {
+void editor_insert(int c, BladeEditor *E) {
   switch (c) {
   case TAB: {
     editor_tabs(E->renderer->current);
@@ -151,7 +151,7 @@ void editor_insert(int c, MiEditor *E) {
   }
 }
 
-void editor_new_entry(char *path, MiEditor *E) {
+void editor_new_entry(char *path, BladeEditor *E) {
   int tree_head_idx = 0;
   Path *p = path_alloc(32);
   parse_path(p, path);
@@ -172,7 +172,7 @@ void editor_new_entry(char *path, MiEditor *E) {
   release_path(p);
 }
 
-void remove_entry_(MiEditor *E, size_t index, bool notified) {
+void remove_entry_(BladeEditor *E, size_t index, bool notified) {
   char label[4096];
   BrowseEntry entry = E->fb->entries[index];
   if (notified) {
@@ -233,7 +233,7 @@ void remove_entry_(MiEditor *E, size_t index, bool notified) {
   }
 }
 
-void editor_file_browser(int c, MiEditor *E) {
+void editor_file_browser(int c, BladeEditor *E) {
   char label[4096] = {0};
   static int findex = -1;
   static int flist[64] = {-1};
@@ -467,7 +467,7 @@ void editor_file_browser(int c, MiEditor *E) {
   }
 }
 
-void editor_command_(MiEditor *E) {
+void editor_command_(BladeEditor *E) {
   editorMode mode = E->mode;
   char *label = " cmd > ";
   int y = E->renderer->win_h - 2;
