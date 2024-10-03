@@ -1,2 +1,2 @@
 set -xe 
-make miapi bin ; ./bin/mi . ; reset
+make bladeapi bin ; ./bin/blade . ; reset

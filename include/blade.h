@@ -244,11 +244,12 @@ typedef struct BladeEditor {
   FileBrowser *fb;
   BladeAudioPlayer *mplayer;
   volatile sig_atomic_t resized;
+  char *cfg_path;
   EditorConfig_t *cfg;
 } BladeEditor;
 
-int editor(char **argv);
-WINDOW *init_ncurses_window(void);
+int editor(char **argv, const char *cfg_path);
+WINDOW *init_ncurses_window(EditorConfig_t *cfg);
 int load_file(char *file_path, Lines_renderer *line_ren);
 int save_file(char *file_path, Line *lines, bool release);
 void reinit_renderer(char *file_path, Lines_renderer *line_ren);
@@ -324,7 +325,7 @@ char *get_token_kind_s(BladeTokenType t);
 
 FileType get_file_type(char *spath);
 char *file_type_as_str(FileType s);
-BladeEditor *init_editor(char *path);
+BladeEditor *init_editor(char *path, EditorConfig_t *cfg);
 void editor_load_layout(BladeEditor *E);
 void release_editor(BladeEditor *E);
 void editor_refresh(BladeEditor *E);
@@ -351,4 +352,5 @@ void command_distroy(eCommand *c);
 eCommand *command_parse(char *command);
 eCommand *command_alloc(size_t cap);
 
+// 
 #endif // MI_H

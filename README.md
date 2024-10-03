@@ -1,5 +1,7 @@
-# Mi
-Tui text editor made in ncurses, with an embdedded Music player.
+## WARNINGS!
+- Please don't open very large files for now because there is no way to just effeciently load them, it just loads the whole file.
+# Blade
+Tui text editor made in ncurses, with an embdedded Music player, file browser, syntax Highlighting..
 ### KITTY
 ![MI_INKITY](./img/kitty.png)
 ### PYTHON
@@ -59,8 +61,13 @@ Tui text editor made in ncurses, with an embdedded Music player.
 - `Rust`: Not Yet
 - `Go`: Not Yett
 
-## WARNINGS!
-- Please don't open very large files for now because there is no way to just effeciently load them, it just loads the whole file.
+## configuration
+- The configuration is located in $HOME/.config/blade/blade.cfg
+- it is generated automatically. so if u have anything in mind u want to change so go on and change the config.
+- the config will be loaded automatically after u reopen the edior.
+#### Possible customization for now:
+- background
+- foreground
 
 # Next Up
 [] review and fix bug.

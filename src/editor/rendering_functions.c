@@ -269,7 +269,7 @@ static void token_highlight(BladeToken *token, int y, int y_offset, int x_offset
   } break;
   default: {
     colorize(y - y_offset, token->xstart + x_offset, token->xend + x_offset,
-             MAIN_THEME_PAIR);
+        MAIN_THEME_PAIR);
   } break;
   }
 }

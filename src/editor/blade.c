@@ -1,16 +1,17 @@
+#include "parser.h"
 #include <logger.h>
 #include <blade.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-WINDOW *init_ncurses_window(void) {
+WINDOW *init_ncurses_window(EditorConfig_t *cfg) {
   WINDOW *win = initscr();
 
   raw();
   keypad(stdscr, TRUE);
   noecho();
   // cbreak();
-  init_colors();
+  init_colors(cfg);
 
   wbkgd(win, COLOR_PAIR(MAIN_THEME_PAIR));
   set_escdelay(0);

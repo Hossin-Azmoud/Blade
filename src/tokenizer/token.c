@@ -1,4 +1,6 @@
+#include "filessystem.h"
 #include <blade.h>
+// #include <stdio.h>
 
 // TODO: Make a collector for string lits, number, id tokens.. and also
 // keywords....
@@ -273,11 +275,17 @@ void retokenize_line(Line *line, FileType file_type) {
           continue;
         }
       }
-
-      token_list_append(
+      if (file_type == UNSUP) {
+        token_list_append(
+          &(line->token_list),
+          ID,
+          xstart, xend);
+      } else {
+        token_list_append(
           &(line->token_list),
           (is_keywrd(keywords_list->_list, temp, keywords_list->size)) ? KEYWORD : ID,
           xstart, xend);
+      }
       
       line->token_list._list[line->token_list.size - 1].data = 
         memxcpy(line->content + xstart, (xend - xstart) + 1);
@@ -453,6 +461,7 @@ void retokenize_line(Line *line, FileType file_type) {
       } break;
       case ':': {
         token_list_append(&(line->token_list), COLON, x, x);
+        // printf("COLON FOUND:\n");
         x++;
       } break;
 
@@ -483,7 +492,7 @@ void retokenize_line(Line *line, FileType file_type) {
 }
 
 bool is_keywrd(char *keywords[], char *word, int keywords_sz) {
-
+  
   for (int it = 0; it < keywords_sz; ++it) {
     if (strcmp(keywords[it], word) == 0) {
       return true;

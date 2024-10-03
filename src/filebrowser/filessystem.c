@@ -47,10 +47,10 @@ filessystem_t *slurp_fs(char *path)
 		return (fs);
 	}
 	
-	fs->children = malloc(sizeof(fs) * FILE_SYSTEM_CAP);
+	fs->children = malloc(sizeof(*fs) * FILE_SYSTEM_CAP);
 	fs->ifs_cap  = FILE_SYSTEM_CAP;
 	
-	memset(fs->children, 0, FILE_SYSTEM_CAP * sizeof(*(fs->children)));
+	memset(fs->children, 0, FILE_SYSTEM_CAP * sizeof(fs->children));
 	for (int i = 0; entries[i] != NULL; i++) {
 		// > Resolve the path. [DONE]
 		// > if the path is for a directory u call 
@@ -59,7 +59,7 @@ filessystem_t *slurp_fs(char *path)
 		if (strcmp(entries[i], ".") && strcmp(entries[i], "..")) {
 			if ((size_t)fs->ifs_size >= fs->ifs_cap - 1) {
 				fs->ifs_cap  = (fs->ifs_cap * 2) + 1;
-				fs->children = realloc(fs->children,  fs->ifs_cap * sizeof(fs));
+				fs->children = realloc(fs->children,  fs->ifs_cap * sizeof(*fs));
 			}
 
 			tmp = join_path(fs->full_path, entries[i]);

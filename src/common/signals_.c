@@ -9,7 +9,7 @@ void do_resize(int resize_signal)
     // NOTE: This feature is not completed yet so dont expect much for now.
     
 	endwin();
-	E->ewindow = init_ncurses_window();
+	E->ewindow = init_ncurses_window(E->cfg);
 	// recompute the layout, width and height!
 	editor_load_layout(E);
 	// re-init the file browser..    

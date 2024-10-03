@@ -1,37 +1,28 @@
 // #include "filessystem.h"
+#include "parser.h"
 #include <blade.h>
 
 static Vec2 vec2(void) { return (Vec2){.x = 0, .y = 0, ._line = NULL}; }
 
 static void init_window(BladeEditor *E) {
-  // int it = 0;
-  // it = 0;
-
   E->renderer->win_w = 0;
   E->renderer->win_h = 0;
-
-  // log_into_f("[FIRST %i] w => %i h => %i\n", it, E->renderer->win_w,
-  // E->renderer->win_h);
-
   // NOTE: This bootstrap function maybe is neccessary for some terminals.
   while (E->renderer->win_w == 0 && E->renderer->win_h == 0) {
 
-    E->ewindow = init_ncurses_window();
+    E->ewindow = init_ncurses_window(E->cfg);
     editor_load_layout(E);
-    // mvprintw(0, 0, "[TERM %i] w => %i h => %i\n", it, E->renderer->win_w,
-    // E->renderer->win_h); log_into_f("[ITERATION %i] w => %i h => %i\n", it,
-    // E->renderer->win_w, E->renderer->win_h);
   }
 
-  // log_into_f("[FINAL %i] w => %i h => %i\n", it, E->renderer->win_w,
-  // E->renderer->win_h);
 }
 
-BladeEditor *init_editor(char *path) {
+BladeEditor *init_editor(char *path, EditorConfig_t *cfg) {
   BladeEditor *E = malloc(sizeof(BladeEditor));
+  char *pathBuff = NULL;
+
   init_signals();
   memset(E, 0, sizeof(*E));
-  char *pathBuff = NULL;
+  E->cfg = cfg; 
   E->renderer = malloc(sizeof(*(E->renderer)));
   memset(E->renderer, 0, sizeof(*(E->renderer)));
   init_window(E);

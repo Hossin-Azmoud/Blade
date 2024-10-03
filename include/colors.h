@@ -2,6 +2,7 @@
 #define COLORS_H
 
 // COLOR INDECES
+#include "parser.h"
 #define COLOR_GREY_           8
 #define COLOR_YELLOW_         9
 #define COLOR_APPLE          10
@@ -15,6 +16,9 @@
 #define COLOR_LIGHT_YELLOW 18
 #define CHI_GONG_RED 19
 #define COLOR_DRACULA 20
+
+#define COLOR_BACKGROUND 21
+#define COLOR_FOREGROUND 22
 
 // PAIRS INDECES
 #define SECONDARY_THEME_PAIR 1
@@ -36,9 +40,11 @@
 #define CHI_GONG_RED_PAIR    17 
 #define DRACULA_PAIR         18
 #include <stdint.h>
+
+// #define 
 void make_new_color(int index, int r, int g, int b);
 void make_new_color_u32(int index, uint32_t color);
-void init_colors(void);
+void init_colors(EditorConfig_t *cfg);
 void colorize(int y, int xs, int xe, int pair);
 
 #endif // COLORS_H
