@@ -3,9 +3,18 @@
 
 char *memxcpy(char *src, int n)
 {
-  char *dst = malloc(n + 1);
+  char *dst = malloc(n + 2);
   int i = 0;
   while (src[i] && n) {
+    if (src[i] == '\\') {
+      if (i + 1 < n) {
+        switch (*(i+1+src)) {
+          case 't': {
+            dst[i] = TAB;
+          } break;
+        }
+      }
+    }
     dst[i] = src[i];
     n--;
     i++;

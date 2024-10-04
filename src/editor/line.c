@@ -1,3 +1,4 @@
+#include "parser.h"
 #include <blade.h>
 
 void indent_line(Line *line) {
@@ -9,9 +10,11 @@ void indent_line(Line *line) {
 
 void unindent_line(Line *line) {
   int x = line->x;
+  EditorConfig_t *cfg = cfg_interface(CFG_GET, NULL); 
   line->x = 0;
+  
 
-  while (line->content[line->x] == ' ' && line->x < 4) {
+  while (line->content[line->x] == cfg->indent_char && line->x < cfg->indent_count) {
     line->x++;
   }
 
@@ -164,8 +167,10 @@ void line_push_char(Line *line, char c, bool pasted) {
 }
 
 void editor_tabs(Line *line) {
-  for (int i = 0; i < 4; ++i)
-    line_push_char(line, ' ', true);
+  EditorConfig_t *cfg = cfg_interface(CFG_GET, NULL); 
+  assert(cfg != NULL && "NO CONFIG WAS REGISTERED");
+  for (int i = 0; i < cfg->indent_count; ++i)
+    line_push_char(line, cfg->indent_char, true);
 }
 
 // TODO: Finish the impl of the next Functions... L178, L194

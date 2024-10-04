@@ -1,3 +1,4 @@
+#include "parser.h"
 #include <common.h>
 #include <blade.h>
 #include <stdio.h>
@@ -29,6 +30,7 @@ int editor(char **argv, const char *cfg_path) {
   emoji_init(); // Init the emojis cache.
   
   BladeEditor *E = init_editor(argv[1], cfg);
+  cfg_interface(CFG_SET, cfg); 
   // resolve_path(char *src, char *dest)
 
   int c = 0;

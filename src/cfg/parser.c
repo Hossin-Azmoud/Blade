@@ -1,3 +1,4 @@
+#include "parser.h"
 #include <fcntl.h>
 #include <blade.h>
 #include <linux/limits.h>
@@ -46,6 +47,7 @@ EditorConfig_t *load_editor_config(char *file) {
   free(line->content);
   for (char *next = read_next_line(stream); next;
        (next = read_next_line(stream)), i++) {
+    char *escd;
     line->content = next;
     line->size    = strlen(next);
     retokenize_line(line, UNSUP);
@@ -68,7 +70,9 @@ EditorConfig_t *load_editor_config(char *file) {
     if (strcmp(rhs, "indent_char") == 0) {
       assert(*lhs == '"');
       assert(*(lhs + 1) != 0);
-      cfg->indent_char = *(lhs + 1); // The letter directly after the qoutes.
+      escd = xescape(lhs);
+      cfg->indent_char = *(escd + 1);
+      free(escd);
       continue;
     }
     if (strcmp(rhs, "indent_count") == 0) {
@@ -167,4 +171,20 @@ EditorConfig_t *editor_resolve_cfg(const char *cfg_path)
 
   // TODO: Load the config.
   return (load_editor_config(xdg_cfg_path)); 
+}
+
+EditorConfig_t *cfg_interface(cfg_action_t a, EditorConfig_t *data) {
+  static EditorConfig_t *cfg;
+  switch (a) {
+    case CFG_GET: {
+      return (cfg);
+    } break;
+    case CFG_SET: {
+      cfg = data;
+    } break;
+    default: {
+      //NOTE: None to be done
+    } break;
+  }
+  return NULL;
 }

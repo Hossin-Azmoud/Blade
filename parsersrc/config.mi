@@ -1,5 +1,5 @@
 autosave:     1
-indent_char:  " "
+indent_char:  "\t"
 indent_count: 6
 
 # Theme.

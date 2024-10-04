@@ -141,7 +141,6 @@ static int collect_string_lit(Line *line, int current_x) {
     } break;
     }
   }
-
   xend = current_x;
   current_x++;
 NEXT:

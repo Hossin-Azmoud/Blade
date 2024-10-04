@@ -70,8 +70,8 @@ Tui text editor made in ncurses, with an embdedded Music player, file browser, s
 - foreground
 
 # Next Up
-[] review and fix bug.
-[] Implementing a way to costumize the editor using a config file.
-[] Implementing mode for language Highlighting
-[] Implementing more commands to change stuff inside the editor.
-[] Implementing smoother audio spect.
+- [] review and fix bug.
+- [] Implementing a way to costumize the editor using a config file.
+- [] Implementing mode for language Highlighting
+- [] Implementing more commands to change stuff inside the editor.
+- [] Implementing smoother audio spect.

@@ -18,6 +18,12 @@
 //   char *errmsg; // Should be exclusively static.. read only.
 // } MiStatus_t;
 
+typedef enum cfg_action_e {
+  CFG_SET,
+  CFG_GET
+} cfg_action_t;
+
+
 typedef struct Theme {
   int background;
   int foreground;
@@ -38,6 +44,7 @@ typedef struct EditorConfig_s {
   int indent_count;
   Theme theme;
 } EditorConfig_t;
+EditorConfig_t *cfg_interface(cfg_action_t a, EditorConfig_t *data);
 EditorConfig_t *editor_resolve_cfg(const char *cfg_path);
 long np_atoi_base(char *a, char *base);
 EditorConfig_t *load_editor_config(char *file);

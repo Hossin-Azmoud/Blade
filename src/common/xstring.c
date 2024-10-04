@@ -49,3 +49,31 @@ char *memxcpy(char *src, int n)
   dst[i] = 0;
   return (dst);
 }
+
+// TODO: 
+char *xescape(char *src) {
+  if (src == NULL)
+    return NULL;
+  char *bp;
+  char *dst = malloc(sizeof(src));
+  if (dst == NULL)
+    return dst;
+  bp = dst;
+  for (;*src != 0x0;src++, dst++) {
+    
+    if (*src == '\\') {
+      if (*(src + 1)) {
+        switch (*(1+src)) {
+          case 't': {
+            *dst = TAB;
+            src++;
+          } break;
+        }
+        continue;
+      }
+    }
+    *dst = *src;
+  }
+  return bp;
+}
+
