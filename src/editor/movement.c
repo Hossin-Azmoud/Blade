@@ -66,6 +66,18 @@ bool is_move(int key) {
          (key == KEY_END) || (key == KEY_HOME) || (key == KEY_MOUSE) ||
          (key == L_SHIFT) || (key == R_SHIFT);
 }
+// void fb_handle_goto(FileBrowser *fb, size_t win_h, size_t idx) {
+//   if (idx < fb->cur_row && idx < fb->start) {
+//     fb->start  = idx;
+//     fb->end   -= (fb->start - idx); 
+//   }
+
+//   if (idx > fb->cur_row && idx > fb->end) {
+//     fb->end  = idx;
+//     fb->start   -= (idx - fb->end); 
+//   }
+//   fb->cur_row = idx;
+// }
 
 static void fb_handle_mv(int c, FileBrowser *fb, size_t win_h) {
   switch (c) {

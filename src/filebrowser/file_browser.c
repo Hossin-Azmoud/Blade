@@ -69,12 +69,13 @@ void fb_append(FileBrowser *self, char *name) {
   if (!name)
     return;
   if (self->size + 1 >= self->cap) {
-    self->cap += 10;
+    self->cap *= 2;
     self->entries = realloc(self->entries, sizeof(BrowseEntry) * self->cap);
   }
 
   self->entries[self->size].value = string_dup(name);
   self->entries[self->size].ftype = get_file_type(name);
+  self->entries[self->size].selected = false;
 
   {
     char *p = resolve_path(self->open_entry_path, name);

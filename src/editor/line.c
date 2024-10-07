@@ -12,7 +12,6 @@ void unindent_line(Line *line) {
   int x = line->x;
   EditorConfig_t *cfg = cfg_interface(CFG_GET, NULL); 
   line->x = 0;
-  
 
   while (line->content[line->x] == cfg->indent_char && line->x < cfg->indent_count) {
     line->x++;

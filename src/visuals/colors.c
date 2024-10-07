@@ -50,16 +50,15 @@ void init_colors(EditorConfig_t *cfg) {
   init_pair(SECONDARY_THEME_PAIR, COLOR_GREY_, COLOR_YELLOW_);
   init_pair(ERROR_PAIR, COLOR_WHITE, COLOR_RED);
   init_pair(BLUE_PAIR, COLOR_WHITE, COLOR_BLUE);
-  init_pair(YELLOW_PAIR, COLOR_YELLOW_, COLOR_GREY_);
-  init_pair(CALL_SYNTAX_PAIR, COLOR_CYAN, COLOR_GREY_);
+
   init_pair(STRING_LIT_PAIR, COLOR_APPLE, COLOR_GREY_);
   init_pair(COMENT_PAIR, COLOR_COMMENT, COLOR_GREY_);
   init_pair(NUM_PAIR, COLOR_SILVER_, COLOR_GREY_);
 
   // confing integration
-
   make_new_color_u32(COLOR_BACKGROUND, cfg->theme.background);
   make_new_color_u32(COLOR_FOREGROUND, cfg->theme.foreground);
+  init_pair(CALL_SYNTAX_PAIR, COLOR_CYAN, COLOR_BACKGROUND);
   init_pair(MAIN_THEME_PAIR, COLOR_FOREGROUND, COLOR_BACKGROUND);
-
+  init_pair(YELLOW_PAIR, COLOR_YELLOW_, COLOR_BACKGROUND);
 }

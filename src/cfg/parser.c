@@ -72,7 +72,9 @@ EditorConfig_t *load_editor_config(char *file) {
       assert(*(lhs + 1) != 0);
       escd = xescape(lhs);
       cfg->indent_char = *(escd + 1);
+      // printf("%x\n", cfg->indent_char);
       free(escd);
+      // getc(stdin);
       continue;
     }
     if (strcmp(rhs, "indent_count") == 0) {
@@ -174,17 +176,10 @@ EditorConfig_t *editor_resolve_cfg(const char *cfg_path)
 }
 
 EditorConfig_t *cfg_interface(cfg_action_t a, EditorConfig_t *data) {
-  static EditorConfig_t *cfg;
-  switch (a) {
-    case CFG_GET: {
-      return (cfg);
-    } break;
-    case CFG_SET: {
-      cfg = data;
-    } break;
-    default: {
-      //NOTE: None to be done
-    } break;
-  }
-  return NULL;
+  static EditorConfig_t *cfg = NULL;
+  if (a == CFG_GET)
+    return (cfg);
+  if (a == CFG_SET)
+    cfg = data;
+  return (cfg);
 }

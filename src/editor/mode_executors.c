@@ -1,6 +1,7 @@
 // #include "filessystem.h"
 // #include <ctype.h>
 
+#include "audio.h"
 #include <blade.h>
 #include <ncurses.h>
 #include <stdbool.h>
@@ -233,10 +234,35 @@ void remove_entry_(BladeEditor *E, size_t index, bool notified) {
   }
 }
 
+// typedef struct IArray_s {
+//   size_t cap, size;
+//   int *elements;
+// } IArray_t;
+
+// IArray_t *allocate_iarray(size_t cap) {
+//   if (!cap)
+//     return (NULL);
+//   IArray_t *a = malloc(sizeof (*a));
+//   memset(a, 0x0, sizeof(*a));
+//   if (!a)
+//     return (NULL);
+//   a->cap = cap;
+//   a->elements = malloc(sizeof(int) * cap);
+//   return (a);
+// }
+
+// void push_iarray(IArray_t *self) {
+//   if (!self)
+//     return;
+//   
+// }
+                      
 void editor_file_browser(int c, BladeEditor *E) {
   char label[4096] = {0};
   static int findex = -1;
-  static int flist[64] = {-1};
+  static int flist[64] = {-1}; // BUG: 64 is not always enough for the entries that we find.
+  // a better approach is to just make this a dyn array that can grow.
+  // TODO: fix bug above by creating a dyn array of found entries.
   // NOTE: I will use this for caching selected or important entries.
   static bool marking_mode = false;
 

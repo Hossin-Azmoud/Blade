@@ -356,10 +356,10 @@ void render_file_browser(BladeEditor *E) {
       // colorize the icon.
       if (entry.etype == FILE__)
         colorize(y + ypadding - E->fb->start, xpadding, emoji->size,
-                 CALL_SYNTAX_PAIR);
+            CALL_SYNTAX_PAIR);
       else
         colorize(y + ypadding - E->fb->start, xpadding, emoji->size,
-                 YELLOW_PAIR);
+          YELLOW_PAIR);
       xpadding += emoji->size;
       mvprintw(y + ypadding - E->fb->start, xpadding, "%s", entry.value);
       if (entry.selected) {
