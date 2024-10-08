@@ -45,8 +45,13 @@ int main(int argc, char **argv) {
   (void)argc;
   int ret = 0;
 #ifdef EXP
-  (void)argv;
-  (void)argc;
+  // (void)argv;
+  // (void)argc;
+  if (argc == 3) {
+    int cmp = xstr(argv[1], argv[2]);
+    char *cmp_s = (cmp == 0) ? "Exists inside" : "does not exist inside";
+    printf("%s %s inside %s\n", argv[1], cmp_s, argv[2]);
+  }
 #else
   if (check_args(argc, argv)) {
     ret = editor(argv, temp);

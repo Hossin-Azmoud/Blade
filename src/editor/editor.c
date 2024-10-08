@@ -40,20 +40,14 @@ BladeEditor *init_editor(char *path, EditorConfig_t *cfg) {
 
   E->fb = new_file_browser(pathBuff, E->renderer->win_h);
   free(pathBuff);
-  // Prepare for highlighting text (Copying and pasting..)
+   
   E->highlighted_end = vec2();   // x=0, Y=0
   E->highlighted_start = vec2(); // x=0, Y=0
   E->highlighted_data_length = 0;
-
-  // Prepare notification_buffer and other important properties..
   E->notification_buffer = malloc((1024 + 1) * sizeof(char));
-  memset(E->notification_buffer, 0, 1024);
   E->exit_pressed = false;
   E->char_deleted = false;
   E->mode = NORMAL;
-
-  // Prepare the renderer.
-
   E->renderer->origin = Alloc_line_node(0);
   E->renderer->count = 0;
   E->renderer->start = E->renderer->origin;
@@ -61,6 +55,7 @@ BladeEditor *init_editor(char *path, EditorConfig_t *cfg) {
   E->renderer->current = E->renderer->origin;
   E->renderer->max_padding = 2;
 
+  memset(E->notification_buffer, 0, 1024);
   // If the path that was passed was a file, or if it does not exist. we assign.
   if (E->fb->type == FILE__ || E->fb->type == NOT_EXIST) {
     E->renderer->file_type = get_file_type(E->fb->open_entry_path);
@@ -111,15 +106,17 @@ void editor_load_layout(BladeEditor *E) {
 void release_editor(BladeEditor *E) {
   if (!E)
     return;
-  release_fb(E->fb);
+  if (E->fb)
+    release_fb(E->fb);
   if (E->renderer) {
     free_lines(E->renderer->origin);
     free(E->renderer);
   }
 
-  endwin();
+  release_cfg(E->cfg);
   free(E->notification_buffer);
   free(E);
+  endwin();
 }
 
 void editor_refresh(BladeEditor *E) {

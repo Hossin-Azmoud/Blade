@@ -1,6 +1,6 @@
+#include "common.h"
 #include "filessystem.h"
 #include <blade.h>
-// #include <stdio.h>
 
 // TODO: Make a collector for string lits, number, id tokens.. and also
 // keywords....
@@ -112,6 +112,11 @@ static int trim_spaces_left(char *buff, int curr) {
 
 // Reinit the tokens.
 static void reinit_line_toks(Line *line) {
+  
+  for (int i = 0; i < line->token_list.size; i++) {
+    if (line->token_list._list[i].data)
+      free(line->token_list._list[i].data);
+  }
   if (line->token_list.size > 0) {
     line->token_list._list =
         memset(line->token_list._list, 0,
@@ -285,9 +290,8 @@ void retokenize_line(Line *line, FileType file_type) {
           (is_keywrd(keywords_list->_list, temp, keywords_list->size)) ? KEYWORD : ID,
           xstart, xend);
       }
-      
       line->token_list._list[line->token_list.size - 1].data = 
-        memxcpy(line->content + xstart, (xend - xstart) + 1);
+        string_dup(temp);
       // IDENTIFY TYPES FOR C.
       if (file_type == C) {
         if (line->token_list.size > 1) {

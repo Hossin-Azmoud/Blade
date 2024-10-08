@@ -79,7 +79,8 @@ bool is_move(int key) {
 //   fb->cur_row = idx;
 // }
 
-static void fb_handle_mv(int c, FileBrowser *fb, size_t win_h) {
+
+void fb_handle_mv(int c, FileBrowser *fb, size_t win_h) {
   switch (c) {
   case KEY_UP: {
     if (fb->cur_row) {
@@ -89,7 +90,6 @@ static void fb_handle_mv(int c, FileBrowser *fb, size_t win_h) {
           fb->start--;
           if (fb->end - fb->start > (win_h - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2))
             fb->end--;
-          // fix_layout_file_browser(fb, );
         }
       }
 

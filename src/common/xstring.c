@@ -1,4 +1,7 @@
 #include <blade.h>
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
 char *xstrdup(char *s) {
   size_t size = strlen(s);
@@ -12,33 +15,29 @@ char *xstrdup(char *s) {
 }
 
 int xstr(const char *s1, const char *s2) {
-  char c1 = 0;
-  char c2 = 0;
-  int ln  = 0;
-  
-  for (;*s2; s2++) {
-    c1 = toupper(*s1);
-    c2 = toupper(*s2);
-    if (c1 == c2)
+  int i = 0;
+  int j = 0;
+  int flen = strlen(s1);
+
+  for (;s2[i]; i++) {
+    if (s2[i] == s1[0])
       break;
   }
-  if (!c1 && !c2)
+  if (!*(s2 + i))
     return (1);
-  for (;*s1 && *s2; s1++, s2++) {
-    c1 = toupper(*s1);
-    c2 = toupper(*s2);
-    if (c1 != c2)
+
+  for (;s2[i] && s1[j]; i++, j++) {
+    if (s2[i] != s1[j])
       break;
-    ln++;
   }
-  if (!*s1 && ln) {
-    return (0);
-  }
-  return (c1 - c2);
+  if (j < flen)
+    return (1);
+  return (0);
 }
 
 char *memxcpy(char *src, int n)
 {
+  assert(n > 0 && "@memxcpy: N <= 0");
   char *dst = malloc(n + 1);
   int i = 0;
   while (src[i] && n) {

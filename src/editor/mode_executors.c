@@ -1,7 +1,5 @@
 // #include "filessystem.h"
 // #include <ctype.h>
-
-#include "audio.h"
 #include <blade.h>
 #include <ncurses.h>
 #include <stdbool.h>
@@ -147,6 +145,8 @@ void editor_insert(int c, BladeEditor *E) {
       line_push_char(E->renderer->current, c, false);
       if (E->renderer->count)
         E->renderer->count++;
+      if (E->cfg->autosave)
+        save_file(E->fb->open_entry_path, E->renderer->origin, false);
     }
   } break;
   }
@@ -256,14 +256,30 @@ void remove_entry_(BladeEditor *E, size_t index, bool notified) {
 //     return;
 //   
 // }
-                      
+void editor_scroll(BladeEditor *E) {
+  while (E->fb->cur_row > E->fb->end) {
+    if (E->fb->end < E->fb->size - 1) {
+      E->fb->start++;
+      E->fb->end++;
+   }
+  }
+  while (E->fb->cur_row < E->fb->start) {
+    // TODO: ADJUST THE START AND END TO POINT TO VALID ENTRIES.
+    if (E->fb->cur_row) {
+      E->fb->start--;
+      if (E->fb->end - E->fb->start > (size_t)(E->renderer->win_h - MENU_HEIGHT_ - FILE_BROWSER_YPADDING * 2))
+        E->fb->end--;
+    }
+  }
+}
+
+
 void editor_file_browser(int c, BladeEditor *E) {
   char label[4096] = {0};
-  static int findex = -1;
-  static int flist[64] = {-1}; // BUG: 64 is not always enough for the entries that we find.
   // a better approach is to just make this a dyn array that can grow.
   // TODO: fix bug above by creating a dyn array of found entries.
   // NOTE: I will use this for caching selected or important entries.
+  static size_t fidx = 0;
   static bool marking_mode = false;
 
   switch (c) {
@@ -276,25 +292,29 @@ void editor_file_browser(int c, BladeEditor *E) {
     marking_mode = true;
   } break;
   case 'n': {
-    if (findex != -1) {
-      if (flist[findex + 1] != -1) {
-        findex++;
-      } else {
-        findex--;
-      }
-
-      E->fb->cur_row = flist[findex];
+    // TODO: Fix Browser layout.
+    if (E->fb->found.size) {
+      if (fidx < E->fb->found.size - 1)
+        fidx++;
+      else
+        fidx = 0;
+      // sprintf(E->notification_buffer, "went to %zu $SZ: %zu", fidx, E->fb->found.size);
+      size_t dest = *((int *)(E->fb->found.data) + fidx);
+      E->fb->cur_row = dest;
+      editor_scroll(E);
     }
   } break;
   case 'p': {
-    if (findex != -1) {
-
-      if (findex > 0)
-        findex--;
+    if (E->fb->found.size) {
+      if (fidx > 0)
+        fidx--;
       else
-        findex++;
-
-      E->fb->cur_row = flist[findex];
+        fidx = (E->fb->found.size - 1);
+      
+      size_t dest = *((int *)(E->fb->found.data) + fidx);
+      E->fb->cur_row = dest;
+      editor_scroll(E);
+      // sprintf(E->notification_buffer, "went to %zu $SZ: %zu", fidx, E->fb->found.size);
     }
   } break;
   case NL: {
@@ -321,10 +341,8 @@ void editor_file_browser(int c, BladeEditor *E) {
   case '/': {
     // TODO: Make a list that corresponds to the list of similar entries.
     // enable the user to cycle thro them. select one of em.
-    int idx = 0;
-    for (int i = 0; i < 64; i++)
-      flist[i] = -1;
-
+    fidx = 0;
+    memclean_array(&E->fb->found);
     curs_set(1);
     int y = E->renderer->win_h - 2;
     sprintf(label, "%s", "search > ");
@@ -335,19 +353,27 @@ void editor_file_browser(int c, BladeEditor *E) {
     case SUCCESS: {
       uint8_t found = 0;
       for (size_t i = 0; i < E->fb->size; i++) {
+        // TODO: use a more sophisticated function to compare.
+        // if (strncmp(res->data, E->fb->entries[i].value, strlen(res->data)) == 0) {
+        //   // TODO: For now I will just store it here.
+        //   // I will find a way to use it.
+        //   append_array(&E->fb->found, i);
+        //   found = 1;
+        // }
+        // 
         if (xstr(res->data, E->fb->entries[i].value) == 0) {
           // TODO: For now I will just store it here.
           // I will find a way to use it.
-          flist[idx++] = i;
+          append_array(&E->fb->found, i);
           found = 1;
         }
       }
       if (found) {
-        findex = 0;
-        E->fb->cur_row = flist[findex];
+        fidx = 0;
+        E->fb->cur_row = *(int *)E->fb->found.data + fidx;
+        editor_scroll(E);
         sprintf(E->notification_buffer, "<n>: Next <p>: prev");
       } else {
-        findex = -1;
         sprintf(E->notification_buffer, "Entry was not found.");
       }
     } break;

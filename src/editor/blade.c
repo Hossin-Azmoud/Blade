@@ -90,14 +90,11 @@ int save_file(char *file_path, Line *lines, bool release) {
   for (; current;) {
     bytes_saved += fwrite(current->content, 1, current->size, Stream);
     bytes_saved += fwrite("\n", 1, 1, Stream);
-
     next = current->next;
-
     if (release) {
       free(current->content);
       free(current);
     }
-
     current = next;
   }
 

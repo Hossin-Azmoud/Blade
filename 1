@@ -1,7 +1,6 @@
 // #include "file_browser.h"
 
 #include <blade.h>
-#include <string.h>
 
 static char *All[] = {
     [FILE__] = "FILE__", [DIR__] = "DIR__", [NOT_EXIST] = "NOT_EXIST"};
@@ -159,11 +158,7 @@ FileBrowser *new_file_browser(const char *dir_path, size_t window_height) {
   load_dir_fb(fb);
   fb->start = 0;
   fix_layout_file_browser(fb, window_height);
-  fb->found.size  = 0;
-  fb->found.cap   = ARRAY_TYPE_INIT_CAP;
-  fb->found._each = sizeof(int);
-  fb->found.data = malloc(fb->found._each * fb->found.cap);
-  memset(fb->found.data, 0x0, fb->found._each * fb->found.cap);
+  fb->found = alloc_array(ARRAY_TYPE_INIT_CAP, sizeof(int)); // Since I only want to store ints
   return (fb);
 }
 
@@ -175,9 +170,8 @@ void reinit_fb_bounds(FileBrowser *fb, size_t window_height) {
 FileBrowser *update_fb(FileBrowser *fb, char *new_path) {
 
   fb->cur_row = 0;
-  fb->found.size = 0;
-  // memset(&fb->found, 0, sizeof(fb->found));
-  memset(fb->found.data, 0, fb->found._each * fb->found.cap);
+  memset(fb->found, 0, sizeof(*fb->found));
+  memset(fb->found, 0, fb->found->_each * fb->found->cap);
   memset(fb->entries, 0, sizeof(BrowseEntry) * fb->cap);
   fb->size = 0;
 

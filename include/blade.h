@@ -1,5 +1,5 @@
-#ifndef MI_H
-#define MI_H
+#ifndef BLADE_H
+#define BLADE_H
 
 #if __STDC_VERSION__ >= 199901L
 #define _XOPEN_SOURCE 600
@@ -14,7 +14,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <locale.h>
-// #include <ncursesw/ncurses.h>
 #include <assert.h>
 #include <clipboard.h>
 #include <ctype.h>
@@ -27,6 +26,7 @@
 #include <ncurses.h>
 #include <signals_.h>
 #include <xstring.h>
+#include <Array.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -352,5 +352,4 @@ void command_distroy(eCommand *c);
 eCommand *command_parse(char *command);
 eCommand *command_alloc(size_t cap);
 
-// 
-#endif // MI_H
+#endif // BLADE_H

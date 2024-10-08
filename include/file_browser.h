@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <filessystem.h>
+#include <Array.h>
 
 #define FB_MAX_ENT 127
 #define FILE_BROWSER_YPADDING 1
@@ -34,6 +35,7 @@ typedef struct FileBrowser {
   BrowseEntryT type;
   char *open_entry_path; // current working path. it can the currrent open dir, or current open file.
   char *rel_path; // Not the Real path but the ralative one 
+  array_t found;
 } FileBrowser;
 
 void rem_entry_from_list(BrowseEntry *list, size_t size, size_t i);
@@ -52,6 +54,7 @@ void reinit_fb_bounds(FileBrowser *fb, size_t window_height);
 void remove_entry(FileBrowser *fb);
 void remove_entry_by_index(FileBrowser *fb, size_t index);
 void fix_layout_file_browser(FileBrowser *fb, size_t window_height);
+void fb_handle_mv(int c, FileBrowser *fb, size_t win_h);
 #endif //FILE_B_H
 
 

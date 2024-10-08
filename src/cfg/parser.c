@@ -154,6 +154,7 @@ EditorConfig_t *editor_resolve_cfg(const char *cfg_path)
 
   if (cfg_path) {
     cfg  = load_editor_config((char *)cfg_path);
+    free(xdg_cfg_dir);
     return cfg;
   }
 
@@ -167,11 +168,13 @@ EditorConfig_t *editor_resolve_cfg(const char *cfg_path)
   if (get_entry_type(xdg_cfg_dir) == NOT_EXIST)
     make_dir(xdg_cfg_dir);
   if (get_entry_type(xdg_cfg_path) == NOT_EXIST) {
-    if (!write_default_cfg(xdg_cfg_path))
+    if (!write_default_cfg(xdg_cfg_path)) {
+      free(xdg_cfg_dir);
       return cfg;
+    }
   }
-
   // TODO: Load the config.
+  free(xdg_cfg_dir);
   return (load_editor_config(xdg_cfg_path)); 
 }
 
@@ -182,4 +185,12 @@ EditorConfig_t *cfg_interface(cfg_action_t a, EditorConfig_t *data) {
   if (a == CFG_SET)
     cfg = data;
   return (cfg);
+}
+
+void release_cfg(EditorConfig_t *cfg) {
+  if (cfg) {
+    if (cfg->cfg_path)
+      free(cfg->cfg_path); 
+    free(cfg);
+  }  
 }
