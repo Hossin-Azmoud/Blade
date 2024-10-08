@@ -8,6 +8,7 @@ CFLAGS=-Wall -pedantic -Wextra -std=c11 -ggdb
 SRC=./src/main.c
 LIBS=-lncursesw -lm -pthread
 # dir
+LOCAL_BIN=/usr/local/bin/blade
 STATICD = ./static
 OBJD    = ./obj
 DYND    = ./dynamic
@@ -69,10 +70,22 @@ run:
 debug:
 	@valgrind $(OUT_FILE) $(TEST_FILE)
 
+install: re
+	@sudo mv $(OUT_FILE) $(LOCAL_BIN)
+	@echo "blade was installed successfully (Into </usr/local/bin>), Run the \`blade\` Command to Start using the editor."
+
 clean:
 	@rm -rf $(OBJD)
+	@rm -rf *.o
 
 fclean: clean
 	@rm -rf $(STATICD)
 	@rm -rf $(DYND)
 	@rm -rf $(OUT_DIR)
+
+re: fclean all
+
+# Remake blade api then merge.
+reb: bladeapi bin
+rea: audioapi bin
+

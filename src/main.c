@@ -1,4 +1,5 @@
 // #include "parser.h"
+// #include <cstdio>
 #include <fcntl.h>
 #include <linux/limits.h>
 #include <blade.h>
@@ -56,6 +57,8 @@ int main(int argc, char **argv) {
   if (check_args(argc, argv)) {
     ret = editor(argv, temp);
     CLIPBOARD_FREE();
+    // THIS IS BECAUSE THE EDITOR SCREWS UP THE TERMINAL.
+    system("reset");
   }
 #endif /* ifdef EXP */
   return ret;
