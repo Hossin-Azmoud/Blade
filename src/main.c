@@ -58,7 +58,8 @@ int main(int argc, char **argv) {
     ret = editor(argv, temp);
     CLIPBOARD_FREE();
     // THIS IS BECAUSE THE EDITOR SCREWS UP THE TERMINAL.
-    system("reset");
+    if (!ret)
+      system("reset");
   }
 #endif /* ifdef EXP */
   return ret;

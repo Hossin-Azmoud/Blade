@@ -195,7 +195,7 @@ void remove_entry_(BladeEditor *E, size_t index, bool notified) {
           "> Really wanna do that (delete: %s)(y|Y|n|N): ", entry.full_path);
   mvprintw(y, 0, "%s", label);
   Result *res =
-      make_prompt_buffer(strlen(label), y, E->renderer->win_w, DRACULA_PAIR);
+      make_prompt_buffer(strlen(label), y, E->renderer->win_w);
 
   switch (res->type) {
   case SUCCESS: {
@@ -348,7 +348,7 @@ void editor_file_browser(int c, BladeEditor *E) {
     sprintf(label, "%s", "search > ");
     mvprintw(y, 0, "%s", label);
     Result *res =
-        make_prompt_buffer(strlen(label), y, E->renderer->win_w, DRACULA_PAIR);
+        make_prompt_buffer(strlen(label), y, E->renderer->win_w);
     switch (res->type) {
     case SUCCESS: {
       uint8_t found = 0;
@@ -397,8 +397,7 @@ void editor_file_browser(int c, BladeEditor *E) {
       sprintf(label, "%s",
               "> Sure wanna procced to delete the selected files: ");
       mvprintw(y, 0, "%s", label);
-      Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w,
-                                       DRACULA_PAIR);
+      Result *res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
       switch (res->type) {
       case SUCCESS: {
         if (!strcmp(res->data, "y") || !strcmp(res->data, "Y")) {
@@ -488,7 +487,7 @@ void editor_file_browser(int c, BladeEditor *E) {
     sprintf(label, "%s", "> Create File/Directory: ");
     mvprintw(y, 0, "%s", label);
     Result *res =
-        make_prompt_buffer(strlen(label), y, E->renderer->win_w, DRACULA_PAIR);
+        make_prompt_buffer(strlen(label), y, E->renderer->win_w);
     switch (res->type) {
     case SUCCESS: {
       char *entry = NULL;
@@ -531,7 +530,7 @@ void editor_command_(BladeEditor *E) {
                         E->notification_buffer);
   mvprintw(y, 0, "%s", label);
 
-  res = make_prompt_buffer(strlen(label), y, E->renderer->win_w, DRACULA_PAIR);
+  res = make_prompt_buffer(strlen(label), y, E->renderer->win_w);
   if (res->type == SUCCESS)
     editor_command_execute(E, res->data, mode);
 
@@ -539,6 +538,7 @@ void editor_command_(BladeEditor *E) {
   free(res);
 
   E->mode = (E->mode == COMMAND) ? mode : E->mode;
-  editor_render_details(E->renderer, E->fb->open_entry_path, E->mode,
-                        E->notification_buffer);
+  editor_render_details(E->renderer, E->fb->open_entry_path, 
+      E->mode,
+      E->notification_buffer);
 }

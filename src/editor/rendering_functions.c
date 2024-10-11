@@ -1,3 +1,6 @@
+#include "colors.h"
+#include "emojis.h"
+#include "filessystem.h"
 #include <blade.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +28,7 @@ void editor_render_details(Lines_renderer *line_ren, char *_path,
   char *mode = get_modeascstr(mode_);
 
   // THE COMMAND BAR
-  mvchgat(line_ren->win_h - 2, 0, line_ren->win_w, A_NORMAL, DRACULA_PAIR,
+  mvchgat(line_ren->win_h - 2, 0, line_ren->win_w, A_NORMAL, COMMAND_PROMPT_PAIR,
           NULL);
   switch (mode_) {
   case FILEBROWSER: {
@@ -34,7 +37,7 @@ void editor_render_details(Lines_renderer *line_ren, char *_path,
     sprintf(details_buffer, "#%s %s", User, _path);
     // Display the mode.
     mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
-    mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR,
+    mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLADE_MODE_PAIR,
             NULL);
 
     // Display notification.
@@ -44,7 +47,7 @@ void editor_render_details(Lines_renderer *line_ren, char *_path,
     mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1,
              "%s", details_buffer);
     mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL,
-            SECONDARY_THEME_PAIR, NULL);
+            DETAILS_BAR_PAIR, NULL);
   } break;
 
   case COMMAND: {
@@ -53,7 +56,7 @@ void editor_render_details(Lines_renderer *line_ren, char *_path,
     sprintf(details_buffer, "#%s %s", User, _path);
     // Display the mode.
     mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
-    mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR,
+    mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLADE_MODE_PAIR,
             NULL);
 
     // Display notification.
@@ -64,20 +67,20 @@ void editor_render_details(Lines_renderer *line_ren, char *_path,
     mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1,
              "%s", details_buffer);
     mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL,
-            SECONDARY_THEME_PAIR, NULL);
+            DETAILS_BAR_PAIR, NULL);
   } break;
   default: {
     sprintf(details_buffer, "(%d, %d)[%d]", line_ren->current->y + 1,
             line_ren->current->x + 1, line_ren->count);
     mvprintw(line_ren->win_h - 1, 0, " %s ", mode);
-    mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLUE_PAIR,
+    mvchgat(line_ren->win_h - 1, 0, strlen(mode) + 2, A_NORMAL, BLADE_MODE_PAIR,
             NULL);
     mvprintw(line_ren->win_h - 1, strlen(mode) + 3, " %s %s", _path,
              notification);
     mvprintw(line_ren->win_h - 1, line_ren->win_w - strlen(details_buffer) - 1,
              "%s", details_buffer);
     mvchgat(line_ren->win_h - 1, strlen(mode) + 2, line_ren->win_w, A_NORMAL,
-            SECONDARY_THEME_PAIR, NULL);
+            DETAILS_BAR_PAIR, NULL);
     move(line_ren->current->y, line_ren->current->x);
   };
   }
@@ -118,7 +121,7 @@ char *editor_render_startup(int x, int y, size_t width) {
   // log_into_f("x: %i, y: %i", x, y);
 
   while (true) {
-    res = make_prompt_buffer(prompt_offset, y * 2, width, MAIN_THEME_PAIR);
+    res = make_prompt_buffer(prompt_offset, y * 2, width);
     switch (res->type) {
     case SUCCESS: {
       strcpy(file_path, res->data);
@@ -340,12 +343,19 @@ void render_file_browser(BladeEditor *E) {
         emoji = emoji_get(E_FOLDER);
       } break;
       default: {
-        if (entry.ftype == C) {
-          emoji = emoji_get(E_C_FILE);
-        } else if (entry.ftype == PYTHON) {
-          emoji = emoji_get(E_PYFILE);
-        } else {
-          emoji = emoji_get(E_FILE);
+        switch (entry.ftype) {
+          case C: {
+            emoji = emoji_get(E_C_FILE);
+          } break;
+          case PYTHON: {
+            emoji = emoji_get(E_PYFILE);
+          } break;
+          case MP3: {
+            emoji = emoji_get(E_MUSIC);
+          } break;
+          default: {
+            emoji = emoji_get(E_FILE);
+          };
         }
       };
       }
@@ -371,7 +381,7 @@ void render_file_browser(BladeEditor *E) {
       }
       if (row == y) {
         colorize(row + ypadding - E->fb->start, xpadding, length,
-                 HIGHLIGHT_WHITE);
+                 HIGHLIGHT_FB_PAIR);
       }
     }
   }

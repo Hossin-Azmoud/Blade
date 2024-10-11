@@ -11,6 +11,7 @@ typedef enum EmojiKind {
   E_C_FILE,
   E_PYFILE,
   E_CHECK,
+  E_MUSIC,
   E_COUNT
 } EmojiKind;
 

@@ -1,26 +1,10 @@
-#include "parser.h"
-#include <fcntl.h>
 #include <blade.h>
+
 #include <linux/limits.h>
 // #include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
-
-const char *defaul_cfg = "\
-autosave:     1\n\
-indent_char:  \" \"\n\
-indent_count: 6\n\
-# Theme.\n\
-background:   0x191919\n\
-foreground:   0xffccbb\n\
-keyword_color: 0xf9ca24\n\
-type_color: 0xff7675\n\
-funcall_color: 0x00ffff\n\
-special_token_color: 0x01a3a4\n\
-string_lit_color: 0x6ab04c\n\
-comment_color: 0x3f553c\
-";
 
 EditorConfig_t *load_editor_config(char *file) {
   EditorConfig_t *cfg;
@@ -33,23 +17,21 @@ EditorConfig_t *load_editor_config(char *file) {
   int i = 0;
   if (!file)
     return NULL;
-
-  cfg = malloc(sizeof(*cfg));
-  memset(cfg, 0, sizeof(*cfg));
+  cfg = alloc_default_cfg();
   cfg->cfg_path = string_dup(file);
   stream = open(cfg->cfg_path, O_RDONLY);
   if (stream < 0) {
     free(cfg);
     return (NULL);
   }
- 
+
   line = Alloc_line_node(0);
   free(line->content);
   for (char *next = read_next_line(stream); next;
        (next = read_next_line(stream)), i++) {
     char *escd;
     line->content = next;
-    line->size    = strlen(next);
+    line->size = strlen(next);
     retokenize_line(line, UNSUP);
     tokens = &line->token_list;
 
@@ -57,9 +39,12 @@ EditorConfig_t *load_editor_config(char *file) {
     if (tokens->_list[0].kind == HASHTAG || !*rhs)
       continue;
     sep_kind = tokens->_list[1].kind;
-    if (sep_kind != COLON && sep_kind!= EQ) {
+    if (sep_kind != COLON && sep_kind != EQ) {
       stx_err = true;
-      fprintf(stderr, "INVALID SYNTAX: there should have been `=` or `:` after %s token\n", rhs);
+      fprintf(
+          stderr,
+          "INVALID SYNTAX: there should have been `=` or `:` after %s token\n",
+          rhs);
       break;
     }
     lhs = tokens->_list[2].data;
@@ -115,6 +100,46 @@ EditorConfig_t *load_editor_config(char *file) {
       cfg->theme.comment_color = (int)np_atoi_base(lhs, NULL);
       continue;
     }
+    if (strcmp(rhs, "highlight_bg_fb") == 0) {
+      cfg->theme.highlight_bg_fb = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "highlight_fg_fb") == 0) {
+      cfg->theme.highlight_fg_fb = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "highlight_fg_vmode") == 0) {
+      cfg->theme.highlight_fg_vmode = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "highlight_bg_vmode") == 0) {
+      cfg->theme.highlight_bg_vmode = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "details_bar_bg") == 0) {
+      cfg->theme.details_bar_bg = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "details_bar_fg") == 0) {
+      cfg->theme.details_bar_fg = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "command_prompt_bg") == 0) {
+      cfg->theme.command_prompt_bg = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "command_prompt_fg") == 0) {
+      cfg->theme.command_prompt_fg = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "blade_mode_bg") == 0) {
+      cfg->theme.blade_mode_bg = np_atoi_base(lhs, NULL);
+      continue;
+    }
+    if (strcmp(rhs, "blade_mode_fg") == 0) {
+      cfg->theme.blade_mode_fg = np_atoi_base(lhs, NULL);
+      continue;
+    }
   }
 
   close(stream);
@@ -127,55 +152,43 @@ EditorConfig_t *load_editor_config(char *file) {
   return NULL;
 }
 
-
-static bool write_default_cfg(char *xdg_cfg_path)
-{
-  FILE *fp = fopen(xdg_cfg_path, "w");
-  if (fp == NULL) {
-    fprintf(stderr, "Could not write to %s\n", xdg_cfg_path);
-    return false;
-  }
-  fwrite(defaul_cfg , 1, strlen(defaul_cfg), fp);
-  fclose(fp);
-  return true;
-}
-
-EditorConfig_t *editor_resolve_cfg(const char *cfg_path) 
-{
+EditorConfig_t *editor_resolve_cfg(const char *cfg_path) {
   // TODO: Check for given path.
-  
   char *value = getenv("HOME");
   char xdg[PATH_MAX];
   char xdg_cfg_path[PATH_MAX];
   char *xdg_cfg_dir = malloc(PATH_MAX);
   EditorConfig_t *cfg = NULL;
-  // Path *p;
   memset(xdg_cfg_path, 0x0, PATH_MAX);
 
   if (cfg_path) {
-    cfg  = load_editor_config((char *)cfg_path);
+    cfg = load_editor_config((char *)cfg_path);
     free(xdg_cfg_dir);
     return cfg;
   }
 
-  // TODO: Check for the existence of xdg_cfg_path. 
+  // TODO: Check for the existence of xdg_cfg_path.
   sprintf(xdg, "%s/.config", value);
   sprintf(xdg_cfg_dir, "%s/.config/blade", value);
   sprintf(xdg_cfg_path, "%s/blade.cfg", xdg_cfg_dir);
   // p = path_alloc(32);
   if (get_entry_type(xdg) == NOT_EXIST)
-      make_dir(xdg);
+    make_dir(xdg);
   if (get_entry_type(xdg_cfg_dir) == NOT_EXIST)
     make_dir(xdg_cfg_dir);
   if (get_entry_type(xdg_cfg_path) == NOT_EXIST) {
-    if (!write_default_cfg(xdg_cfg_path)) {
-      free(xdg_cfg_dir);
-      return cfg;
-    }
+    // NOTE: Writing the default config then returning a parsed version of it.
+    if (!write_default_cfg(xdg_cfg_path))
+      return (NULL);
+
+    cfg = (alloc_default_cfg());
+    cfg->cfg_path = xdg_cfg_path;
+    return (cfg);
   }
+
   // TODO: Load the config.
   free(xdg_cfg_dir);
-  return (load_editor_config(xdg_cfg_path)); 
+  return (load_editor_config(xdg_cfg_path));
 }
 
 EditorConfig_t *cfg_interface(cfg_action_t a, EditorConfig_t *data) {
@@ -190,7 +203,7 @@ EditorConfig_t *cfg_interface(cfg_action_t a, EditorConfig_t *data) {
 void release_cfg(EditorConfig_t *cfg) {
   if (cfg) {
     if (cfg->cfg_path)
-      free(cfg->cfg_path); 
+      free(cfg->cfg_path);
     free(cfg);
-  }  
+  }
 }

@@ -1,4 +1,3 @@
-#include "parser.h"
 #include <logger.h>
 #include <blade.h>
 #include <stdio.h>
@@ -285,7 +284,7 @@ static void highlight__(int y, int x, int size) {
           x,    // Which col to start from
           size, // where or howmuch to highlight after x.. which is position x +
                 // size
-          A_NORMAL, HIGHLIGHT_THEME, NULL);
+          A_NORMAL, HIGHLIGHT_VMODE_PAIR, NULL);
 }
 
 int highlight_until_current_col(Vec2 start, Lines_renderer *line_ren) {

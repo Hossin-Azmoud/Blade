@@ -191,7 +191,7 @@ int make_dir(char *path) {
 //     subdirectoreis.
 // }
 
-Result *make_prompt_buffer(int x, int y, size_t w, int pair) {
+Result *make_prompt_buffer(int x, int y, size_t w) {
   // (NOTE/BUG): This bug is kinda tricky to track..
   Result *result = malloc(sizeof(Result));
   bool deleted = false;
@@ -204,10 +204,10 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair) {
   int buffer_idx = 0;
   int size = 0, byte = 0;
 
-  int ret = mvchgat(y, 0, w, A_NORMAL, pair, NULL);
+  int ret = mvchgat(y, 0, w, A_NORMAL, COMMAND_PROMPT_PAIR, NULL);
   if (ret == ERR) {
     y -= 1;
-    mvchgat(y, 0, w, A_NORMAL, pair, NULL);
+    mvchgat(y, 0, w, A_NORMAL, COMMAND_PROMPT_PAIR, NULL);
   }
 
   move(y, x + buffer_idx);
@@ -284,7 +284,7 @@ Result *make_prompt_buffer(int x, int y, size_t w, int pair) {
       deleted = false;
     }
 
-    mvchgat(y, 0, w, A_NORMAL, pair, NULL);
+    mvchgat(y, 0, w, A_NORMAL, COMMAND_PROMPT_PAIR, NULL);
     move(y, x + buffer_idx);
     refresh();
   }

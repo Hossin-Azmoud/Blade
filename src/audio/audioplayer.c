@@ -1,3 +1,4 @@
+#include "colors.h"
 #include <assert.h>
 #include <math.h>
 #include <blade.h>
@@ -9,7 +10,7 @@
 #define _ISOC99_SOURCE
 
 pthread_mutex_t Mutx;
-static float max_amp = 0;
+static float max_amp = -INFINITY;
 // static float min_amp;
 
 
@@ -73,7 +74,7 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
     float im;
     float magnitude;
     float freq;
-
+    max_amp = -INFINITY;
     for (int j = 0; j < NSAMPLES / 2; j++) {
       re = audio->fft_[j].re;
       im = audio->fft_[j].im;
@@ -83,20 +84,16 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
         if ((freq > freq_bins[i]) && (freq <= freq_bins[i + 1])) {
           if (magnitude > audio->spectrum[i]) {
             audio->spectrum[i] = magnitude;
+            if (audio->spectrum[i] > max_amp)
+              max_amp = audio->spectrum[i];
           }
         }
       }
     }
     // TODO: Copy the samples to be visualized,
     for (size_t s = 0; s < BARS; s++) {
-      if (audio->spectrum[s] > max_amp)
-        max_amp = audio->spectrum[s];
-    }
-    
-    for (size_t s = 0; s < BARS; s++)
       audio->spectrum[s] /= (max_amp);
-    max_amp = 0;
-
+    }
     audio->position += N;
     audio->spec_sz = BARS;
     // audio->framecount = sz/channels;
@@ -276,11 +273,12 @@ void *player_visualize_audio(void *E) {
       // t1 = fabsf(*((audio->samples + audio->position) + k)) / max_amp * vih;
       t1 = (*(audio->spectrum + k));
       t1 *= vih;
+      // sprintf(Ed->notification_buffer, "%f", t1);
       for (int y = ystart; (y > yend - t1); --y) {
         mvaddch(y, x, ' ');
-        mvchgat(y, x, 1, A_NORMAL, 1, NULL);
+        mvchgat(y, x, 1, A_NORMAL, YELLOW_BG_PAIR, NULL);
       }
-
+      
       xend = x;
     }
     // Bar of audio progress.
@@ -291,12 +289,12 @@ void *player_visualize_audio(void *E) {
 
     for (int x = 0; (x < current); ++x)
       mvaddch(ystart + 2, (xstart + x), ' ');
-    mvchgat(ystart + 2, xstart, current, A_NORMAL, HIGHLIGHT_WHITE, NULL);
+    mvchgat(ystart + 2, xstart, current, A_NORMAL, HIGHLIGHT_VMODE_PAIR, NULL);
 
     current = player->volume * vih;
     for (int y = ystart; y > yend - current; y--) {
       mvaddch(y, xend + 2, ' ');
-      mvchgat(y, xend + 2, 1, A_NORMAL, HIGHLIGHT_WHITE, NULL);
+      mvchgat(y, xend + 2, 1, A_NORMAL, HIGHLIGHT_VMODE_PAIR, NULL);
     }
 
     mvprintw(

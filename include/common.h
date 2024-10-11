@@ -17,8 +17,7 @@ int    decode_utf8(uint32_t utf8_bytes, char *str);
 bool   isprintable(char c);
 void   string_clean(char *s);
 int    make_dir(char *path);
-size_t 
-  fsize(FILE *stream); 
+size_t fsize(FILE *stream); 
 char   *slurp_file_content(const char *path);
 char *join_path(char *left, char *right);
 

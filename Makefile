@@ -70,10 +70,9 @@ run:
 debug:
 	@valgrind $(OUT_FILE) $(TEST_FILE)
 
-install: re
-	@sudo mv $(OUT_FILE) $(LOCAL_BIN)
-	@echo "blade was installed successfully (Into </usr/local/bin>), Run the \`blade\` Command to Start using the editor."
-
+install:
+	sudo mv $(OUT_FILE) $(LOCAL_BIN)
+	echo "blade was installed successfully (Into </usr/local/bin>), Run the \`blade\` Command to Start using the editor."
 clean:
 	@rm -rf $(OBJD)
 	@rm -rf *.o

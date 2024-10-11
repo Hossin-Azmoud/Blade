@@ -1,4 +1,3 @@
-#include "parser.h"
 #include <blade.h>
 
 void indent_line(Line *line) {

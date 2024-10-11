@@ -2,43 +2,65 @@
 #define COLORS_H
 
 // COLOR INDECES
-#include "parser.h"
-#define COLOR_GREY_           8
-#define COLOR_YELLOW_         9
-#define COLOR_APPLE          10
-#define COLOR_COMMENT        11
-#define COLOR_SILVER_        12
-#define COLOR_TAG            13
-#define COLOR_BRIGHT_GREEN   14
-#define COLOR_BRIGHT_YELLOW  15
-#define COLOR_GREY_LIGHT     16
-#define COLOR_SPECIAL_TOKENS_COLOR 17
-#define COLOR_LIGHT_YELLOW 18
-#define CHI_GONG_RED 19
-#define COLOR_DRACULA 20
+#include <cfg.h>
+typedef enum color_e {
+  COLOR_GREY_ = 8,
+  COLOR_YELLOW_,
+  COLOR_APPLE,
+  COLOR_COMMENT,
+  COLOR_SILVER_,
+  COLOR_TAG,
+  COLOR_BRIGHT_GREEN,
+  COLOR_BRIGHT_YELLOW,
+  COLOR_GREY_LIGHT,
+  COLOR_SPECIAL_TOKENS_COLOR,
+  COLOR_LIGHT_YELLOW,
+  CHI_GONG_RED,
+  COLOR_DRACULA,
 
-#define COLOR_BACKGROUND 21
-#define COLOR_FOREGROUND 22
+  // @Integrated
+  COLOR_BACKGROUND,
+  COLOR_FOREGROUND,
+  COLOR_HIGHLIGHT_FG_FB,
+  COLOR_HIGHLIGHT_BG_FB,
+  COLOR_HIGHLIGHT_BG_VMODE,
+  COLOR_HIGHLIGHT_FG_VMODE,
+  COLOR_DETAILS_BAR_BG,
+  COLOR_DETAILS_BAR_FG,
+  COLOR_COMMAND_PROMPT_BG,
+  COLOR_COMMAND_PROMPT_FG,
+  COLOR_BLADE_MODE_BG,
+  COLOR_BLADE_MODE_FG
+} color_t;
 
 // PAIRS INDECES
-#define SECONDARY_THEME_PAIR 1
-#define MAIN_THEME_PAIR      2
-#define ERROR_PAIR           3
-#define BLUE_PAIR            4
-#define HIGHLIGHT_THEME      5 
-#define YELLOW_PAIR          6
-#define STRING_LIT_PAIR      7
-#define CALL_SYNTAX_PAIR     8
-#define COMENT_PAIR          9
-#define NUM_PAIR             10
-#define TAG_PAIR             11
-#define BRIGHT_GREEN_PAIR    12
-#define BRIGHT_YELLOW_PAIR   13
-#define HIGHLIGHT_WHITE      14
-#define SPECIAL_TOKEN        15
-#define LIGHT_YELLOW_PAIR    16
-#define CHI_GONG_RED_PAIR    17 
-#define DRACULA_PAIR         18
+typedef enum pair_e {
+  SECONDARY_THEME_PAIR = 0,
+  YELLOW_BG_PAIR,
+  MAIN_THEME_PAIR,  
+  ERROR_PAIR,       
+  BLUE_PAIR,        
+  HIGHLIGHT_THEME,  
+  YELLOW_PAIR,      
+  STRING_LIT_PAIR,  
+  CALL_SYNTAX_PAIR, 
+  COMENT_PAIR,      
+  NUM_PAIR,         
+  TAG_PAIR,         
+  BRIGHT_GREEN_PAIR,
+  BRIGHT_YELLOW_PAIR,  
+  HIGHLIGHT_FB_PAIR,
+  SPECIAL_TOKEN,    
+  LIGHT_YELLOW_PAIR,
+  CHI_GONG_RED_PAIR,
+  DRACULA_PAIR,     
+  HIGHLIGHT_VMODE_PAIR,
+  DETAILS_BAR_PAIR,
+  COMMAND_PROMPT_PAIR,
+  BLADE_MODE_PAIR
+} pair_t;
+
+
 #include <stdint.h>
 
 // #define 

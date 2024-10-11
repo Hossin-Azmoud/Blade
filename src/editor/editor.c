@@ -1,5 +1,4 @@
 // #include "filessystem.h"
-#include "parser.h"
 #include <blade.h>
 
 static Vec2 vec2(void) { return (Vec2){.x = 0, .y = 0, ._line = NULL}; }

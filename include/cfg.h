@@ -25,15 +25,22 @@ typedef enum cfg_action_e {
 
 
 typedef struct Theme {
-  int background;
-  int foreground;
-  int keyword_color;
-  int type_color;
-  int funcall_color;
-  int special_token_color;
-  int string_lit_color;
-  int comment_color;
+  int background, 
+  foreground,
+  keyword_color,
+  type_color, 
+  funcall_color,
+  special_token_color, 
+  string_lit_color, 
+  comment_color, 
+  highlight_bg_fb, highlight_fg_fb,
+  highlight_bg_vmode, highlight_fg_vmode,
+  details_bar_bg, details_bar_fg,
+  command_prompt_bg, command_prompt_fg,
+  blade_mode_bg, blade_mode_fg;
 } Theme;
+
+
 
 typedef struct EditorConfig_s {
   
@@ -44,8 +51,11 @@ typedef struct EditorConfig_s {
   int indent_count;
   Theme theme;
 } EditorConfig_t;
+
+bool write_default_cfg(char *xdg_cfg_path);
 EditorConfig_t *cfg_interface(cfg_action_t a, EditorConfig_t *data);
 EditorConfig_t *editor_resolve_cfg(const char *cfg_path);
+EditorConfig_t *alloc_default_cfg(void);
 long np_atoi_base(char *a, char *base);
 EditorConfig_t *load_editor_config(char *file);
 char	**split(char *str, char *charset, size_t *count);
