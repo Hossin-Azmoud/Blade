@@ -233,29 +233,6 @@ void remove_entry_(BladeEditor *E, size_t index, bool notified) {
   }
   }
 }
-
-// typedef struct IArray_s {
-//   size_t cap, size;
-//   int *elements;
-// } IArray_t;
-
-// IArray_t *allocate_iarray(size_t cap) {
-//   if (!cap)
-//     return (NULL);
-//   IArray_t *a = malloc(sizeof (*a));
-//   memset(a, 0x0, sizeof(*a));
-//   if (!a)
-//     return (NULL);
-//   a->cap = cap;
-//   a->elements = malloc(sizeof(int) * cap);
-//   return (a);
-// }
-
-// void push_iarray(IArray_t *self) {
-//   if (!self)
-//     return;
-//   
-// }
 void editor_scroll(BladeEditor *E) {
   while (E->fb->cur_row > E->fb->end) {
     if (E->fb->end < E->fb->size - 1) {
@@ -325,7 +302,6 @@ void editor_file_browser(int c, BladeEditor *E) {
     if (E->fb->type != DIR__) {
       if (ft == MP3) {
         editor_init_player_routine(E, E->fb->open_entry_path);
-        // after the editor finished we need to
         E->fb = realloc_fb(E->fb, "..", E->renderer->win_h);
         E->mode = FILEBROWSER;
       } else {
@@ -339,8 +315,6 @@ void editor_file_browser(int c, BladeEditor *E) {
     E->mode = FILEBROWSER;
   } break;
   case '/': {
-    // TODO: Make a list that corresponds to the list of similar entries.
-    // enable the user to cycle thro them. select one of em.
     fidx = 0;
     memclean_array(&E->fb->found);
     curs_set(1);
@@ -353,17 +327,7 @@ void editor_file_browser(int c, BladeEditor *E) {
     case SUCCESS: {
       uint8_t found = 0;
       for (size_t i = 0; i < E->fb->size; i++) {
-        // TODO: use a more sophisticated function to compare.
-        // if (strncmp(res->data, E->fb->entries[i].value, strlen(res->data)) == 0) {
-        //   // TODO: For now I will just store it here.
-        //   // I will find a way to use it.
-        //   append_array(&E->fb->found, i);
-        //   found = 1;
-        // }
-        // 
         if (xstr(res->data, E->fb->entries[i].value) == 0) {
-          // TODO: For now I will just store it here.
-          // I will find a way to use it.
           append_array(&E->fb->found, i);
           found = 1;
         }
@@ -457,7 +421,6 @@ void editor_file_browser(int c, BladeEditor *E) {
     // else
     //   E->fb->cur_row = cursor;
   } break;
-
   case SHIFT('c'):
   case 'c': {
     // TODO: the copy function does the same thing as the move
@@ -515,7 +478,23 @@ void editor_file_browser(int c, BladeEditor *E) {
     free(res->data);
     free(res);
   } break;
+  case KEY_NPAGE: {
+    E->fb->cur_row += 10;
+    if (E->fb->cur_row >= E->fb->size)
+      E->fb->cur_row = E->fb->size - 1;
+    editor_scroll(E);  
+  } break;  
+  case KEY_PPAGE: {
+    int new = E->fb->cur_row;
+    new -= 10;
+    if (new < 0)
+      E->fb->cur_row = 0;
+    else 
+      E->fb->cur_row = new;
+    editor_scroll(E);  
+  } break;
   }
+
 }
 
 void editor_command_(BladeEditor *E) {

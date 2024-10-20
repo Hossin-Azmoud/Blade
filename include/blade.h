@@ -236,7 +236,7 @@ typedef struct BladeEditor {
   Vec2 highlighted_start,
       highlighted_end; // The chordinated of highlighted text.
   int highlighted_data_length;
-  char *notification_buffer;
+  char notification_buffer[4096];
   bool exit_pressed, char_deleted;
   editorMode mode;
   WINDOW *ewindow;

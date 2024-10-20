@@ -1,0 +1,9 @@
+# Okay, Now I reached a place where I need the ability to generate syntax from a configuration file.
+# My approach for this will be.
+
+struct syntax_s {
+  T keyword_lists[SUPPORTED_SYNTAX];
+  T Patterns[SUPPORTED_SYNTAX]; // Sequences that can mean things
+  i32 size;
+  i32 cap;
+} syntax_t

@@ -1,5 +1,6 @@
 #include <common.h>
 #include <blade.h>
+#include <ncurses.h>
 #include <stdio.h>
 int editor(char **argv, const char *cfg_path) {
   setlocale(LC_CTYPE, "");  
@@ -72,6 +73,5 @@ int editor(char **argv, const char *cfg_path) {
 
 EXIT_AND_RELEASE_RESOURCES:
   release_editor(E);
-  // close_logger();
   return 0;
 }

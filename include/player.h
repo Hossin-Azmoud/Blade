@@ -2,17 +2,19 @@
 #define MIPLAYER
 #include <audio.h>
 #include <fft.h>
-
+// TODO: Make it so the player can load not only one audio file.
+// but it can get all the files that are present in the same directory and are audio files.
 typedef struct {
-	BladeAudio   audio;
+  // FileBrowser_t fb;
+  BladeAudio   audio;
 	char 	  file[512];
 	float     volume;
 	uint8_t   play;
 	uint8_t   quit;
 	ma_device dev;
-	// WINDOW    *win;
 	pthread_mutex_t Mutx; // a mutex to synchronize the plyer and visualizer.
 } BladeAudioPlayer;
+
 // NOTE: This api will abstract the miniaudio api and make it more easy to work with.
 BladeAudioPlayer *init_player(char *file);
 void deallocate_player(BladeAudioPlayer *player);

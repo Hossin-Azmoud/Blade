@@ -1,5 +1,7 @@
 // #include "filessystem.h"
 #include <blade.h>
+#include <ncurses.h>
+#include <stdio.h>
 
 static Vec2 vec2(void) { return (Vec2){.x = 0, .y = 0, ._line = NULL}; }
 
@@ -43,7 +45,6 @@ BladeEditor *init_editor(char *path, EditorConfig_t *cfg) {
   E->highlighted_end = vec2();   // x=0, Y=0
   E->highlighted_start = vec2(); // x=0, Y=0
   E->highlighted_data_length = 0;
-  E->notification_buffer = malloc((1024 + 1) * sizeof(char));
   E->exit_pressed = false;
   E->char_deleted = false;
   E->mode = NORMAL;
@@ -103,6 +104,9 @@ void editor_load_layout(BladeEditor *E) {
 }
 
 void release_editor(BladeEditor *E) {
+  erase();
+  // printf("Cleaning up");
+  // getc(stdin);
   if (!E)
     return;
   if (E->fb)
@@ -113,7 +117,6 @@ void release_editor(BladeEditor *E) {
   }
 
   release_cfg(E->cfg);
-  free(E->notification_buffer);
   free(E);
   endwin();
 }

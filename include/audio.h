@@ -24,11 +24,10 @@ typedef struct {
   ma_uint64  totalFrames;
   double     duration;
   uint32_t   framecount;
-  TComplexF *fft_; // Needs to be loaded each frame.
-  TComplexF *Input;
-  float *hnnwindow;
-  float *fft_abs;
-  float *spectrum;     // Needs to be loaded each frame.
+  TComplexF fft_[FFT_SIZE]; // Needs to be loaded each frame.
+  TComplexF Input[FFT_SIZE];
+  float fft_abs[FFT_SIZE];
+  float spectrum[FFT_SIZE];     // Needs to be loaded each frame.
   size_t spec_sz;
 } BladeAudio;
 

@@ -2,13 +2,17 @@
     
 
 doing now => 
-    [] Make sure the editor's music player looks and seeems better.
     [] Make an integrated shell.
 ## NOTEKEYS:
     [...] => Still under dev
     [*]   => Done
     [-]   => delayed
 
+## Potential problems:
+    - Byte encoding (utf8)
+        0 - The editor can not read files that have non ascii bytes.
+        1 - if it saves a file that contains these bytes. it gets corrupted.
+            
 ## defs
     review: is an idea or a note  about a feature that was implemented but it is kind of wrong and should be fixed.
     feature: something that was not yet implemented and should be
@@ -17,6 +21,7 @@ doing now =>
     Colors: Learning bout colors: https://www.linuxjournal.com/content/about-ncurses-colors-0
     
 ## DONE
+    [*] Make sure the editor's music player looks and seeems better.
     [*] add a music player haha.
     [*] Pick better coloring for the editor.
     [*] Modes (Normal, Visual, Insert).
